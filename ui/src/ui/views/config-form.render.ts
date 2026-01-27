@@ -69,6 +69,7 @@ export const SECTION_META: Record<string, { label: string; description: string }
   gateway: { label: "网关", description: "网关服务器设置（端口、身份验证、绑定）" },
   wizard: { label: "设置向导", description: "设置向导状态和历史记录" },
   // 其他部分
+  diagnostics: { label: "诊断", description: "诊断设置" },
   meta: { label: "元数据", description: "网关元数据和版本信息" },
   logging: { label: "日志", description: "日志级别和输出配置" },
   browser: { label: "浏览器", description: "浏览器自动化设置" },
