@@ -274,19 +274,19 @@ function hasRecentActivity(account: ChannelAccountSnapshot): boolean {
   return Date.now() - account.lastInboundAt < RECENT_ACTIVITY_THRESHOLD_MS;
 }
 
-function deriveRunningStatus(account: ChannelAccountSnapshot): "Yes" | "No" | "Active" {
-  if (account.running) return "Yes";
+function deriveRunningStatus(account: ChannelAccountSnapshot): "是" | "否" | "活跃" {
+  if (account.running) return "是";
   // If we have recent inbound activity, the channel is effectively running
-  if (hasRecentActivity(account)) return "Active";
-  return "No";
+  if (hasRecentActivity(account)) return "活跃";
+  return "否";
 }
 
-function deriveConnectedStatus(account: ChannelAccountSnapshot): "Yes" | "No" | "Active" | "n/a" {
-  if (account.connected === true) return "Yes";
-  if (account.connected === false) return "No";
+function deriveConnectedStatus(account: ChannelAccountSnapshot): "是" | "否" | "活跃" | "无" {
+  if (account.connected === true) return "是";
+  if (account.connected === false) return "否";
   // If connected is null/undefined but we have recent activity, show as active
-  if (hasRecentActivity(account)) return "Active";
-  return "n/a";
+  if (hasRecentActivity(account)) return "活跃";
+  return "无";
 }
 
 function renderGenericAccount(account: ChannelAccountSnapshot) {

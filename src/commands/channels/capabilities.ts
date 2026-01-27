@@ -401,12 +401,12 @@ export async function channelsCapabilitiesCommand(
   const rawTarget = typeof opts.target === "string" ? opts.target.trim() : "";
 
   if (opts.account && (!rawChannel || rawChannel === "all")) {
-    runtime.error(danger("--account requires a specific --channel."));
+    runtime.error(danger("--account 需要指定特定的 --channel。"));
     runtime.exit(1);
     return;
   }
   if (rawTarget && rawChannel !== "discord") {
-    runtime.error(danger("--target requires --channel discord."));
+    runtime.error(danger("--target 需要 --channel discord。"));
     runtime.exit(1);
     return;
   }
@@ -422,7 +422,7 @@ export async function channelsCapabilitiesCommand(
         })();
 
   if (!selected || selected.length === 0) {
-    runtime.error(danger(`Unknown channel "${rawChannel}".`));
+    runtime.error(danger(`未知通道 "${rawChannel}"。`));
     runtime.exit(1);
     return;
   }
@@ -456,25 +456,25 @@ export async function channelsCapabilitiesCommand(
       accountStyle: theme.heading,
     });
     lines.push(theme.heading(label));
-    lines.push(`Support: ${formatSupport(report.support)}`);
+    lines.push(`支持: ${formatSupport(report.support)}`);
     if (report.actions && report.actions.length > 0) {
-      lines.push(`Actions: ${report.actions.join(", ")}`);
+      lines.push(`操作: ${report.actions.join(", ")}`);
     }
     if (report.configured === false || report.enabled === false) {
-      const configuredLabel = report.configured === false ? "not configured" : "configured";
-      const enabledLabel = report.enabled === false ? "disabled" : "enabled";
-      lines.push(`Status: ${configuredLabel}, ${enabledLabel}`);
+      const configuredLabel = report.configured === false ? "未配置" : "已配置";
+      const enabledLabel = report.enabled === false ? "已禁用" : "已启用";
+      lines.push(`状态: ${configuredLabel}, ${enabledLabel}`);
     }
     const probeLines = formatProbeLines(report.channel, report.probe);
     if (probeLines.length > 0) {
       lines.push(...probeLines);
     } else if (report.configured && report.enabled) {
-      lines.push(theme.muted("Probe: unavailable"));
+      lines.push(theme.muted("探测: 不可用"));
     }
     if (report.channel === "slack" && report.slackScopes) {
       for (const entry of report.slackScopes) {
         const source = entry.result.source ? ` (${entry.result.source})` : "";
-        const label = entry.tokenType === "user" ? "User scopes" : "Bot scopes";
+        const label = entry.tokenType === "user" ? "用户范围" : "机器人范围";
         if (entry.result.ok && entry.result.scopes?.length) {
           lines.push(`${label}${source}: ${entry.result.scopes.join(", ")}`);
         } else if (entry.result.error) {
@@ -497,7 +497,7 @@ export async function channelsCapabilitiesCommand(
         }
       }
     } else if (report.channel === "discord" && rawTarget && !report.channelPermissions) {
-      lines.push(theme.muted("Permissions: skipped (no target)."));
+      lines.push(theme.muted("权限: 已跳过（无目标）。"));
     }
     lines.push("");
   }

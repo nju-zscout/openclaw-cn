@@ -57,7 +57,7 @@ export async function channelsResolveCommand(opts: ChannelsResolveOptions, runti
   const cfg = loadConfig();
   const entries = (opts.entries ?? []).map((entry) => entry.trim()).filter(Boolean);
   if (entries.length === 0) {
-    throw new Error("At least one entry is required.");
+    throw new Error("至少需要一个条目。");
   }
 
   const selection = await resolveMessageChannelSelection({
@@ -66,7 +66,7 @@ export async function channelsResolveCommand(opts: ChannelsResolveOptions, runti
   });
   const plugin = getChannelPlugin(selection.channel);
   if (!plugin?.resolver?.resolveTargets) {
-    throw new Error(`Channel ${selection.channel} does not support resolve.`);
+    throw new Error(`通道 ${selection.channel} 不支持解析。`);
   }
   const preferredKind = resolvePreferredKind(opts.kind);
 
@@ -127,7 +127,7 @@ export async function channelsResolveCommand(opts: ChannelsResolveOptions, runti
     } else {
       runtime.error(
         danger(
-          `${result.input} -> unresolved${result.error ? ` (${result.error})` : result.note ? ` (${result.note})` : ""}`,
+          `${result.input} -> 未解析${result.error ? ` (${result.error})` : result.note ? ` (${result.note})` : ""}`,
         ),
       );
     }

@@ -34,10 +34,10 @@ export function formatGatewayChannelsStatusLines(payload: Record<string, unknown
         bits.push(account.linked ? "linked" : "not linked");
       }
       if (typeof account.running === "boolean") {
-        bits.push(account.running ? "running" : "stopped");
+        bits.push(account.running ? "运行中" : "已停止");
       }
       if (typeof account.connected === "boolean") {
-        bits.push(account.connected ? "connected" : "disconnected");
+        bits.push(account.connected ? "已连接" : "已断开");
       }
       const inboundAt =
         typeof account.lastInboundAt === "number" && Number.isFinite(account.lastInboundAt)
@@ -98,11 +98,11 @@ export function formatGatewayChannelsStatusLines(payload: Record<string, unknown
       }
       const probe = account.probe as { ok?: boolean } | undefined;
       if (probe && typeof probe.ok === "boolean") {
-        bits.push(probe.ok ? "works" : "probe failed");
+        bits.push(probe.ok ? "正常" : "探测失败");
       }
       const audit = account.audit as { ok?: boolean } | undefined;
       if (audit && typeof audit.ok === "boolean") {
-        bits.push(audit.ok ? "audit ok" : "audit failed");
+        bits.push(audit.ok ? "审计正常" : "审计失败");
       }
       if (typeof account.lastError === "string" && account.lastError) {
         bits.push(`error:${account.lastError}`);
@@ -170,13 +170,13 @@ async function formatConfigChannelsStatusLines(
     accounts.map((account) => {
       const bits: string[] = [];
       if (typeof account.enabled === "boolean") {
-        bits.push(account.enabled ? "enabled" : "disabled");
+        bits.push(account.enabled ? "已启用" : "已禁用");
       }
       if (typeof account.configured === "boolean") {
-        bits.push(account.configured ? "configured" : "not configured");
+        bits.push(account.configured ? "已配置" : "未配置");
       }
       if (typeof account.linked === "boolean") {
-        bits.push(account.linked ? "linked" : "not linked");
+        bits.push(account.linked ? "已连接" : "未连接");
       }
       if (typeof account.mode === "string" && account.mode.length > 0) {
         bits.push(`mode:${account.mode}`);

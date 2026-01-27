@@ -37,9 +37,9 @@ export async function channelsRemoveCommand(
   const deleteConfig = Boolean(opts.delete);
 
   if (useWizard && prompter) {
-    await prompter.intro("Remove channel account");
+    await prompter.intro("移除通道账户");
     const selectedChannel = (await prompter.select({
-      message: "Channel",
+      message: "通道",
       options: listChannelPlugins().map((plugin) => ({
         value: plugin.id,
         label: plugin.meta.label,
@@ -50,7 +50,7 @@ export async function channelsRemoveCommand(
     accountId = await (async () => {
       const ids = listAccountIds(cfg, selectedChannel);
       const choice = (await prompter.select({
-        message: "Account",
+        message: "账户",
         options: ids.map((id) => ({
           value: id,
           label: id === DEFAULT_ACCOUNT_ID ? "default (primary)" : id,
@@ -61,7 +61,7 @@ export async function channelsRemoveCommand(
     })();
 
     const wantsDisable = await prompter.confirm({
-      message: `Disable ${channelLabel(selectedChannel)} account "${accountId}"? (keeps config)`,
+      message: `禁用 ${channelLabel(selectedChannel)} 账户 "${accountId}"？（保留配置）`,
       initialValue: true,
     });
     if (!wantsDisable) {
@@ -125,14 +125,14 @@ export async function channelsRemoveCommand(
   if (useWizard && prompter) {
     await prompter.outro(
       deleteConfig
-        ? `Deleted ${channelLabel(channel)} account "${accountKey}".`
-        : `Disabled ${channelLabel(channel)} account "${accountKey}".`,
+        ? `已删除 ${channelLabel(channel)} 账户 "${accountKey}"。`
+        : `已禁用 ${channelLabel(channel)} 账户 "${accountKey}"。`,
     );
   } else {
     runtime.log(
       deleteConfig
-        ? `Deleted ${channelLabel(channel)} account "${accountKey}".`
-        : `Disabled ${channelLabel(channel)} account "${accountKey}".`,
+        ? `已删除 ${channelLabel(channel)} 账户 "${accountKey}"。`
+        : `已禁用 ${channelLabel(channel)} 账户 "${accountKey}"。`,
     );
   }
 }

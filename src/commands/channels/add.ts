@@ -84,7 +84,7 @@ export async function channelsAddCommand(
     const prompter = createClackPrompter();
     let selection: ChannelChoice[] = [];
     const accountIds: Partial<Record<ChannelChoice, string>> = {};
-    await prompter.intro("Channel setup");
+    await prompter.intro("通道设置");
     let nextConfig = await setupChannels(cfg, runtime, prompter, {
       allowDisable: false,
       allowSignalInstall: true,
@@ -97,12 +97,12 @@ export async function channelsAddCommand(
       },
     });
     if (selection.length === 0) {
-      await prompter.outro("No channels selected.");
+      await prompter.outro("未选择任何通道。");
       return;
     }
 
     const wantsNames = await prompter.confirm({
-      message: "Add display names for these accounts? (optional)",
+      message: "为这些账户添加显示名称？（可选）",
       initialValue: false,
     });
     if (wantsNames) {
@@ -115,7 +115,7 @@ export async function channelsAddCommand(
         const snapshot = plugin?.config.describeAccount?.(account, nextConfig);
         const existingName = snapshot?.name ?? account?.name;
         const name = await prompter.text({
-          message: `${channel} account name (${accountId})`,
+          message: `${channel} 账户名称 (${accountId})`,
           initialValue: existingName,
         });
         if (name?.trim()) {
@@ -130,7 +130,7 @@ export async function channelsAddCommand(
     }
 
     await writeConfigFile(nextConfig);
-    await prompter.outro("Channels updated.");
+    await prompter.outro("通道已更新。");
     return;
   }
 

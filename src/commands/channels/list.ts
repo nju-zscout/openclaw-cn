@@ -25,11 +25,11 @@ const colorValue = (value: string) => {
 };
 
 function formatEnabled(value: boolean | undefined): string {
-  return value === false ? theme.error("disabled") : theme.success("enabled");
+  return value === false ? theme.error("已禁用") : theme.success("已启用");
 }
 
 function formatConfigured(value: boolean): string {
-  return value ? theme.success("configured") : theme.warn("not configured");
+  return value ? theme.success("已配置") : theme.warn("未配置");
 }
 
 function formatTokenSource(source?: string): string {
@@ -43,7 +43,7 @@ function formatSource(label: string, source?: string): string {
 }
 
 function formatLinked(value: boolean): string {
-  return value ? theme.success("linked") : theme.warn("not linked");
+  return value ? theme.success("已连接") : theme.warn("未连接");
 }
 
 function shouldShowConfigured(channel: ChannelPlugin): boolean {
@@ -129,7 +129,7 @@ export async function channelsListCommand(
   }
 
   const lines: string[] = [];
-  lines.push(theme.heading("Chat channels:"));
+  lines.push(theme.heading("聊天通道："));
 
   for (const plugin of plugins) {
     const accounts = plugin.config.listAccountIds(cfg);
@@ -150,9 +150,9 @@ export async function channelsListCommand(
   }
 
   lines.push("");
-  lines.push(theme.heading("Auth providers (OAuth + API keys):"));
+  lines.push(theme.heading("认证提供商（OAuth + API密钥）："));
   if (authProfiles.length === 0) {
-    lines.push(theme.muted("- none"));
+    lines.push(theme.muted("- 无"));
   } else {
     for (const profile of authProfiles) {
       const external = profile.isExternal ? theme.muted(" (synced)") : "";
@@ -175,5 +175,5 @@ export async function channelsListCommand(
   }
 
   runtime.log("");
-  runtime.log(`Docs: ${formatDocsLink("/gateway/configuration", "gateway/configuration")}`);
+  runtime.log(`文档：${formatDocsLink("/gateway/configuration", "gateway/configuration")}`);
 }
