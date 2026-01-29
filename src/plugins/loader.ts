@@ -206,6 +206,9 @@ export function loadClawdbotPlugins(options: PluginLoadOptions = {}): PluginRegi
   const jiti = createJiti(import.meta.url, {
     interopDefault: true,
     extensions: [".ts", ".tsx", ".mts", ".cts", ".mtsx", ".ctsx", ".js", ".mjs", ".cjs", ".json"],
+    // Disable cache in development to ensure latest code is loaded, especially when
+    // plugin SDK exports change but jiti cache remains stale.
+    cache: process.env.NODE_ENV !== "development" && !process.env.CLAWDBOT_NO_PLUGIN_CACHE,
     ...(pluginSdkAlias ? { alias: { "clawdbot/plugin-sdk": pluginSdkAlias } } : {}),
   });
 
