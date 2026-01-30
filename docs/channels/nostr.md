@@ -14,7 +14,7 @@ Nostr is a decentralized protocol for social networking. This channel enables Cl
 
 ### Onboarding (recommended)
 
-- The onboarding wizard (`clawdbot onboard`) and `clawdbot channels add` list optional channel plugins.
+- The onboarding wizard (`moltbot-cn onboard`) and `moltbot-cn channels add` list optional channel plugins.
 - Selecting Nostr prompts you to install the plugin on demand.
 
 Install defaults:
@@ -27,13 +27,13 @@ You can always override the choice in the prompt.
 ### Manual install
 
 ```bash
-clawdbot plugins install @clawdbot/nostr
+moltbot-cn plugins install @clawdbot/nostr
 ```
 
 Use a local checkout (dev workflows):
 
 ```bash
-clawdbot plugins install --link <path-to-clawdbot>/extensions/nostr
+moltbot-cn plugins install --link <path-to-clawdbot>/extensions/nostr
 ```
 
 Restart the Gateway after installing or enabling plugins.

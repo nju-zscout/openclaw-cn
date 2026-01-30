@@ -12,7 +12,7 @@ models are accessed via the `zai` provider and model IDs like `zai/glm-4.7`.
 ## CLI setup
 
 ```bash
-clawdbot onboard --auth-choice zai-api-key
+moltbot-cn onboard --auth-choice zai-api-key
 ```
 
 ## Config snippet

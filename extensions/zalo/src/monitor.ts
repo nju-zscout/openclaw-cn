@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 
-import type { ClawdbotConfig, MarkdownTableMode } from "clawdbot/plugin-sdk";
+import type { ClawdbotConfig, MarkdownTableMode } from "moltbot-cn/plugin-sdk";
 
 import type { ResolvedZaloAccount } from "./accounts.js";
 import {

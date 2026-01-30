@@ -1,10 +1,10 @@
-import type { ChannelMessageActionName, ChannelPlugin, ClawdbotConfig } from "clawdbot/plugin-sdk";
+import type { ChannelMessageActionName, ChannelPlugin, ClawdbotConfig } from "moltbot-cn/plugin-sdk";
 import {
   buildChannelConfigSchema,
   DEFAULT_ACCOUNT_ID,
   MSTeamsConfigSchema,
   PAIRING_APPROVED_MESSAGE,
-} from "clawdbot/plugin-sdk";
+} from "moltbot-cn/plugin-sdk";
 
 import { msteamsOnboardingAdapter } from "./onboarding.js";
 import { msteamsOutbound } from "./outbound.js";

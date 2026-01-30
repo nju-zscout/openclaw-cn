@@ -111,7 +111,7 @@ describe("trigger handling", () => {
 
       const text = Array.isArray(res) ? res[0]?.text : res?.text;
       expect(text).toBe(
-        "⚠️ Agent failed before reply: sandbox is not defined.\nLogs: clawdbot logs --follow",
+        "⚠️ Agent failed before reply: sandbox is not defined.\nLogs: moltbot-cn logs --follow",
       );
       expect(runEmbeddedPiAgent).toHaveBeenCalledOnce();
     });

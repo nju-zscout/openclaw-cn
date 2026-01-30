@@ -21,7 +21,7 @@ runtime on the current machine.
 - Output:
   - default: prints reply text (plus `MEDIA:<url>` lines)
   - `--json`: prints structured payload + metadata
-- Optional delivery back to a channel with `--deliver` + `--channel` (target formats match `clawdbot message --target`).
+- Optional delivery back to a channel with `--deliver` + `--channel` (target formats match `moltbot-cn message --target`).
 - Use `--reply-channel`/`--reply-to`/`--reply-account` to override delivery without changing the session.
 
 If the Gateway is unreachable, the CLI **falls back** to the embedded local run.

@@ -149,7 +149,7 @@ export async function processFeishuMessage(
                     `配对码: ${code}`,
                     "",
                     "请让机器人管理员执行以下命令批准:",
-                    `clawdbot pairing approve feishu ${code}`,
+                    `moltbot-cn pairing approve feishu ${code}`,
                   ].join("\n"),
                 },
                 { receiveIdType: "open_id" },

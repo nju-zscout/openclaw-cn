@@ -35,7 +35,7 @@ Related:
 If you don’t want to hand-edit config, run the onboarding wizard:
 
 ```bash
-clawdbot onboard
+moltbot-cn onboard
 ```
 
 It can set up model + auth for common providers, including **OpenAI Code (Codex)
@@ -111,27 +111,27 @@ Full command behavior/config: [Slash commands](/tools/slash-commands).
 ## CLI commands
 
 ```bash
-clawdbot models list
-clawdbot models status
-clawdbot models set <provider/model>
-clawdbot models set-image <provider/model>
+moltbot-cn models list
+moltbot-cn models status
+moltbot-cn models set <provider/model>
+moltbot-cn models set-image <provider/model>
 
-clawdbot models aliases list
-clawdbot models aliases add <alias> <provider/model>
-clawdbot models aliases remove <alias>
+moltbot-cn models aliases list
+moltbot-cn models aliases add <alias> <provider/model>
+moltbot-cn models aliases remove <alias>
 
-clawdbot models fallbacks list
-clawdbot models fallbacks add <provider/model>
-clawdbot models fallbacks remove <provider/model>
-clawdbot models fallbacks clear
+moltbot-cn models fallbacks list
+moltbot-cn models fallbacks add <provider/model>
+moltbot-cn models fallbacks remove <provider/model>
+moltbot-cn models fallbacks clear
 
-clawdbot models image-fallbacks list
-clawdbot models image-fallbacks add <provider/model>
-clawdbot models image-fallbacks remove <provider/model>
-clawdbot models image-fallbacks clear
+moltbot-cn models image-fallbacks list
+moltbot-cn models image-fallbacks add <provider/model>
+moltbot-cn models image-fallbacks remove <provider/model>
+moltbot-cn models image-fallbacks clear
 ```
 
-`clawdbot models` (no subcommand) is a shortcut for `models status`.
+`moltbot-cn models` (no subcommand) is a shortcut for `models status`.
 
 ### `models list`
 
@@ -159,12 +159,12 @@ Preferred Anthropic auth is the Claude Code CLI setup-token (run anywhere; paste
 
 ```bash
 claude setup-token
-clawdbot models status
+moltbot-cn models status
 ```
 
 ## Scanning (OpenRouter free models)
 
-`clawdbot models scan` inspects OpenRouter’s **free model catalog** and can
+`moltbot-cn models scan` inspects OpenRouter’s **free model catalog** and can
 optionally probe models for tool and image support.
 
 Key flags:

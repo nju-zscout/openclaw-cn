@@ -6,7 +6,7 @@ import type {
   ChannelPlugin,
   ClawdbotConfig,
   GroupToolPolicyConfig,
-} from "clawdbot/plugin-sdk";
+} from "moltbot-cn/plugin-sdk";
 import {
   applyAccountNameToChannelSection,
   buildChannelConfigSchema,
@@ -16,7 +16,7 @@ import {
   migrateBaseNameToDefaultAccount,
   normalizeAccountId,
   setAccountEnabledInConfigSection,
-} from "clawdbot/plugin-sdk";
+} from "moltbot-cn/plugin-sdk";
 import {
   listZalouserAccountIds,
   resolveDefaultZalouserAccountId,

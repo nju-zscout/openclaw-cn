@@ -220,13 +220,13 @@ async function readContainerConfigHash(containerName: string): Promise<string | 
 
 function formatSandboxRecreateHint(params: { scope: SandboxConfig["scope"]; sessionKey: string }) {
   if (params.scope === "session") {
-    return formatCliCommand(`clawdbot sandbox recreate --session ${params.sessionKey}`);
+    return formatCliCommand(`moltbot-cn sandbox recreate --session ${params.sessionKey}`);
   }
   if (params.scope === "agent") {
     const agentId = resolveSandboxAgentId(params.sessionKey) ?? "main";
-    return formatCliCommand(`clawdbot sandbox recreate --agent ${agentId}`);
+    return formatCliCommand(`moltbot-cn sandbox recreate --agent ${agentId}`);
   }
-  return formatCliCommand("clawdbot sandbox recreate --all");
+  return formatCliCommand("moltbot-cn sandbox recreate --all");
 }
 
 export async function ensureSandboxContainer(params: {

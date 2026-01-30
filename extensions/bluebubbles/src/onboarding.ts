@@ -4,14 +4,14 @@ import type {
   ClawdbotConfig,
   DmPolicy,
   WizardPrompter,
-} from "clawdbot/plugin-sdk";
+} from "moltbot-cn/plugin-sdk";
 import {
   DEFAULT_ACCOUNT_ID,
   addWildcardAllowFrom,
   formatDocsLink,
   normalizeAccountId,
   promptAccountId,
-} from "clawdbot/plugin-sdk";
+} from "moltbot-cn/plugin-sdk";
 import {
   listBlueBubblesAccountIds,
   resolveBlueBubblesAccount,

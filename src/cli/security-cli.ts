@@ -68,10 +68,10 @@ export function registerSecurityCli(program: Command) {
       const lines: string[] = [];
       lines.push(heading("Clawdbot security audit"));
       lines.push(muted(`Summary: ${formatSummary(report.summary)}`));
-      lines.push(muted(`Run deeper: ${formatCliCommand("clawdbot security audit --deep")}`));
+      lines.push(muted(`Run deeper: ${formatCliCommand("moltbot-cn security audit --deep")}`));
 
       if (opts.fix) {
-        lines.push(muted(`Fix: ${formatCliCommand("clawdbot security audit --fix")}`));
+        lines.push(muted(`Fix: ${formatCliCommand("moltbot-cn security audit --fix")}`));
         if (!fixResult) {
           lines.push(muted("Fixes: failed to apply (unexpected error)"));
         } else if (

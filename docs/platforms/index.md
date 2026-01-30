@@ -40,7 +40,7 @@ Native companion apps for Windows are also planned; the Gateway is recommended v
 
 Use one of these (all supported):
 
-- Wizard (recommended): `clawdbot onboard --install-daemon`
+- Wizard (recommended): `moltbot-cn onboard --install-daemon`
 - Direct: `clawdbot gateway install`
 - Configure flow: `clawdbot configure` → select **Gateway service**
 - Repair/migrate: `clawdbot doctor` (offers to install or fix the service)

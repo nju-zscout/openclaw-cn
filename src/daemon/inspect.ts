@@ -91,7 +91,7 @@ function isClawdbotGatewayTaskName(name: string): boolean {
   const normalized = name.trim().toLowerCase();
   if (!normalized) return false;
   const defaultName = resolveGatewayWindowsTaskName().toLowerCase();
-  return normalized === defaultName || normalized.startsWith("clawdbot gateway");
+  return normalized === defaultName || normalized.startsWith("moltbot-cn gateway");
 }
 
 function tryExtractPlistLabel(contents: string): string | null {

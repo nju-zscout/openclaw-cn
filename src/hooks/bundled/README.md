@@ -15,7 +15,7 @@ Automatically saves session context to memory when you issue `/new`.
 **Enable**:
 
 ```bash
-clawdbot hooks enable session-memory
+moltbot-cn hooks enable session-memory
 ```
 
 ### 📝 command-logger
@@ -29,7 +29,7 @@ Logs all command events to a centralized audit file.
 **Enable**:
 
 ```bash
-clawdbot hooks enable command-logger
+moltbot-cn hooks enable command-logger
 ```
 
 ### 😈 soul-evil
@@ -44,7 +44,7 @@ Swaps injected `SOUL.md` content with `SOUL_EVIL.md` during a purge window or by
 **Enable**:
 
 ```bash
-clawdbot hooks enable soul-evil
+moltbot-cn hooks enable soul-evil
 ```
 
 ### 🚀 boot-md
@@ -58,7 +58,7 @@ Runs `BOOT.md` whenever the gateway starts (after channels start).
 **Enable**:
 
 ```bash
-clawdbot hooks enable boot-md
+moltbot-cn hooks enable boot-md
 ```
 
 ## Hook Structure
@@ -117,26 +117,26 @@ Custom hooks follow the same structure as bundled hooks.
 List all hooks:
 
 ```bash
-clawdbot hooks list
+moltbot-cn hooks list
 ```
 
 Show hook details:
 
 ```bash
-clawdbot hooks info session-memory
+moltbot-cn hooks info session-memory
 ```
 
 Check hook status:
 
 ```bash
-clawdbot hooks check
+moltbot-cn hooks check
 ```
 
 Enable/disable:
 
 ```bash
-clawdbot hooks enable session-memory
-clawdbot hooks disable command-logger
+moltbot-cn hooks enable session-memory
+moltbot-cn hooks disable command-logger
 ```
 
 ## Configuration
@@ -214,8 +214,8 @@ export default myHandler;
 Test your hooks by:
 
 1. Place hook in workspace hooks directory
-2. Restart gateway: `pkill -9 -f 'clawdbot.*gateway' && pnpm clawdbot gateway`
-3. Enable the hook: `clawdbot hooks enable my-hook`
+2. Restart gateway: `pkill -9 -f 'clawdbot.*gateway' && pnpm moltbot-cn gateway`
+3. Enable the hook: `moltbot-cn hooks enable my-hook`
 4. Trigger the event (e.g., send `/new` command)
 5. Check gateway logs for hook execution
 

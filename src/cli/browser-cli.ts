@@ -38,7 +38,7 @@ export function registerBrowserCli(program: Command) {
     .action(() => {
       browser.outputHelp();
       defaultRuntime.error(
-        danger(`缺少子命令。尝试: "${formatCliCommand("clawdbot browser status")}"`),
+        danger(`缺少子命令。尝试: "${formatCliCommand("moltbot-cn browser status")}"`),
       );
       defaultRuntime.exit(1);
     });

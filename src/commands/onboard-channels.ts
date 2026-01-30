@@ -188,7 +188,7 @@ async function noteChannelPrimer(
   await prompter.note(
     [
       "DM安全：默认为配对；未知的私信会获得配对码。",
-      `批准命令：${formatCliCommand("clawdbot pairing approve <channel> <code>")}`,
+      `批准命令：${formatCliCommand("moltbot-cn pairing approve <channel> <code>")}`,
       '公开私信需要 dmPolicy="open" + allowFrom=["*"].',
       '多用户私信：设置 session.dmScope="per-channel-peer" 来隔离会话。',
       `文档：${formatDocsLink("/start/pairing", "start/pairing")}`,
@@ -235,7 +235,7 @@ async function maybeConfigureDmPolicies(params: {
     await prompter.note(
       [
         "默认：配对（未知的私信会获得配对码）。",
-        `批准：${formatCliCommand(`clawdbot pairing approve ${policy.channel} <code>`)}`,
+        `批准：${formatCliCommand(`moltbot-cn pairing approve ${policy.channel} <code>`)}`,
         `允许列表私信：${policy.policyKey}="allowlist" + ${policy.allowFromKey} 条目。`,
         `公开私信：${policy.policyKey}="open" + ${policy.allowFromKey} 包含 "*"。`,
         '多用户私信：设置 session.dmScope="per-channel-peer" 来隔离会话。',
@@ -590,7 +590,7 @@ export async function setupChannels(
         {
           value: "__skip__",
           label: "暂时跳过",
-          hint: `您可以稍后通过 \`${formatCliCommand("clawdbot channels add")}\` 添加通道`,
+          hint: `您可以稍后通过 \`${formatCliCommand("moltbot-cn channels add")}\` 添加通道`,
         },
       ],
       initialValue: quickstartDefault,

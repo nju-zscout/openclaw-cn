@@ -47,7 +47,10 @@ type NodeDaemonStatusOptions = {
 };
 
 function renderNodeServiceStartHints(): string[] {
-  const base = [formatCliCommand("clawdbot node install"), formatCliCommand("clawdbot node start")];
+  const base = [
+    formatCliCommand("moltbot-cn node install"),
+    formatCliCommand("moltbot-cn node start"),
+  ];
   switch (process.platform) {
     case "darwin":
       return [
@@ -169,7 +172,7 @@ export async function runNodeDaemonInstall(opts: NodeDaemonInstallOptions) {
     });
     if (!json) {
       defaultRuntime.log(`Node service already ${service.loadedText}.`);
-      defaultRuntime.log(`Reinstall with: ${formatCliCommand("clawdbot node install --force")}`);
+      defaultRuntime.log(`Reinstall with: ${formatCliCommand("moltbot-cn node install --force")}`);
     }
     return;
   }

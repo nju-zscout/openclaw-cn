@@ -12,7 +12,7 @@ Qwen provides a free-tier OAuth flow for Qwen Coder and Qwen Vision models
 ## Enable the plugin
 
 ```bash
-clawdbot plugins enable qwen-portal-auth
+moltbot-cn plugins enable qwen-portal-auth
 ```
 
 Restart the Gateway after enabling.
@@ -20,7 +20,7 @@ Restart the Gateway after enabling.
 ## Authenticate
 
 ```bash
-clawdbot models auth login --provider qwen-portal --set-default
+moltbot-cn models auth login --provider qwen-portal --set-default
 ```
 
 This runs the Qwen device-code OAuth flow and writes a provider entry to your
@@ -34,7 +34,7 @@ This runs the Qwen device-code OAuth flow and writes a provider entry to your
 Switch models with:
 
 ```bash
-clawdbot models set qwen-portal/coder-model
+moltbot-cn models set qwen-portal/coder-model
 ```
 
 ## Reuse Qwen Code CLI login

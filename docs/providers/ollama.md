@@ -61,7 +61,7 @@ To see what models are available:
 
 ```bash
 ollama list
-clawdbot models list
+moltbot-cn models list
 ```
 
 To add a new model, simply pull it with Ollama:

@@ -21,12 +21,12 @@ Explainable: keeps core installs lighter and lets MS Teams dependencies update i
 
 Install via CLI (npm registry):
 ```bash
-clawdbot plugins install @clawdbot/msteams
+moltbot-cn plugins install @clawdbot/msteams
 ```
 
 Local checkout (when running from a git repo):
 ```bash
-clawdbot plugins install ./extensions/msteams
+moltbot-cn plugins install ./extensions/msteams
 ```
 
 If you choose Teams during configure/onboarding and a git checkout is detected,
@@ -218,8 +218,8 @@ This is often easier than hand-editing JSON manifests.
 
 ## Setup (minimal text-only)
 1. **Install the Microsoft Teams plugin**
-   - From npm: `clawdbot plugins install @clawdbot/msteams`
-   - From a local checkout: `clawdbot plugins install ./extensions/msteams`
+   - From npm: `moltbot-cn plugins install @clawdbot/msteams`
+   - From a local checkout: `moltbot-cn plugins install ./extensions/msteams`
 
 2. **Bot registration**
    - Create an Azure Bot (see above) and note:
@@ -545,7 +545,7 @@ Uploaded files are stored in a `/ClawdbotShared/` folder in the configured Share
 ## Polls (Adaptive Cards)
 Clawdbot sends Teams polls as Adaptive Cards (there is no native Teams poll API).
 
-- CLI: `clawdbot message poll --channel msteams --target conversation:<id> ...`
+- CLI: `moltbot-cn message poll --channel msteams --target conversation:<id> ...`
 - Votes are recorded by the gateway in `~/.clawdbot/msteams-polls.json`.
 - The gateway must stay online to record votes.
 - Polls do not auto-post result summaries yet (inspect the store file if needed).
@@ -571,7 +571,7 @@ The `card` parameter accepts an Adaptive Card JSON object. When `card` is provid
 
 **CLI:**
 ```bash
-clawdbot message send --channel msteams \
+moltbot-cn message send --channel msteams \
   --target "conversation:19:abc...@thread.tacv2" \
   --card '{"type":"AdaptiveCard","version":"1.5","body":[{"type":"TextBlock","text":"Hello!"}]}'
 ```
@@ -592,16 +592,16 @@ MSTeams targets use prefixes to distinguish between users and conversations:
 **CLI examples:**
 ```bash
 # Send to a user by ID
-clawdbot message send --channel msteams --target "user:40a1a0ed-..." --message "Hello"
+moltbot-cn message send --channel msteams --target "user:40a1a0ed-..." --message "Hello"
 
 # Send to a user by display name (triggers Graph API lookup)
-clawdbot message send --channel msteams --target "user:John Smith" --message "Hello"
+moltbot-cn message send --channel msteams --target "user:John Smith" --message "Hello"
 
 # Send to a group chat or channel
-clawdbot message send --channel msteams --target "conversation:19:abc...@thread.tacv2" --message "Hello"
+moltbot-cn message send --channel msteams --target "conversation:19:abc...@thread.tacv2" --message "Hello"
 
 # Send an Adaptive Card to a conversation
-clawdbot message send --channel msteams --target "conversation:19:abc...@thread.tacv2" \
+moltbot-cn message send --channel msteams --target "conversation:19:abc...@thread.tacv2" \
   --card '{"type":"AdaptiveCard","version":"1.5","body":[{"type":"TextBlock","text":"Hello"}]}'
 ```
 

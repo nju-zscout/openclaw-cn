@@ -20,13 +20,13 @@ Matrix ships as a plugin and is not bundled with the core install.
 Install via CLI (npm registry):
 
 ```bash
-clawdbot plugins install @clawdbot/matrix
+moltbot-cn plugins install @clawdbot/matrix
 ```
 
 Local checkout (when running from a git repo):
 
 ```bash
-clawdbot plugins install ./extensions/matrix
+moltbot-cn plugins install ./extensions/matrix
 ```
 
 If you choose Matrix during configure/onboarding and a git checkout is detected,
@@ -37,8 +37,8 @@ Details: [Plugins](/plugin)
 ## Setup
 
 1) Install the Matrix plugin:
-   - From npm: `clawdbot plugins install @clawdbot/matrix`
-   - From a local checkout: `clawdbot plugins install ./extensions/matrix`
+   - From npm: `moltbot-cn plugins install @clawdbot/matrix`
+   - From a local checkout: `moltbot-cn plugins install ./extensions/matrix`
 2) Create a Matrix account on a homeserver:
    - Browse hosting options at [https://matrix.org/ecosystem/hosting/](https://matrix.org/ecosystem/hosting/)
    - Or host it yourself.
@@ -142,8 +142,8 @@ Once verified, the bot can decrypt messages in encrypted rooms.
 
 - Default: `channels.matrix.dm.policy = "pairing"`. Unknown senders get a pairing code.
 - Approve via:
-  - `clawdbot pairing list matrix`
-  - `clawdbot pairing approve matrix <CODE>`
+  - `moltbot-cn pairing list matrix`
+  - `moltbot-cn pairing approve matrix <CODE>`
 - Public DMs: `channels.matrix.dm.policy="open"` plus `channels.matrix.dm.allowFrom=["*"]`.
 - `channels.matrix.dm.allowFrom` accepts user IDs or display names. The wizard resolves display names to user IDs when directory search is available.
 

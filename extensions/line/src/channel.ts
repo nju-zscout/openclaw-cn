@@ -8,7 +8,7 @@ import {
   type LineConfig,
   type LineChannelData,
   type ResolvedLineAccount,
-} from "clawdbot/plugin-sdk";
+} from "moltbot-cn/plugin-sdk";
 
 import { getLineRuntime } from "./runtime.js";
 
@@ -164,7 +164,7 @@ export const linePlugin: ChannelPlugin<ResolvedLineAccount> = {
         allowFrom: account.config.allowFrom ?? [],
         policyPath: `${basePath}dmPolicy`,
         allowFromPath: basePath,
-        approveHint: "clawdbot pairing approve line <code>",
+        approveHint: "moltbot-cn pairing approve line <code>",
         normalizeEntry: (raw) => raw.replace(/^line:(?:user:)?/i, ""),
       };
     },

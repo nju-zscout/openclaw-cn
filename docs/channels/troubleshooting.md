@@ -10,7 +10,7 @@ Start with:
 
 ```bash
 clawdbot doctor
-clawdbot channels status --probe
+moltbot-cn channels status --probe
 ```
 
 `channels status --probe` prints warnings when it can detect common channel misconfigurations, and includes small live checks (credentials, some permissions/membership).

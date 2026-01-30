@@ -138,7 +138,7 @@ Plugins run **in-process** with the Gateway. Treat them as trusted code:
 - Prefer explicit `plugins.allow` allowlists.
 - Review plugin config before enabling.
 - Restart the Gateway after plugin changes.
-- If you install plugins from npm (`clawdbot plugins install <npm-spec>`), treat it like running untrusted code:
+- If you install plugins from npm (`moltbot-cn plugins install <npm-spec>`), treat it like running untrusted code:
   - The install path is `~/.clawdbot/extensions/<pluginId>/` (or `$CLAWDBOT_STATE_DIR/extensions/<pluginId>/`).
   - Clawdbot uses `npm pack` and then runs `npm install --omit=dev` in that directory (npm lifecycle scripts can execute code during install).
   - Prefer pinned, exact versions (`@scope/pkg@1.2.3`), and inspect the unpacked code on disk before enabling.
@@ -157,8 +157,8 @@ All current DM-capable channels support a DM policy (`dmPolicy` or `*.dm.policy`
 Approve via CLI:
 
 ```bash
-clawdbot pairing list <channel>
-clawdbot pairing approve <channel> <code>
+moltbot-cn pairing list <channel>
+moltbot-cn pairing approve <channel> <code>
 ```
 
 Details + files on disk: [Pairing](/start/pairing)

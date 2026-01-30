@@ -4,7 +4,7 @@ import {
   summarizeMapping,
   type ClawdbotConfig,
   type RuntimeEnv,
-} from "clawdbot/plugin-sdk";
+} from "moltbot-cn/plugin-sdk";
 import type { MSTeamsConversationStore } from "./conversation-store.js";
 import { createMSTeamsConversationStoreFs } from "./conversation-store-fs.js";
 import { formatUnknownError } from "./errors.js";

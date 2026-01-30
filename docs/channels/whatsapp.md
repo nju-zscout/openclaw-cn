@@ -11,7 +11,7 @@ Status: WhatsApp Web via Baileys only. Gateway owns the session(s).
 ## Quick setup (beginner)
 1) Use a **separate phone number** if possible (recommended).
 2) Configure WhatsApp in `~/.moltbot-cn/moltbot-cn.json`.
-3) Run `clawdbot channels login` to scan the QR code (Linked Devices).
+3) Run `moltbot-cn channels login` to scan the QR code (Linked Devices).
 4) Start the gateway.
 
 Minimal config:
@@ -69,7 +69,7 @@ Use a **separate phone number** for Clawdbot. Best UX, clean routing, no self-ch
 
 **Pairing mode (optional):**
 If you want pairing instead of allowlist, set `channels.whatsapp.dmPolicy` to `pairing`. Unknown senders get a pairing code; approve with:
-`clawdbot pairing approve whatsapp <code>`
+`moltbot-cn pairing approve whatsapp <code>`
 
 ### Personal number (fallback)
 Quick fallback: run Clawdbot on **your own number**. Message yourself (WhatsApp “Message yourself”) for testing so you don’t spam contacts. Expect to read verification codes on your main phone during setup and experiments. **Must enable self-chat mode.**
@@ -108,13 +108,13 @@ the prefix (use `""` to remove it).
 - Result: unreliable delivery and frequent blocks, so support was removed.
 
 ## Login + credentials
-- Login command: `clawdbot channels login` (QR via Linked Devices).
-- Multi-account login: `clawdbot channels login --account <id>` (`<id>` = `accountId`).
+- Login command: `moltbot-cn channels login` (QR via Linked Devices).
+- Multi-account login: `moltbot-cn channels login --account <id>` (`<id>` = `accountId`).
 - Default account (when `--account` is omitted): `default` if present, otherwise the first configured account id (sorted).
 - Credentials stored in `~/.clawdbot/credentials/whatsapp/<accountId>/creds.json`.
 - Backup copy at `creds.json.bak` (restored on corruption).
 - Legacy compatibility: older installs stored Baileys files directly in `~/.clawdbot/credentials/`.
-- Logout: `clawdbot channels logout` (or `--account <id>`) deletes WhatsApp auth state (but keeps shared `oauth.json`).
+- Logout: `moltbot-cn channels logout` (or `--account <id>`) deletes WhatsApp auth state (but keeps shared `oauth.json`).
 - Logged-out socket => error instructs re-link.
 
 ## Inbound flow (DM + group)
@@ -123,7 +123,7 @@ the prefix (use `""` to remove it).
 - Status/broadcast chats are ignored.
 - Direct chats use E.164; groups use group JID.
 - **DM policy**: `channels.whatsapp.dmPolicy` controls direct chat access (default: `pairing`).
-  - Pairing: unknown senders get a pairing code (approve via `clawdbot pairing approve whatsapp <code>`; codes expire after 1 hour).
+  - Pairing: unknown senders get a pairing code (approve via `moltbot-cn pairing approve whatsapp <code>`; codes expire after 1 hour).
   - Open: requires `channels.whatsapp.allowFrom` to include `"*"`.
   - Self messages are always allowed; “self-chat mode” still requires `channels.whatsapp.allowFrom` to include your own number.
 
@@ -170,7 +170,7 @@ No. Default DM policy is **pairing**, so unknown senders only get a pairing code
 **How does pairing work on WhatsApp?**  
 Pairing is a DM gate for unknown senders:
 - First DM from a new sender returns a short code (message is not processed).
-- Approve with: `clawdbot pairing approve whatsapp <code>` (list with `clawdbot pairing list whatsapp`).
+- Approve with: `moltbot-cn pairing approve whatsapp <code>` (list with `moltbot-cn pairing list whatsapp`).
 - Codes expire after 1 hour; pending requests are capped at 3 per channel.
 
 **Can multiple people use different Clawdbots on one WhatsApp number?**  
@@ -284,7 +284,7 @@ WhatsApp can automatically send emoji reactions to incoming messages immediately
   - Caption only on first media item.
   - Media fetch supports HTTP(S) and local paths.
   - Animated GIFs: WhatsApp expects MP4 with `gifPlayback: true` for inline looping.
-    - CLI: `clawdbot message send --media <mp4> --gif-playback`
+    - CLI: `moltbot-cn message send --media <mp4> --gif-playback`
     - Gateway: `send` params include `gifPlayback: true`
 
 ## Voice notes (PTT audio)
@@ -351,7 +351,7 @@ WhatsApp sends audio as **voice notes** (PTT bubble).
 
 **Not linked / QR login required**
 - Symptom: `channels status` shows `linked: false` or warns “Not linked”.
-- Fix: run `clawdbot channels login` on the gateway host and scan the QR (WhatsApp → Settings → Linked Devices).
+- Fix: run `moltbot-cn channels login` on the gateway host and scan the QR (WhatsApp → Settings → Linked Devices).
 
 **Linked but disconnected / reconnect loop**
 - Symptom: `channels status` shows `running, disconnected` or warns “Linked but disconnected”.

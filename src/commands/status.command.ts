@@ -412,8 +412,8 @@ export async function statusCommand(
       runtime.log(theme.muted(`… +${sorted.length - shown.length} more`));
     }
   }
-  runtime.log(theme.muted(`Full report: ${formatCliCommand("clawdbot security audit")}`));
-  runtime.log(theme.muted(`Deep probe: ${formatCliCommand("clawdbot security audit --deep")}`));
+  runtime.log(theme.muted(`Full report: ${formatCliCommand("moltbot-cn security audit")}`));
+  runtime.log(theme.muted(`Deep probe: ${formatCliCommand("moltbot-cn security audit --deep")}`));
 
   runtime.log("");
   runtime.log(theme.heading("Channels"));
@@ -569,11 +569,11 @@ export async function statusCommand(
     runtime.log("");
   }
   runtime.log("Next steps:");
-  runtime.log(`  Need to share?      ${formatCliCommand("clawdbot status --all")}`);
-  runtime.log(`  Need to debug live? ${formatCliCommand("clawdbot logs --follow")}`);
+  runtime.log(`  Need to share?      ${formatCliCommand("moltbot-cn status --all")}`);
+  runtime.log(`  Need to debug live? ${formatCliCommand("moltbot-cn logs --follow")}`);
   if (gatewayReachable) {
-    runtime.log(`  Need to test channels? ${formatCliCommand("clawdbot status --deep")}`);
+    runtime.log(`  Need to test channels? ${formatCliCommand("moltbot-cn status --deep")}`);
   } else {
-    runtime.log(`  Fix reachability first: ${formatCliCommand("clawdbot gateway probe")}`);
+    runtime.log(`  Fix reachability first: ${formatCliCommand("moltbot-cn gateway probe")}`);
   }
 }

@@ -31,7 +31,7 @@ function enhanceBrowserFetchError(url: string, err: unknown, timeoutMs: number):
   const cause = unwrapCause(err);
   const code = extractErrorCode(cause) ?? extractErrorCode(err) ?? "";
 
-  const hint = `Start (or restart) the Clawdbot gateway (Clawdbot.app menubar, or \`${formatCliCommand("clawdbot gateway")}\`) and try again.`;
+  const hint = `Start (or restart) the Clawdbot gateway (Clawdbot.app menubar, or \`${formatCliCommand("moltbot-cn gateway")}\`) and try again.`;
 
   if (code === "ECONNREFUSED") {
     return new Error(

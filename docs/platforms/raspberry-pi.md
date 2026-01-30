@@ -128,7 +128,7 @@ The hackable install gives you direct access to logs and code — useful for deb
 ## 7) Run Onboarding
 
 ```bash
-clawdbot onboard --install-daemon
+moltbot-cn onboard --install-daemon
 ```
 
 Follow the wizard:

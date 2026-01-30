@@ -34,7 +34,7 @@ inside a sandbox workspace under `~/.clawdbot/sandboxes`, not your host workspac
 }
 ```
 
-`clawdbot onboard`, `clawdbot configure`, or `clawdbot setup` will create the
+`moltbot-cn onboard`, `clawdbot configure`, or `clawdbot setup` will create the
 workspace and seed the bootstrap files if they are missing.
 
 If you already manage the workspace files yourself, you can disable bootstrap

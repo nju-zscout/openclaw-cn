@@ -16,7 +16,7 @@ Plugin system: `https://docs.clawd.bot/plugin`
 ### Option A: install via Clawdbot (recommended)
 
 ```bash
-clawdbot plugins install @clawdbot/voice-call
+moltbot-cn plugins install @clawdbot/voice-call
 ```
 
 Restart the Gateway afterwards.
@@ -99,13 +99,13 @@ Notes:
 ## CLI
 
 ```bash
-clawdbot voicecall call --to "+15555550123" --message "Hello from Clawdbot"
-clawdbot voicecall continue --call-id <id> --message "Any questions?"
-clawdbot voicecall speak --call-id <id> --message "One moment"
-clawdbot voicecall end --call-id <id>
-clawdbot voicecall status --call-id <id>
-clawdbot voicecall tail
-clawdbot voicecall expose --mode funnel
+moltbot-cn voicecall call --to "+15555550123" --message "Hello from Clawdbot"
+moltbot-cn voicecall continue --call-id <id> --message "Any questions?"
+moltbot-cn voicecall speak --call-id <id> --message "One moment"
+moltbot-cn voicecall end --call-id <id>
+moltbot-cn voicecall status --call-id <id>
+moltbot-cn voicecall tail
+moltbot-cn voicecall expose --mode funnel
 ```
 
 ## Tool

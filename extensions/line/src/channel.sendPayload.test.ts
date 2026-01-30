@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { ClawdbotConfig, PluginRuntime } from "clawdbot/plugin-sdk";
+import type { ClawdbotConfig, PluginRuntime } from "moltbot-cn/plugin-sdk";
 import { linePlugin } from "./channel.js";
 import { setLineRuntime } from "./runtime.js";
 

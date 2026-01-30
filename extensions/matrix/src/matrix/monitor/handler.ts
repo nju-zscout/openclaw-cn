@@ -8,7 +8,7 @@ import {
   logTypingFailure,
   resolveControlCommandGate,
   type RuntimeEnv,
-} from "clawdbot/plugin-sdk";
+} from "moltbot-cn/plugin-sdk";
 import type { CoreConfig, ReplyToMode } from "../../types.js";
 import {
   formatPollAsText,
@@ -257,7 +257,7 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
                       `Pairing code: ${code}`,
                       "",
                       "Ask the bot owner to approve with:",
-                      "clawdbot pairing approve matrix <code>",
+                      "moltbot-cn pairing approve matrix <code>",
                     ].join("\n"),
                     { client },
                   );

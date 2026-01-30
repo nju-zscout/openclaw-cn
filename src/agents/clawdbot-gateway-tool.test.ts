@@ -47,7 +47,7 @@ describe("gateway tool", () => {
         payload?: { kind?: string; doctorHint?: string | null };
       };
       expect(parsed.payload?.kind).toBe("restart");
-      expect(parsed.payload?.doctorHint).toBe("Run: clawdbot doctor --non-interactive");
+      expect(parsed.payload?.doctorHint).toBe("Run: moltbot-cn doctor --non-interactive");
 
       expect(kill).not.toHaveBeenCalled();
       await vi.runAllTimersAsync();

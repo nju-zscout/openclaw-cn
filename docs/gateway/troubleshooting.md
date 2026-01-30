@@ -21,7 +21,7 @@ Quick triage commands (in order):
 | `clawdbot status --all` | Full local diagnosis (read-only, pasteable, safe-ish) incl. log tail | When you need to share a debug report |
 | `clawdbot status --deep` | Runs gateway health checks (incl. provider probes; requires reachable gateway) | When “configured” doesn’t mean “working” |
 | `clawdbot gateway probe` | Gateway discovery + reachability (local + remote targets) | When you suspect you’re probing the wrong gateway |
-| `clawdbot channels status --probe` | Asks the running gateway for channel status (and optionally probes) | When gateway is reachable but channels misbehave |
+| `moltbot-cn channels status --probe` | Asks the running gateway for channel status (and optionally probes) | When gateway is reachable but channels misbehave |
 | `clawdbot gateway status` | Supervisor state (launchd/systemd/schtasks), runtime PID/exit, last gateway error | When the service “looks loaded” but nothing runs |
 | `clawdbot logs --follow` | Live logs (best signal for runtime issues) | When you need the actual failure reason |
 
@@ -40,13 +40,13 @@ Fix options:
 - Re-run onboarding and choose **Anthropic** for that agent.
 - Or paste a setup-token on the **gateway host**:
   ```bash
-  clawdbot models auth setup-token --provider anthropic
+  moltbot-cn models auth setup-token --provider anthropic
   ```
 - Or copy `auth-profiles.json` from the main agent dir to the new agent dir.
 
 Verify:
 ```bash
-clawdbot models status
+moltbot-cn models status
 ```
 
 ### OAuth token refresh failed (Anthropic Claude subscription)
@@ -60,19 +60,19 @@ switch to a **Claude Code setup-token** or re-sync Claude Code CLI OAuth on the
 
 ```bash
 # Run on the gateway host (runs Claude Code CLI)
-clawdbot models auth setup-token --provider anthropic
-clawdbot models status
+moltbot-cn models auth setup-token --provider anthropic
+moltbot-cn models status
 ```
 
 If you generated the token elsewhere:
 
 ```bash
-clawdbot models auth paste-token --provider anthropic
-clawdbot models status
+moltbot-cn models auth paste-token --provider anthropic
+moltbot-cn models status
 ```
 
 **If you want to keep OAuth reuse:**
-log in with Claude Code CLI on the gateway host, then run `clawdbot models status`
+log in with Claude Code CLI on the gateway host, then run `moltbot-cn models status`
 to sync the refreshed token into Clawdbot’s auth store.
 
 More detail: [Anthropic](/providers/anthropic) and [OAuth](/concepts/oauth).
@@ -278,8 +278,8 @@ longer supported.
 
 **Fix:**
 - Pick a **latest** model for the provider and update your config or model alias.
-- If you’re unsure which models are available, run `clawdbot models list` or
-  `clawdbot models scan` and choose a supported one.
+- If you’re unsure which models are available, run `moltbot-cn models list` or
+  `moltbot-cn models scan` and choose a supported one.
 - Check gateway logs for the detailed failure reason.
 
 See also: [Models CLI](/cli/models) and [Model providers](/concepts/model-providers).
@@ -313,7 +313,7 @@ If `dmPolicy` is `pairing`, unknown senders should receive a code and their mess
 
 **Check 1:** Is a pending request already waiting?
 ```bash
-clawdbot pairing list <channel>
+moltbot-cn pairing list <channel>
 ```
 
 Pending DM pairing requests are capped at **3 per channel** by default. If the list is full, new requests won’t generate a code until one is approved or expires.
@@ -390,9 +390,9 @@ clawdbot gateway --verbose
 If you’re logged out / unlinked:
 
 ```bash
-clawdbot channels logout
+moltbot-cn channels logout
 trash "${CLAWDBOT_STATE_DIR:-$HOME/.clawdbot}/credentials" # if logout can't cleanly remove everything
-clawdbot channels login --verbose       # re-scan QR
+moltbot-cn channels login --verbose       # re-scan QR
 ```
 
 ### Media Send Failing
@@ -448,7 +448,7 @@ Notes:
 - **Credentials** present for the provider(s) being tried (auth profiles + env vars).
 - **Model routing**: confirm `agents.defaults.model.primary` and fallbacks are models you can access.
 - **Gateway logs** in `/tmp/clawdbot/…` for the exact provider error.
-- **Model status**: use `/model status` (chat) or `clawdbot models status` (CLI).
+- **Model status**: use `/model status` (chat) or `moltbot-cn models status` (CLI).
 
 ### I’m running on my personal WhatsApp number — why is self-chat weird?
 
@@ -473,7 +473,7 @@ See [WhatsApp setup](/channels/whatsapp).
 Run the login command again and scan the QR code:
 
 ```bash
-clawdbot channels login
+moltbot-cn channels login
 ```
 
 ### Build errors on `main` — what’s the standard fix path?
@@ -551,7 +551,7 @@ Fix checklist:
 3) Put `requireMention: false` **under** `channels.discord.guilds` (global or per‑channel).
    Top‑level `channels.discord.requireMention` is not a supported key.
 4) Ensure the bot has **Message Content Intent** and channel permissions.
-5) Run `clawdbot channels status --probe` for audit hints.
+5) Run `moltbot-cn channels status --probe` for audit hints.
 
 Docs: [Discord](/channels/discord), [Channels troubleshooting](/channels/troubleshooting).
 
@@ -628,7 +628,7 @@ Get verbose logging:
 #
 # Then run verbose commands to mirror debug output to stdout:
 clawdbot gateway --verbose
-clawdbot channels login --verbose
+moltbot-cn channels login --verbose
 ```
 
 ## Log Locations
@@ -673,7 +673,7 @@ clawdbot gateway stop
 # clawdbot gateway uninstall
 
 trash "${CLAWDBOT_STATE_DIR:-$HOME/.clawdbot}"
-clawdbot channels login         # re-pair WhatsApp
+moltbot-cn channels login         # re-pair WhatsApp
 clawdbot gateway restart           # or: clawdbot gateway
 ```
 

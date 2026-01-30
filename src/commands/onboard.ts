@@ -21,7 +21,7 @@ export async function onboardCommand(opts: OnboardOptions, runtime: RuntimeEnv =
       [
         "非交互式安装引导需要明确的风险确认。",
         "阅读：https://docs.clawd.bot/security",
-        `使用以下命令重新运行：${formatCliCommand("clawdbot onboard --non-interactive --accept-risk ...")}`,
+        `使用以下命令重新运行：${formatCliCommand("moltbot-cn onboard --non-interactive --accept-risk ...")}`,
       ].join("\n"),
     );
     runtime.exit(1);

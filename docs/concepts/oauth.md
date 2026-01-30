@@ -19,7 +19,7 @@ Clawdbot also supports **provider plugins** that ship their own OAuth or API‑k
 flows. Run them via:
 
 ```bash
-clawdbot models auth login --provider <id>
+moltbot-cn models auth login --provider <id>
 ```
 
 ## The token sink (why it exists)
@@ -56,20 +56,20 @@ If you already signed in with the external CLIs *on the gateway host*, Clawdbot 
 - Codex CLI: reads `~/.codex/auth.json` → profile `openai-codex:codex-cli`
 
 Sync happens when Clawdbot loads the auth store (so it stays up-to-date when the CLIs refresh tokens).
-On macOS, the first read may trigger a Keychain prompt; run `clawdbot models status`
+On macOS, the first read may trigger a Keychain prompt; run `moltbot-cn models status`
 in a terminal once if the Gateway runs headless and can’t access the entry.
 
 How to verify:
 
 ```bash
-clawdbot models status
-clawdbot channels list
+moltbot-cn models status
+moltbot-cn channels list
 ```
 
 Or JSON:
 
 ```bash
-clawdbot channels list --json
+moltbot-cn channels list --json
 ```
 
 ## OAuth exchange (how login works)
@@ -86,7 +86,7 @@ Flow shape (PKCE):
 4) exchange at `https://console.anthropic.com/v1/oauth/token`
 5) store `{ access, refresh, expires }` under an auth profile
 
-The wizard path is `clawdbot onboard` → auth choice `oauth` (Anthropic).
+The wizard path is `moltbot-cn onboard` → auth choice `oauth` (Anthropic).
 
 ### OpenAI Codex (ChatGPT OAuth)
 
@@ -99,7 +99,7 @@ Flow shape (PKCE):
 5) exchange at `https://auth.openai.com/oauth/token`
 6) extract `accountId` from the access token and store `{ access, refresh, expires, accountId }`
 
-Wizard path is `clawdbot onboard` → auth choice `openai-codex` (or `codex-cli` to reuse an existing Codex CLI login).
+Wizard path is `moltbot-cn onboard` → auth choice `openai-codex` (or `codex-cli` to reuse an existing Codex CLI login).
 
 ## Refresh + expiry
 
@@ -155,7 +155,7 @@ Example (session override):
 - `/model Opus@anthropic:work`
 
 How to see what profile IDs exist:
-- `clawdbot channels list --json` (shows `auth[]`)
+- `moltbot-cn channels list --json` (shows `auth[]`)
 
 Related docs:
 - [/concepts/model-failover](/concepts/model-failover) (rotation + cooldown rules)

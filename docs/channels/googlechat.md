@@ -129,7 +129,7 @@ Configure your tunnel's ingress rules to only route the webhook path:
    - DMs use session key `agent:<agentId>:googlechat:dm:<spaceId>`.
    - Spaces use session key `agent:<agentId>:googlechat:group:<spaceId>`.
 4. DM access is pairing by default. Unknown senders receive a pairing code; approve with:
-   - `clawdbot pairing approve googlechat <code>`
+   - `moltbot-cn pairing approve googlechat <code>`
 5. Group spaces require @-mention by default. Use `botUser` if mention detection needs the app’s user name.
 
 ## Targets
@@ -193,7 +193,7 @@ This means the webhook handler isn't registered. Common causes:
 
 2. **Plugin not enabled**: Check plugin status:
    ```bash
-   clawdbot plugins list | grep googlechat
+   moltbot-cn plugins list | grep googlechat
    ```
    If it shows "disabled", add `plugins.entries.googlechat.enabled: true` to your config.
 
@@ -204,12 +204,12 @@ This means the webhook handler isn't registered. Common causes:
 
 Verify the channel is running:
 ```bash
-clawdbot channels status
+moltbot-cn channels status
 # Should show: Google Chat default: enabled, configured, ...
 ```
 
 ### Other issues
-- Check `clawdbot channels status --probe` for auth errors or missing audience config.
+- Check `moltbot-cn channels status --probe` for auth errors or missing audience config.
 - If no messages arrive, confirm the Chat app's webhook URL + event subscriptions.
 - If mention gating blocks replies, set `botUser` to the app's user resource name and verify `requireMention`.
 - Use `clawdbot logs --follow` while sending a test message to see if requests reach the gateway.

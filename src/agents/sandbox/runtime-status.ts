@@ -117,7 +117,7 @@ export function formatSandboxToolPolicyBlockedMessage(params: {
     lines.push(`- Use main session key (direct): ${runtime.mainSessionKey}`);
   }
   lines.push(
-    `- See: ${formatCliCommand(`clawdbot sandbox explain --session ${runtime.sessionKey}`)}`,
+    `- See: ${formatCliCommand(`moltbot-cn sandbox explain --session ${runtime.sessionKey}`)}`,
   );
 
   return lines.join("\n");

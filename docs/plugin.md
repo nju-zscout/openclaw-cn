@@ -20,13 +20,13 @@ Fast path:
 1) See what’s already loaded:
 
 ```bash
-clawdbot plugins list
+moltbot-cn plugins list
 ```
 
 2) Install an official plugin (example: Voice Call):
 
 ```bash
-clawdbot plugins install @clawdbot/voice-call
+moltbot-cn plugins install @clawdbot/voice-call
 ```
 
 3) Restart the Gateway, then configure under `plugins.entries.<id>.config`.
@@ -102,7 +102,7 @@ Clawdbot scans, in order:
 - `<clawdbot>/extensions/*`
 
 Bundled plugins must be enabled explicitly via `plugins.entries.<id>.enabled`
-or `clawdbot plugins enable <id>`. Installed plugins are enabled by default,
+or `moltbot-cn plugins enable <id>`. Installed plugins are enabled by default,
 but can be disabled the same way.
 
 Each plugin must include a `clawdbot.plugin.json` file in its root. If a path
@@ -269,19 +269,19 @@ Example:
 ## CLI
 
 ```bash
-clawdbot plugins list
-clawdbot plugins info <id>
-clawdbot plugins install <path>                 # copy a local file/dir into ~/.clawdbot/extensions/<id>
-clawdbot plugins install ./extensions/voice-call # relative path ok
-clawdbot plugins install ./plugin.tgz           # install from a local tarball
-clawdbot plugins install ./plugin.zip           # install from a local zip
-clawdbot plugins install -l ./extensions/voice-call # link (no copy) for dev
-clawdbot plugins install @clawdbot/voice-call # install from npm
-clawdbot plugins update <id>
-clawdbot plugins update --all
-clawdbot plugins enable <id>
-clawdbot plugins disable <id>
-clawdbot plugins doctor
+moltbot-cn plugins list
+moltbot-cn plugins info <id>
+moltbot-cn plugins install <path>                 # copy a local file/dir into ~/.clawdbot/extensions/<id>
+moltbot-cn plugins install ./extensions/voice-call # relative path ok
+moltbot-cn plugins install ./plugin.tgz           # install from a local tarball
+moltbot-cn plugins install ./plugin.zip           # install from a local zip
+moltbot-cn plugins install -l ./extensions/voice-call # link (no copy) for dev
+moltbot-cn plugins install @clawdbot/voice-call # install from npm
+moltbot-cn plugins update <id>
+moltbot-cn plugins update --all
+moltbot-cn plugins enable <id>
+moltbot-cn plugins disable <id>
+moltbot-cn plugins doctor
 ```
 
 `plugins update` only works for npm installs tracked under `plugins.installs`.
@@ -324,7 +324,7 @@ API-key setup inside Clawdbot (no external scripts needed).
 Register a provider via `api.registerProvider(...)`. Each provider exposes one
 or more auth methods (OAuth, API key, device code, etc.). These methods power:
 
-- `clawdbot models auth login --provider <id> [--method <id>]`
+- `moltbot-cn models auth login --provider <id> [--method <id>]`
 
 Example:
 
@@ -605,7 +605,7 @@ Publishing contract:
 
 - Plugin `package.json` must include `clawdbot.extensions` with one or more entry files.
 - Entry files can be `.js` or `.ts` (jiti loads TS at runtime).
-- `clawdbot plugins install <npm-spec>` uses `npm pack`, extracts into `~/.clawdbot/extensions/<id>/`, and enables it in config.
+- `moltbot-cn plugins install <npm-spec>` uses `npm pack`, extracts into `~/.clawdbot/extensions/<id>/`, and enables it in config.
 - Config key stability: scoped packages are normalized to the **unscoped** id for `plugins.entries.*`.
 
 ## Example plugin: Voice Call

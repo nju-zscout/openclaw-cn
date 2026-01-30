@@ -80,7 +80,7 @@ sudo systemctl restart clawdbot
 
 # 提供商登录（以 clawdbot 用户运行）
 sudo -i -u clawdbot
-clawdbot channels login
+moltbot-cn channels login
 ```
 
 ## 安全架构
@@ -187,7 +187,7 @@ sudo -u clawdbot ./scripts/sandbox-setup.sh
 
 ```bash
 sudo -i -u clawdbot
-clawdbot channels login
+moltbot-cn channels login
 ```
 
 ## 高级配置

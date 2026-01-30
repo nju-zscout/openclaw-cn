@@ -150,8 +150,8 @@ Live tests are split into two layers so we can isolate failures:
 Tip: to see what you can test on your machine (and the exact `provider/model` ids), run:
 
 ```bash
-clawdbot models list
-clawdbot models list --json
+moltbot-cn models list
+moltbot-cn models list --json
 ```
 
 ## Live: Anthropic setup-token smoke
@@ -170,7 +170,7 @@ clawdbot models list --json
 Setup example:
 
 ```bash
-clawdbot models auth paste-token --provider anthropic --profile-id anthropic:setup-token-test
+moltbot-cn models auth paste-token --provider anthropic --profile-id anthropic:setup-token-test
 CLAWDBOT_LIVE_SETUP_TOKEN=1 CLAWDBOT_LIVE_SETUP_TOKEN_PROFILE=anthropic:setup-token-test pnpm test:live src/agents/anthropic.setup-token.live.test.ts
 ```
 
@@ -270,7 +270,7 @@ Include at least one image-capable model in `CLAWDBOT_LIVE_GATEWAY_MODELS` (Clau
 ### Aggregators / alternate gateways
 
 If you have keys enabled, we also support testing via:
-- OpenRouter: `openrouter/...` (hundreds of models; use `clawdbot models scan` to find tool+image capable candidates)
+- OpenRouter: `openrouter/...` (hundreds of models; use `moltbot-cn models scan` to find tool+image capable candidates)
 - OpenCode Zen: `opencode/...` (auth via `OPENCODE_API_KEY` / `OPENCODE_ZEN_API_KEY`)
 
 More providers you can include in the live matrix (if you have creds/config):
@@ -283,7 +283,7 @@ Tip: don’t try to hardcode “all models” in docs. The authoritative list is
 
 Live tests discover credentials the same way the CLI does. Practical implications:
 - If the CLI works, live tests should find the same keys.
-- If a live test says “no creds”, debug the same way you’d debug `clawdbot models list` / model selection.
+- If a live test says “no creds”, debug the same way you’d debug `moltbot-cn models list` / model selection.
 
 - Profile store: `~/.clawdbot/credentials/` (preferred; what “profile keys” means in the tests)
 - Config: `~/.clawdbot/clawdbot.json` (or `CLAWDBOT_CONFIG_PATH`)

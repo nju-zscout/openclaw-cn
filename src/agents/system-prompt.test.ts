@@ -78,7 +78,7 @@ describe("buildAgentSystemPrompt", () => {
     });
 
     expect(prompt).toContain("## Clawdbot CLI Quick Reference");
-    expect(prompt).toContain("clawdbot gateway restart");
+    expect(prompt).toContain("moltbot-cn gateway restart");
     expect(prompt).toContain("Do not invent commands");
   });
 

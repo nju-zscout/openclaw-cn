@@ -46,7 +46,7 @@ export function registerAcpCli(program: Command) {
     .command("client")
     .description("运行与本地 ACP 桥接交互的客户端")
     .option("--cwd <dir>", "ACP 会话的工作目录")
-    .option("--server <command>", "ACP 服务器命令（默认：clawdbot）")
+    .option("--server <command>", "ACP 服务器命令（默认：moltbot-cn）")
     .option("--server-args <args...>", "ACP 服务器的额外参数")
     .option("--server-verbose", "在 ACP 服务器上启用详细日志", false)
     .option("--verbose, -v", "详细客户端日志", false)

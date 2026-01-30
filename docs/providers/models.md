@@ -20,7 +20,7 @@ See [Venice AI](/providers/venice).
 
 ## Quick start (two steps)
 
-1) Authenticate with the provider (usually via `clawdbot onboard`).
+1) Authenticate with the provider (usually via `moltbot-cn onboard`).
 2) Set the default model:
 
 ```json5

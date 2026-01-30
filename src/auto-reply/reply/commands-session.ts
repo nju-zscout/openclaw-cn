@@ -237,7 +237,7 @@ export const handleRestartCommand: CommandHandler = async (params, allowTextComm
     return {
       shouldContinue: false,
       reply: {
-        text: "⚙️ Restarting clawdbot in-process (SIGUSR1); back in a few seconds.",
+        text: "⚙️ Restarting moltbot-cn in-process (SIGUSR1); back in a few seconds.",
       },
     };
   }
@@ -254,7 +254,7 @@ export const handleRestartCommand: CommandHandler = async (params, allowTextComm
   return {
     shouldContinue: false,
     reply: {
-      text: `⚙️ Restarting clawdbot via ${restartMethod.method}; give me a few seconds to come back online.`,
+      text: `⚙️ Restarting moltbot-cn via ${restartMethod.method}; give me a few seconds to come back online.`,
     },
   };
 };

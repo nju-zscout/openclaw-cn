@@ -13,7 +13,7 @@ This extension adds Nostr as a messaging channel to Clawdbot. It enables your bo
 ## Installation
 
 ```bash
-clawdbot plugins install @clawdbot/nostr
+moltbot-cn plugins install @clawdbot/nostr
 ```
 
 ## Quick Setup
@@ -90,7 +90,7 @@ clawdbot plugins install @clawdbot/nostr
 # Using strfry
 docker run -p 7777:7777 ghcr.io/hoytech/strfry
 
-# Configure clawdbot to use local relay
+# Configure moltbot-cn to use local relay
 "relays": ["ws://localhost:7777"]
 ```
 

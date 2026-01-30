@@ -4,7 +4,7 @@ import { parseSystemdExecStart } from "./systemd-unit.js";
 
 describe("parseSystemdExecStart", () => {
   it("splits on whitespace outside quotes", () => {
-    const execStart = "/usr/bin/clawdbot gateway start --foo bar";
+    const execStart = "/usr/bin/moltbot-cn gateway start --foo bar";
     expect(parseSystemdExecStart(execStart)).toEqual([
       "/usr/bin/clawdbot",
       "gateway",
@@ -15,7 +15,7 @@ describe("parseSystemdExecStart", () => {
   });
 
   it("preserves quoted arguments", () => {
-    const execStart = '/usr/bin/clawdbot gateway start --name "My Bot"';
+    const execStart = '/usr/bin/moltbot-cn gateway start --name "My Bot"';
     expect(parseSystemdExecStart(execStart)).toEqual([
       "/usr/bin/clawdbot",
       "gateway",
@@ -26,7 +26,7 @@ describe("parseSystemdExecStart", () => {
   });
 
   it("parses path arguments", () => {
-    const execStart = "/usr/bin/clawdbot gateway start --path /tmp/clawdbot";
+    const execStart = "/usr/bin/moltbot-cn gateway start --path /tmp/clawdbot";
     expect(parseSystemdExecStart(execStart)).toEqual([
       "/usr/bin/clawdbot",
       "gateway",

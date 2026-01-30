@@ -70,7 +70,7 @@ clawdbot hooks info session-memory
 
 ### Onboarding
 
-During onboarding (`clawdbot onboard`), you'll be prompted to enable recommended hooks. The wizard automatically discovers eligible hooks and presents them for selection.
+During onboarding (`moltbot-cn onboard`), you'll be prompted to enable recommended hooks. The wizard automatically discovers eligible hooks and presents them for selection.
 
 ## Hook Discovery
 

@@ -1,5 +1,5 @@
 /**
- * Hook system for clawdbot agent events
+ * Hook system for moltbot-cn agent events
  *
  * Provides an extensible event-driven hook system for agent events
  * like command processing, session lifecycle, etc.

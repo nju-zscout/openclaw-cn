@@ -21,7 +21,7 @@ Clawdbot features that can generate provider usage or paid API calls.
 - `/usage tokens` shows tokens only; OAuth flows hide dollar cost.
 
 **CLI usage windows (provider quotas)**
-- `clawdbot status --usage` and `clawdbot channels list` show provider **usage windows**
+- `clawdbot status --usage` and `moltbot-cn channels list` show provider **usage windows**
   (quota snapshots, not per-message costs).
 
 See [Token use & costs](/token-use) for details and examples.
@@ -87,7 +87,7 @@ See [Web tools](/tools/web).
 Some status commands call **provider usage endpoints** to display quota windows or auth health.
 These are typically low-volume calls but still hit provider APIs:
 - `clawdbot status --usage`
-- `clawdbot models status --json`
+- `moltbot-cn models status --json`
 
 See [Models CLI](/cli/models).
 
@@ -98,7 +98,7 @@ invokes provider APIs when it runs.
 See [Session management + compaction](/reference/session-management-compaction).
 
 ### 8) Model scan / probe
-`clawdbot models scan` can probe OpenRouter models and uses `OPENROUTER_API_KEY` when
+`moltbot-cn models scan` can probe OpenRouter models and uses `OPENROUTER_API_KEY` when
 probing is enabled.
 
 See [Models CLI](/cli/models).

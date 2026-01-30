@@ -143,7 +143,7 @@ export function formatGatewayChannelsStatusLines(payload: Record<string, unknown
         `- ${issue.channel} ${issue.accountId}: ${issue.message}${issue.fix ? ` (${issue.fix})` : ""}`,
       );
     }
-    lines.push(`- Run: ${formatCliCommand("clawdbot doctor")}`);
+    lines.push(`- Run: ${formatCliCommand("moltbot-cn doctor")}`);
     lines.push("");
   }
   lines.push(

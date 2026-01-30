@@ -67,5 +67,5 @@ Add this to your config (`~/.clawdbot/clawdbot.json`):
 ## Enable
 
 ```bash
-clawdbot hooks enable soul-evil
+moltbot-cn hooks enable soul-evil
 ```

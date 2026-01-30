@@ -106,7 +106,7 @@ export function registerBrowserExtensionCommands(
         defaultRuntime.error(
           danger(
             [
-              `Chrome 扩展未安装。运行："${formatCliCommand("clawdbot browser extension install")}"`,
+              `Chrome 扩展未安装。运行："${formatCliCommand("moltbot-cn browser extension install")}"`,
               `Docs: ${formatDocsLink("/tools/chrome-extension", "docs.clawd.bot/tools/chrome-extension")}`,
             ].join("\n"),
           ),

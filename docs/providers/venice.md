@@ -56,7 +56,7 @@ export VENICE_API_KEY="vapi_xxxxxxxxxxxx"
 **Option B: Interactive Setup (Recommended)**
 
 ```bash
-clawdbot onboard --auth-choice venice-api-key
+moltbot-cn onboard --auth-choice venice-api-key
 ```
 
 This will:
@@ -68,7 +68,7 @@ This will:
 **Option C: Non-interactive**
 
 ```bash
-clawdbot onboard --non-interactive \
+moltbot-cn onboard --non-interactive \
   --auth-choice venice-api-key \
   --venice-api-key "vapi_xxxxxxxxxxxx"
 ```
@@ -91,14 +91,14 @@ After setup, Clawdbot shows all available Venice models. Pick based on your need
 Change your default model anytime:
 
 ```bash
-clawdbot models set venice/claude-opus-45
-clawdbot models set venice/llama-3.3-70b
+moltbot-cn models set venice/claude-opus-45
+moltbot-cn models set venice/llama-3.3-70b
 ```
 
 List all available models:
 
 ```bash
-clawdbot models list | grep venice
+moltbot-cn models list | grep venice
 ```
 
 ## Configure via `clawdbot configure`
@@ -213,14 +213,14 @@ clawdbot chat --model venice/qwen3-coder-480b-a35b-instruct
 
 ```bash
 echo $VENICE_API_KEY
-clawdbot models list | grep venice
+moltbot-cn models list | grep venice
 ```
 
 Ensure the key starts with `vapi_`.
 
 ### Model not available
 
-The Venice model catalog updates dynamically. Run `clawdbot models list` to see currently available models. Some models may be temporarily offline.
+The Venice model catalog updates dynamically. Run `moltbot-cn models list` to see currently available models. Some models may be temporarily offline.
 
 ### Connection issues
 

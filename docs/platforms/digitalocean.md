@@ -74,7 +74,7 @@ clawdbot --version
 ## 4) Run Onboarding
 
 ```bash
-clawdbot onboard --install-daemon
+moltbot-cn onboard --install-daemon
 ```
 
 The wizard will walk you through:
@@ -137,13 +137,13 @@ Open: `http://<tailscale-ip>:18789` (token required).
 
 ### Telegram
 ```bash
-clawdbot pairing list telegram
-clawdbot pairing approve telegram <CODE>
+moltbot-cn pairing list telegram
+moltbot-cn pairing approve telegram <CODE>
 ```
 
 ### WhatsApp
 ```bash
-clawdbot channels login whatsapp
+moltbot-cn channels login whatsapp
 # Scan QR code
 ```
 

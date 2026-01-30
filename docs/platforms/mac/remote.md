@@ -51,7 +51,7 @@ Remote mode supports two transports:
 - See [Security](/gateway/security) and [Tailscale](/gateway/tailscale).
 
 ## WhatsApp login flow (remote)
-- Run `clawdbot channels login --verbose` **on the remote host**. Scan the QR with WhatsApp on your phone.
+- Run `moltbot-cn channels login --verbose` **on the remote host**. Scan the QR with WhatsApp on your phone.
 - Re-run login on that host if auth expires. Health check will surface link problems.
 
 ## Troubleshooting

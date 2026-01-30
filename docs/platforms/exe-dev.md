@@ -18,7 +18,7 @@ If you’re on any other Linux VPS, the same steps apply — you just won’t us
 ## Beginner quick path
 
 1) Create VM → install Node 22 → install Clawdbot  
-2) Run `clawdbot onboard --install-daemon`  
+2) Run `moltbot-cn onboard --install-daemon`  
 3) Tunnel from laptop (`ssh -N -L 18789:127.0.0.1:18789 …`)  
 4) Open `http://127.0.0.1:18789/` and paste your token
 
@@ -89,7 +89,7 @@ sudo apt-get install -y build-essential python3
 Run the onboarding wizard on the VM:
 
 ```bash
-clawdbot onboard --install-daemon
+moltbot-cn onboard --install-daemon
 ```
 
 It can set up:

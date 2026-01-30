@@ -94,11 +94,11 @@ export async function doctorCommand(
   if (!cfg.gateway?.mode) {
     const lines = [
       "gateway.mode is unset; gateway start will be blocked.",
-      `Fix: run ${formatCliCommand("clawdbot configure")} and set Gateway mode (local/remote).`,
-      `Or set directly: ${formatCliCommand("clawdbot config set gateway.mode local")}`,
+      `Fix: run ${formatCliCommand("moltbot-cn configure")} and set Gateway mode (local/remote).`,
+      `Or set directly: ${formatCliCommand("moltbot-cn config set gateway.mode local")}`,
     ];
     if (!fs.existsSync(configPath)) {
-      lines.push(`Missing config: run ${formatCliCommand("clawdbot setup")} first.`);
+      lines.push(`Missing config: run ${formatCliCommand("moltbot-cn setup")} first.`);
     }
     note(lines.join("\n"), "Gateway");
   }
@@ -277,7 +277,7 @@ export async function doctorCommand(
       runtime.log(`Backup: ${shortenHomePath(backupPath)}`);
     }
   } else {
-    runtime.log(`Run "${formatCliCommand("clawdbot doctor --fix")}" to apply changes.`);
+    runtime.log(`Run "${formatCliCommand("moltbot-cn doctor --fix")}" to apply changes.`);
   }
 
   if (options.workspaceSuggestions !== false) {

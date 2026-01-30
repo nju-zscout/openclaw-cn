@@ -248,11 +248,11 @@ Note: plugins can add additional top-level commands (for example `clawdbot voice
 
 Manage extensions and their config:
 
-- `clawdbot plugins list` — discover plugins (use `--json` for machine output).
-- `clawdbot plugins info <id>` — show details for a plugin.
-- `clawdbot plugins install <path|.tgz|npm-spec>` — install a plugin (or add a plugin path to `plugins.load.paths`).
-- `clawdbot plugins enable <id>` / `disable <id>` — toggle `plugins.entries.<id>.enabled`.
-- `clawdbot plugins doctor` — report plugin load errors.
+- `moltbot-cn plugins list` — discover plugins (use `--json` for machine output).
+- `moltbot-cn plugins info <id>` — show details for a plugin.
+- `moltbot-cn plugins install <path|.tgz|npm-spec>` — install a plugin (or add a plugin path to `plugins.load.paths`).
+- `moltbot-cn plugins enable <id>` / `disable <id>` — toggle `plugins.entries.<id>.enabled`.
+- `moltbot-cn plugins doctor` — report plugin load errors.
 
 Most plugin changes require a gateway restart. See [/plugin](/plugin).
 
@@ -400,10 +400,10 @@ More detail: [/concepts/oauth](/concepts/oauth)
 
 Examples:
 ```bash
-clawdbot channels add --channel telegram --account alerts --name "Alerts Bot" --token $TELEGRAM_BOT_TOKEN
-clawdbot channels add --channel discord --account work --name "Work Bot" --token $DISCORD_BOT_TOKEN
-clawdbot channels remove --channel discord --account work --delete
-clawdbot channels status --probe
+moltbot-cn channels add --channel telegram --account alerts --name "Alerts Bot" --token $TELEGRAM_BOT_TOKEN
+moltbot-cn channels add --channel discord --account work --name "Work Bot" --token $DISCORD_BOT_TOKEN
+moltbot-cn channels remove --channel discord --account work --delete
+moltbot-cn channels status --probe
 clawdbot status --deep
 ```
 
@@ -461,8 +461,8 @@ Subcommands:
 - `message event <list|create>`
 
 Examples:
-- `clawdbot message send --target +15555550123 --message "Hi"`
-- `clawdbot message poll --channel discord --target channel:123 --poll-question "Snack?" --poll-option Pizza --poll-option Sushi`
+- `moltbot-cn message send --target +15555550123 --message "Hi"`
+- `moltbot-cn message poll --channel discord --target channel:123 --poll-question "Snack?" --poll-option Pizza --poll-option Sushi`
 
 ### `agent`
 Run one agent turn via the Gateway (or `--local` embedded).
@@ -680,11 +680,11 @@ Preferred Anthropic auth (CLI token, not API key):
 
 ```bash
 claude setup-token
-clawdbot models status
+moltbot-cn models status
 ```
 
 ### `models` (root)
-`clawdbot models` is an alias for `models status`.
+`moltbot-cn models` is an alias for `models status`.
 
 Root options:
 - `--status-json` (alias for `models status --json`)

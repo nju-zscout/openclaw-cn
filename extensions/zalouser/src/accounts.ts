@@ -1,5 +1,5 @@
-import type { ClawdbotConfig } from "clawdbot/plugin-sdk";
-import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "clawdbot/plugin-sdk";
+import type { ClawdbotConfig } from "moltbot-cn/plugin-sdk";
+import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "moltbot-cn/plugin-sdk";
 
 import { runZca, parseJsonOutput } from "./zca.js";
 import type { ResolvedZalouserAccount, ZalouserAccountConfig, ZalouserConfig } from "./types.js";

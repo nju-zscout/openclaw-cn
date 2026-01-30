@@ -19,9 +19,9 @@ Get your API key from the OpenAI dashboard.
 ### CLI setup
 
 ```bash
-clawdbot onboard --auth-choice openai-api-key
+moltbot-cn onboard --auth-choice openai-api-key
 # or non-interactive
-clawdbot onboard --openai-api-key "$OPENAI_API_KEY"
+moltbot-cn onboard --openai-api-key "$OPENAI_API_KEY"
 ```
 
 ### Config snippet
@@ -44,10 +44,10 @@ Clawdbot can reuse your **Codex CLI** login (`~/.codex/auth.json`) or run the OA
 
 ```bash
 # Reuse existing Codex CLI login
-clawdbot onboard --auth-choice codex-cli
+moltbot-cn onboard --auth-choice codex-cli
 
 # Or run Codex OAuth in the wizard
-clawdbot onboard --auth-choice openai-codex
+moltbot-cn onboard --auth-choice openai-codex
 ```
 
 ### Config snippet

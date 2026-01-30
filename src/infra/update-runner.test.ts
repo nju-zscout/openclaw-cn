@@ -113,7 +113,7 @@ describe("runGatewayUpdate", () => {
       "pnpm build": { stdout: "" },
       "pnpm ui:build": { stdout: "" },
       [`git -C ${tempDir} checkout -- dist/control-ui/`]: { stdout: "" },
-      "pnpm clawdbot doctor --non-interactive": { stdout: "" },
+      "pnpm moltbot-cn doctor --non-interactive": { stdout: "" },
     });
 
     const result = await runGatewayUpdate({

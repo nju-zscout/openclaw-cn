@@ -323,7 +323,7 @@ export const whatsappOnboardingAdapter: ChannelOnboardingAdapter = {
       }
     } else if (!linked) {
       await prompter.note(
-        `Run \`${formatCliCommand("clawdbot channels login")}\` later to link WhatsApp.`,
+        `Run \`${formatCliCommand("moltbot-cn channels login")}\` later to link WhatsApp.`,
         "WhatsApp",
       );
     }

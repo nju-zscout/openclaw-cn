@@ -67,6 +67,6 @@
 - Speech: OpenAI TTS (model/voice/instructions) with Twilio `<Say>` fallback.
 - Tooling: `voice_call` tool actions for initiate/continue/speak/end/status.
 - Gateway RPC: `voicecall.initiate|continue|speak|end|status` (+ legacy `voicecall.start`).
-- CLI: `clawdbot voicecall` commands (call/start/continue/speak/end/status/tail/expose).
+- CLI: `moltbot-cn voicecall` commands (call/start/continue/speak/end/status/tail/expose).
 - Observability: JSONL call logs and `voicecall tail` for live inspection.
 - Response controls: `responseModel`, `responseSystemPrompt`, and `responseTimeoutMs` for auto‑responses.

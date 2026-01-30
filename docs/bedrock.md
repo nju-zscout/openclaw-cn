@@ -155,7 +155,7 @@ echo 'export AWS_REGION=us-east-1' >> ~/.bashrc
 source ~/.bashrc
 
 # 5. Verify models are discovered
-clawdbot models list
+moltbot-cn models list
 ```
 
 ## Notes

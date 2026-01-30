@@ -16,12 +16,12 @@ Mattermost ships as a plugin and is not bundled with the core install.
 
 Install via CLI (npm registry):
 ```bash
-clawdbot plugins install @clawdbot/mattermost
+moltbot-cn plugins install @clawdbot/mattermost
 ```
 
 Local checkout (when running from a git repo):
 ```bash
-clawdbot plugins install ./extensions/mattermost
+moltbot-cn plugins install ./extensions/mattermost
 ```
 
 If you choose Mattermost during configure/onboarding and a git checkout is detected,
@@ -83,8 +83,8 @@ Notes:
 ## Access control (DMs)
 - Default: `channels.mattermost.dmPolicy = "pairing"` (unknown senders get a pairing code).
 - Approve via:
-  - `clawdbot pairing list mattermost`
-  - `clawdbot pairing approve mattermost <CODE>`
+  - `moltbot-cn pairing list mattermost`
+  - `moltbot-cn pairing approve mattermost <CODE>`
 - Public DMs: `channels.mattermost.dmPolicy="open"` plus `channels.mattermost.allowFrom=["*"]`.
 
 ## Channels (groups)
@@ -93,7 +93,7 @@ Notes:
 - Open channels: `channels.mattermost.groupPolicy="open"` (mention-gated).
 
 ## Targets for outbound delivery
-Use these target formats with `clawdbot message send` or cron/webhooks:
+Use these target formats with `moltbot-cn message send` or cron/webhooks:
 
 - `channel:<id>` for a channel
 - `user:<id>` for a DM

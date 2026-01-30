@@ -47,19 +47,19 @@ export function registerAgentCommands(program: Command, args: { agentChannelOpti
         `
 ${theme.heading("示例：")}
 ${formatHelpExamples([
-  ['clawdbot agent --to +15555550123 --message "状态更新"', "开始新会话。"],
-  ['clawdbot agent --agent ops --message "汇总日志"', "使用特定智能体。"],
+  ['moltbot-cn agent --to +15555550123 --message "状态更新"', "开始新会话。"],
+  ['moltbot-cn agent --agent ops --message "汇总日志"', "使用特定智能体。"],
   [
-    'clawdbot agent --session-id 1234 --message "汇总收件箱" --thinking medium',
+    'moltbot-cn agent --session-id 1234 --message "汇总收件箱" --thinking medium',
     "指定会话并设置思考级别。",
   ],
   [
-    'clawdbot agent --to +15555550123 --message "跟踪日志" --verbose on --json',
+    'moltbot-cn agent --to +15555550123 --message "跟踪日志" --verbose on --json',
     "启用详细日志和 JSON 输出。",
   ],
-  ['clawdbot agent --to +15555550123 --message "召唤回复" --deliver', "发送回复。"],
+  ['moltbot-cn agent --to +15555550123 --message "召唤回复" --deliver', "发送回复。"],
   [
-    'clawdbot agent --agent ops --message "生成报告" --deliver --reply-channel slack --reply-to "#reports"',
+    'moltbot-cn agent --agent ops --message "生成报告" --deliver --reply-channel slack --reply-to "#reports"',
     "将回复发送到不同的渠道/目标。",
   ],
 ])}
@@ -151,11 +151,11 @@ ${theme.muted("文档：")} ${formatDocsLink("/cli/agent", "docs.clawd.bot/cli/a
         `
 ${theme.heading("示例：")}
 ${formatHelpExamples([
-  ['clawdbot agents set-identity --agent main --name "Clawd" --emoji "🧠"', "设置名称和表情。"],
-  ["clawdbot agents set-identity --agent main --avatar avatars/clawd.png", "设置头像路径。"],
-  ["clawdbot agents set-identity --workspace ~/clawd --from-identity", "从 IDENTITY.md 加载。"],
+  ['moltbot-cn agents set-identity --agent main --name "Clawd" --emoji "🧠"', "设置名称和表情。"],
+  ["moltbot-cn agents set-identity --agent main --avatar avatars/clawd.png", "设置头像路径。"],
+  ["moltbot-cn agents set-identity --workspace ~/clawd --from-identity", "从 IDENTITY.md 加载。"],
   [
-    "clawdbot agents set-identity --identity-file ~/clawd/IDENTITY.md --agent main",
+    "moltbot-cn agents set-identity --identity-file ~/clawd/IDENTITY.md --agent main",
     "使用特定的 IDENTITY.md。",
   ],
 ])}

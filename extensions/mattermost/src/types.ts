@@ -1,4 +1,4 @@
-import type { BlockStreamingCoalesceConfig, DmPolicy, GroupPolicy } from "clawdbot/plugin-sdk";
+import type { BlockStreamingCoalesceConfig, DmPolicy, GroupPolicy } from "moltbot-cn/plugin-sdk";
 
 export type MattermostChatMode = "oncall" | "onmessage" | "onchar";
 

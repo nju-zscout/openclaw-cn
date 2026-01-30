@@ -153,7 +153,7 @@ export async function setupSkills(
         spin.stop(`Install failed: ${name}${code}${detail ? ` — ${detail}` : ""}`);
         if (result.stderr) runtime.log(result.stderr.trim());
         else if (result.stdout) runtime.log(result.stdout.trim());
-        runtime.log(`提示：运行\`${formatCliCommand("clawdbot doctor")}\`来查看技能+需求。`);
+        runtime.log(`提示：运行\`${formatCliCommand("moltbot-cn doctor")}\`来查看技能+需求。`);
         runtime.log("文档：https://docs.clawd.bot/skills");
       }
     }

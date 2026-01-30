@@ -22,7 +22,7 @@ Status: bundled plugin that talks to the BlueBubbles macOS server over HTTP. **R
 ## Quick start
 1. Install the BlueBubbles server on your Mac (follow the instructions at [bluebubbles.app/install](https://bluebubbles.app/install)).
 2. In the BlueBubbles config, enable the web API and set a password.
-3. Run `clawdbot onboard` and select BlueBubbles, or configure manually:
+3. Run `moltbot-cn onboard` and select BlueBubbles, or configure manually:
    ```json5
    {
      channels: {
@@ -41,7 +41,7 @@ Status: bundled plugin that talks to the BlueBubbles macOS server over HTTP. **R
 ## Onboarding
 BlueBubbles is available in the interactive setup wizard:
 ```
-clawdbot onboard
+moltbot-cn onboard
 ```
 
 The wizard prompts for:
@@ -53,7 +53,7 @@ The wizard prompts for:
 
 You can also add BlueBubbles via CLI:
 ```
-clawdbot channels add bluebubbles --http-url http://192.168.1.100:1234 --password <password>
+moltbot-cn channels add bluebubbles --http-url http://192.168.1.100:1234 --password <password>
 ```
 
 ## Access control (DMs + groups)
@@ -61,8 +61,8 @@ DMs:
 - Default: `channels.bluebubbles.dmPolicy = "pairing"`.
 - Unknown senders receive a pairing code; messages are ignored until approved (codes expire after 1 hour).
 - Approve via:
-  - `clawdbot pairing list bluebubbles`
-  - `clawdbot pairing approve bluebubbles <CODE>`
+  - `moltbot-cn pairing list bluebubbles`
+  - `moltbot-cn pairing approve bluebubbles <CODE>`
 - Pairing is the default token exchange. Details: [Pairing](/start/pairing)
 
 Groups:
@@ -222,7 +222,7 @@ Prefer `chat_guid` for stable routing:
 
 ## Troubleshooting
 - If typing/read events stop working, check the BlueBubbles webhook logs and verify the gateway path matches `channels.bluebubbles.webhookPath`.
-- Pairing codes expire after one hour; use `clawdbot pairing list bluebubbles` and `clawdbot pairing approve bluebubbles <code>`.
+- Pairing codes expire after one hour; use `moltbot-cn pairing list bluebubbles` and `moltbot-cn pairing approve bluebubbles <code>`.
 - Reactions require the BlueBubbles private API (`POST /api/v1/message/react`); ensure the server version exposes it.
 - Edit/unsend require macOS 13+ and a compatible BlueBubbles server version. On macOS 26 (Tahoe), edit is currently broken due to private API changes.
 - Group icon updates can be flaky on macOS 26 (Tahoe): the API may return success but the new icon does not sync.

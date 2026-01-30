@@ -1,4 +1,4 @@
-import type { ClawdbotPluginApi, LineChannelData, ReplyPayload } from "clawdbot/plugin-sdk";
+import type { ClawdbotPluginApi, LineChannelData, ReplyPayload } from "moltbot-cn/plugin-sdk";
 import {
   createActionCard,
   createImageCard,
@@ -7,7 +7,7 @@ import {
   createReceiptCard,
   type CardAction,
   type ListItem,
-} from "clawdbot/plugin-sdk";
+} from "moltbot-cn/plugin-sdk";
 
 const CARD_USAGE = `Usage: /card <type> "title" "body" [options]
 

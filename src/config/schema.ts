@@ -505,7 +505,7 @@ const FIELD_HELP: Record<string, string> = {
   "plugins.entries": "按插件ID键入的每个插件设置(启用/禁用+配置负载)。",
   "plugins.entries.*.enabled": "覆盖此条目的插件启用/禁用(需要重启)。",
   "plugins.entries.*.config": "插件定义的配置负载(模式由插件提供)。",
-  "plugins.installs": "CLI管理的安装元数据(由`clawdbot plugins update`用于定位安装源)。",
+  "plugins.installs": "CLI管理的安装元数据(由`moltbot-cn plugins update`用于定位安装源)。",
   "plugins.installs.*.source": '安装源("npm"、"archive"或"path")。',
   "plugins.installs.*.spec": "用于安装的原始npm规范(如果源是npm)。",
   "plugins.installs.*.sourcePath": "用于安装的原始归档/路径(如果有)。",

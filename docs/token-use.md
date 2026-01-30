@@ -50,7 +50,7 @@ Use these in chat:
 Other surfaces:
 
 - **TUI/Web TUI:** `/status` + `/usage` are supported.
-- **CLI:** `clawdbot status --usage` and `clawdbot channels list` show
+- **CLI:** `clawdbot status --usage` and `moltbot-cn channels list` show
   provider quota windows (not per-response costs).
 
 ## Cost estimation (when shown)

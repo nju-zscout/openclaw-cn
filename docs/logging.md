@@ -75,7 +75,7 @@ See [/web/control-ui](/web/control-ui) for how to open it.
 To filter channel activity (WhatsApp/Telegram/etc), use:
 
 ```bash
-clawdbot channels logs --channel whatsapp
+moltbot-cn channels logs --channel whatsapp
 ```
 
 ## Log formats
@@ -249,7 +249,7 @@ works with any OpenTelemetry collector/backend that accepts OTLP/HTTP.
 ```
 
 Notes:
-- You can also enable the plugin with `clawdbot plugins enable diagnostics-otel`.
+- You can also enable the plugin with `moltbot-cn plugins enable diagnostics-otel`.
 - `protocol` currently supports `http/protobuf` only. `grpc` is ignored.
 - Metrics include token usage, cost, context size, run duration, and message-flow
   counters/histograms (webhooks, queueing, session state, queue depth/wait).

@@ -27,7 +27,7 @@ Native Windows companion apps are planned.
 Inside WSL2:
 
 ```
-clawdbot onboard --install-daemon
+moltbot-cn onboard --install-daemon
 ```
 
 Or:
@@ -142,7 +142,7 @@ cd clawdbot
 pnpm install
 pnpm ui:build # auto-installs UI deps on first run
 pnpm build
-clawdbot onboard
+moltbot-cn onboard
 ```
 
 Full guide: [Getting Started](/start/getting-started)

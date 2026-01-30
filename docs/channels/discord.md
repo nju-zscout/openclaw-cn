@@ -44,7 +44,7 @@ Minimal config:
    - If you prefer env vars, set `DISCORD_BOT_TOKEN` (a config block is optional).
 5. Direct chats: use `user:<id>` (or a `<@id>` mention) when delivering; all turns land in the shared `main` session. Bare numeric IDs are ambiguous and rejected.
 6. Guild channels: use `channel:<channelId>` for delivery. Mentions are required by default and can be set per guild or per channel.
-7. Direct chats: secure by default via `channels.discord.dm.policy` (default: `"pairing"`). Unknown senders get a pairing code (expires after 1 hour); approve via `clawdbot pairing approve discord <code>`.
+7. Direct chats: secure by default via `channels.discord.dm.policy` (default: `"pairing"`). Unknown senders get a pairing code (expires after 1 hour); approve via `moltbot-cn pairing approve discord <code>`.
    - To keep old “open to anyone” behavior: set `channels.discord.dm.policy="open"` and `channels.discord.dm.allowFrom=["*"]`.
    - To hard-allowlist: set `channels.discord.dm.policy="allowlist"` and list senders in `channels.discord.dm.allowFrom`.
    - To ignore all DMs: set `channels.discord.dm.enabled=false` or `channels.discord.dm.policy="disabled"`.
@@ -186,7 +186,7 @@ Notes:
 3. If nothing happens: check **Troubleshooting** below.
 
 ### Troubleshooting
-- First: run `clawdbot doctor` and `clawdbot channels status --probe` (actionable warnings + quick audits).
+- First: run `clawdbot doctor` and `moltbot-cn channels status --probe` (actionable warnings + quick audits).
 - **“Used disallowed intents”**: enable **Message Content Intent** (and likely **Server Members Intent**) in the Developer Portal, then restart the gateway.
 - **Bot connects but never replies in a guild channel**:
   - Missing **Message Content Intent**, or

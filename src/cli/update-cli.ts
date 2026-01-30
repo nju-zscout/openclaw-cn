@@ -80,7 +80,7 @@ const STEP_LABELS: Record<string, string> = {
   "deps install": "Installing dependencies",
   build: "Building",
   "ui:build": "Building UI",
-  "clawdbot doctor": "Running doctor checks",
+  "moltbot-cn doctor": "Running doctor checks",
   "git rev-parse HEAD (after)": "Verifying update",
   "global update": "Updating via package manager",
   "global install": "Installing global package",
@@ -705,7 +705,7 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
       const entryPath = path.join(pkgRoot, "dist", "entry.js");
       if (await pathExists(entryPath)) {
         const doctorStep = await runUpdateStep({
-          name: "clawdbot doctor",
+          name: "moltbot-cn doctor",
           argv: [resolveNodeRunner(), entryPath, "doctor", "--non-interactive"],
           timeoutMs: timeoutMs ?? 20 * 60_000,
           progress,
@@ -806,7 +806,7 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
     if (result.reason === "not-git-install") {
       defaultRuntime.log(
         theme.warn(
-          `Skipped: this Clawdbot install isn't a git checkout, and the package manager couldn't be detected. Update via your package manager, then run \`${formatCliCommand("clawdbot doctor")}\` and \`${formatCliCommand("clawdbot gateway restart")}\`.`,
+          `Skipped: this Clawdbot install isn't a git checkout, and the package manager couldn't be detected. Update via your package manager, then run \`${formatCliCommand("moltbot-cn doctor")}\` and \`${formatCliCommand("moltbot-cn gateway restart")}\`.`,
         ),
       );
       defaultRuntime.log(
@@ -926,7 +926,7 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
         defaultRuntime.log(theme.warn(`Daemon restart failed: ${String(err)}`));
         defaultRuntime.log(
           theme.muted(
-            `You may need to restart the service manually: ${formatCliCommand("clawdbot gateway restart")}`,
+            `You may need to restart the service manually: ${formatCliCommand("moltbot-cn gateway restart")}`,
           ),
         );
       }
@@ -936,13 +936,13 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
     if (result.mode === "npm" || result.mode === "pnpm") {
       defaultRuntime.log(
         theme.muted(
-          `Tip: Run \`${formatCliCommand("clawdbot doctor")}\`, then \`${formatCliCommand("clawdbot gateway restart")}\` to apply updates to a running gateway.`,
+          `Tip: Run \`${formatCliCommand("moltbot-cn doctor")}\`, then \`${formatCliCommand("moltbot-cn gateway restart")}\` to apply updates to a running gateway.`,
         ),
       );
     } else {
       defaultRuntime.log(
         theme.muted(
-          `Tip: Run \`${formatCliCommand("clawdbot gateway restart")}\` to apply updates to a running gateway.`,
+          `Tip: Run \`${formatCliCommand("moltbot-cn gateway restart")}\` to apply updates to a running gateway.`,
         ),
       );
     }
@@ -956,7 +956,7 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
 export async function updateWizardCommand(opts: UpdateWizardOptions = {}): Promise<void> {
   if (!process.stdin.isTTY) {
     defaultRuntime.error(
-      "Update wizard requires a TTY. Use `clawdbot update --channel <stable|beta|dev>` instead.",
+      "Update wizard requires a TTY. Use `moltbot-cn update --channel <stable|beta|dev>` instead.",
     );
     defaultRuntime.exit(1);
     return;
@@ -1101,15 +1101,15 @@ export function registerUpdateCli(program: Command) {
     .option("--yes", "Skip confirmation prompts (non-interactive)", false)
     .addHelpText("after", () => {
       const examples = [
-        ["clawdbot update", "Update a source checkout (git)"],
-        ["clawdbot update --channel beta", "Switch to beta channel (git + npm)"],
-        ["clawdbot update --channel dev", "Switch to dev channel (git + npm)"],
-        ["clawdbot update --tag beta", "One-off update to a dist-tag or version"],
-        ["clawdbot update --no-restart", "Update without restarting the service"],
-        ["clawdbot update --json", "Output result as JSON"],
-        ["clawdbot update --yes", "Non-interactive (accept downgrade prompts)"],
-        ["clawdbot update wizard", "Interactive update wizard"],
-        ["clawdbot --update", "Shorthand for clawdbot update"],
+        ["moltbot-cn update", "Update a source checkout (git)"],
+        ["moltbot-cn update --channel beta", "Switch to beta channel (git + npm)"],
+        ["moltbot-cn update --channel dev", "Switch to dev channel (git + npm)"],
+        ["moltbot-cn update --tag beta", "One-off update to a dist-tag or version"],
+        ["moltbot-cn update --no-restart", "Update without restarting the service"],
+        ["moltbot-cn update --json", "Output result as JSON"],
+        ["moltbot-cn update --yes", "Non-interactive (accept downgrade prompts)"],
+        ["moltbot-cn update wizard", "Interactive update wizard"],
+        ["clawdbot --update", "Shorthand for moltbot-cn update"],
       ] as const;
       const fmtExamples = examples
         .map(([cmd, desc]) => `  ${theme.command(cmd)} ${theme.muted(`# ${desc}`)}`)
@@ -1121,7 +1121,7 @@ ${theme.heading("What this does:")}
 
 ${theme.heading("Switch channels:")}
   - Use --channel stable|beta|dev to persist the update channel in config
-  - Run clawdbot update status to see the active channel and source
+  - Run moltbot-cn update status to see the active channel and source
   - Use --tag <dist-tag|version> for a one-off npm update without persisting
 
 ${theme.heading("Non-interactive:")}
@@ -1181,9 +1181,9 @@ ${theme.muted("Docs:")} ${formatDocsLink("/cli/update", "docs.clawd.bot/cli/upda
       "after",
       () =>
         `\n${theme.heading("Examples:")}\n${formatHelpExamples([
-          ["clawdbot update status", "Show channel + version status."],
-          ["clawdbot update status --json", "JSON output."],
-          ["clawdbot update status --timeout 10", "Custom timeout."],
+          ["moltbot-cn update status", "Show channel + version status."],
+          ["moltbot-cn update status --json", "JSON output."],
+          ["moltbot-cn update status --timeout 10", "Custom timeout."],
         ])}\n\n${theme.heading("Notes:")}\n${theme.muted(
           "- Shows current update channel (stable/beta/dev) and source",
         )}\n${theme.muted("- Includes git tag/branch/SHA for source checkouts")}\n\n${theme.muted(

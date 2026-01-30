@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { ClawdbotConfig } from "clawdbot/plugin-sdk";
+import type { ClawdbotConfig } from "moltbot-cn/plugin-sdk";
 
 import { zaloPlugin } from "./channel.js";
 

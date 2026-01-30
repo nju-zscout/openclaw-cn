@@ -169,7 +169,7 @@ function formatElevatedUnavailableMessage(params: {
   lines.push("- agents.list[].tools.elevated.allowFrom.<provider>");
   if (params.sessionKey) {
     lines.push(
-      `See: ${formatCliCommand(`clawdbot sandbox explain --session ${params.sessionKey}`)}`,
+      `See: ${formatCliCommand(`moltbot-cn sandbox explain --session ${params.sessionKey}`)}`,
     );
   }
   return lines.join("\n");

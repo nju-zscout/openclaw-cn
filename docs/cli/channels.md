@@ -1,11 +1,11 @@
 ---
-summary: "CLI reference for `clawdbot channels` (accounts, status, login/logout, logs)"
+summary: "CLI reference for `moltbot-cn channels` (accounts, status, login/logout, logs)"
 read_when:
   - You want to add/remove channel accounts (WhatsApp/Telegram/Discord/Google Chat/Slack/Mattermost (plugin)/Signal/iMessage)
   - You want to check channel status or tail channel logs
 ---
 
-# `clawdbot channels`
+# `moltbot-cn channels`
 
 Manage chat channel accounts and their runtime status on the Gateway.
 
@@ -16,43 +16,43 @@ Related docs:
 ## Common commands
 
 ```bash
-clawdbot channels list
-clawdbot channels status
-clawdbot channels capabilities
-clawdbot channels capabilities --channel discord --target channel:123
-clawdbot channels resolve --channel slack "#general" "@jane"
-clawdbot channels logs --channel all
+moltbot-cn channels list
+moltbot-cn channels status
+moltbot-cn channels capabilities
+moltbot-cn channels capabilities --channel discord --target channel:123
+moltbot-cn channels resolve --channel slack "#general" "@jane"
+moltbot-cn channels logs --channel all
 ```
 
 ## Add / remove accounts
 
 ```bash
-clawdbot channels add --channel telegram --token <bot-token>
-clawdbot channels remove --channel telegram --delete
+moltbot-cn channels add --channel telegram --token <bot-token>
+moltbot-cn channels remove --channel telegram --delete
 ```
 
-Tip: `clawdbot channels add --help` shows per-channel flags (token, app token, signal-cli paths, etc).
+Tip: `moltbot-cn channels add --help` shows per-channel flags (token, app token, signal-cli paths, etc).
 
 ## Login / logout (interactive)
 
 ```bash
-clawdbot channels login --channel whatsapp
-clawdbot channels logout --channel whatsapp
+moltbot-cn channels login --channel whatsapp
+moltbot-cn channels logout --channel whatsapp
 ```
 
 ## Troubleshooting
 
 - Run `clawdbot status --deep` for a broad probe.
 - Use `clawdbot doctor` for guided fixes.
-- `clawdbot channels list` prints `Claude: HTTP 403 ... user:profile` → usage snapshot needs the `user:profile` scope. Use `--no-usage`, or provide a claude.ai session key (`CLAUDE_WEB_SESSION_KEY` / `CLAUDE_WEB_COOKIE`), or re-auth via Claude Code CLI.
+- `moltbot-cn channels list` prints `Claude: HTTP 403 ... user:profile` → usage snapshot needs the `user:profile` scope. Use `--no-usage`, or provide a claude.ai session key (`CLAUDE_WEB_SESSION_KEY` / `CLAUDE_WEB_COOKIE`), or re-auth via Claude Code CLI.
 
 ## Capabilities probe
 
 Fetch provider capability hints (intents/scopes where available) plus static feature support:
 
 ```bash
-clawdbot channels capabilities
-clawdbot channels capabilities --channel discord --target channel:123
+moltbot-cn channels capabilities
+moltbot-cn channels capabilities --channel discord --target channel:123
 ```
 
 Notes:
@@ -65,9 +65,9 @@ Notes:
 Resolve channel/user names to IDs using the provider directory:
 
 ```bash
-clawdbot channels resolve --channel slack "#general" "@jane"
-clawdbot channels resolve --channel discord "My Server/#support" "@someone"
-clawdbot channels resolve --channel matrix "Project Room"
+moltbot-cn channels resolve --channel slack "#general" "@jane"
+moltbot-cn channels resolve --channel discord "My Server/#support" "@someone"
+moltbot-cn channels resolve --channel matrix "Project Room"
 ```
 
 Notes:

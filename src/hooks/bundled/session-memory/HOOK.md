@@ -68,7 +68,7 @@ No additional configuration required. The hook automatically:
 To disable this hook:
 
 ```bash
-clawdbot hooks disable session-memory
+moltbot-cn hooks disable session-memory
 ```
 
 Or remove it from your config:

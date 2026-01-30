@@ -80,24 +80,24 @@ describe("applyCliProfileEnv", () => {
 
 describe("formatCliCommand", () => {
   it("returns command unchanged when no profile is set", () => {
-    expect(formatCliCommand("clawdbot doctor --fix", {})).toBe("clawdbot doctor --fix");
+    expect(formatCliCommand("moltbot-cn doctor --fix", {})).toBe("moltbot-cn doctor --fix");
   });
 
   it("returns command unchanged when profile is default", () => {
-    expect(formatCliCommand("clawdbot doctor --fix", { CLAWDBOT_PROFILE: "default" })).toBe(
-      "clawdbot doctor --fix",
+    expect(formatCliCommand("moltbot-cn doctor --fix", { CLAWDBOT_PROFILE: "default" })).toBe(
+      "moltbot-cn doctor --fix",
     );
   });
 
   it("returns command unchanged when profile is Default (case-insensitive)", () => {
-    expect(formatCliCommand("clawdbot doctor --fix", { CLAWDBOT_PROFILE: "Default" })).toBe(
-      "clawdbot doctor --fix",
+    expect(formatCliCommand("moltbot-cn doctor --fix", { CLAWDBOT_PROFILE: "Default" })).toBe(
+      "moltbot-cn doctor --fix",
     );
   });
 
   it("returns command unchanged when profile is invalid", () => {
-    expect(formatCliCommand("clawdbot doctor --fix", { CLAWDBOT_PROFILE: "bad profile" })).toBe(
-      "clawdbot doctor --fix",
+    expect(formatCliCommand("moltbot-cn doctor --fix", { CLAWDBOT_PROFILE: "bad profile" })).toBe(
+      "moltbot-cn doctor --fix",
     );
   });
 
@@ -114,13 +114,13 @@ describe("formatCliCommand", () => {
   });
 
   it("inserts --profile flag when profile is set", () => {
-    expect(formatCliCommand("clawdbot doctor --fix", { CLAWDBOT_PROFILE: "work" })).toBe(
+    expect(formatCliCommand("moltbot-cn doctor --fix", { CLAWDBOT_PROFILE: "work" })).toBe(
       "clawdbot --profile work doctor --fix",
     );
   });
 
   it("trims whitespace from profile", () => {
-    expect(formatCliCommand("clawdbot doctor --fix", { CLAWDBOT_PROFILE: "  jbclawd  " })).toBe(
+    expect(formatCliCommand("moltbot-cn doctor --fix", { CLAWDBOT_PROFILE: "  jbclawd  " })).toBe(
       "clawdbot --profile jbclawd doctor --fix",
     );
   });
@@ -132,7 +132,7 @@ describe("formatCliCommand", () => {
   });
 
   it("handles pnpm wrapper", () => {
-    expect(formatCliCommand("pnpm clawdbot doctor", { CLAWDBOT_PROFILE: "work" })).toBe(
+    expect(formatCliCommand("pnpm moltbot-cn doctor", { CLAWDBOT_PROFILE: "work" })).toBe(
       "pnpm clawdbot --profile work doctor",
     );
   });

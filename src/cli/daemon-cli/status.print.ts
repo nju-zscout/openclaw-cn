@@ -100,7 +100,7 @@ export function printDaemonStatus(status: DaemonStatus, opts: { json: boolean })
     }
     defaultRuntime.error(
       warnText(
-        `建议: 运行 "${formatCliCommand("clawdbot doctor")}" (或 "${formatCliCommand("clawdbot doctor --repair")}").`,
+        `建议: 运行 "${formatCliCommand("moltbot-cn doctor")}" (或 "${formatCliCommand("moltbot-cn doctor --repair")}").`,
       ),
     );
   }
@@ -132,7 +132,7 @@ export function printDaemonStatus(status: DaemonStatus, opts: { json: boolean })
       );
       defaultRuntime.error(
         errorText(
-          `修复: 从相同的 --profile / CLAWDBOT_STATE_DIR 重新运行 \`${formatCliCommand("clawdbot gateway install --force")}\``,
+          `修复: 从相同的 --profile / CLAWDBOT_STATE_DIR 重新运行 \`${formatCliCommand("moltbot-cn gateway install --force")}\``,
         ),
       );
     }
@@ -231,7 +231,7 @@ export function printDaemonStatus(status: DaemonStatus, opts: { json: boolean })
       ),
     );
     defaultRuntime.error(
-      errorText(`Then reinstall: ${formatCliCommand("clawdbot gateway install")}`),
+      errorText(`Then reinstall: ${formatCliCommand("moltbot-cn gateway install")}`),
     );
     spacer();
   }
@@ -284,7 +284,7 @@ export function printDaemonStatus(status: DaemonStatus, opts: { json: boolean })
     for (const svc of legacyServices) {
       defaultRuntime.error(`- ${errorText(svc.label)} (${svc.detail})`);
     }
-    defaultRuntime.error(errorText(`Cleanup: ${formatCliCommand("clawdbot doctor")}`));
+    defaultRuntime.error(errorText(`Cleanup: ${formatCliCommand("moltbot-cn doctor")}`));
     spacer();
   }
 
@@ -313,6 +313,6 @@ export function printDaemonStatus(status: DaemonStatus, opts: { json: boolean })
     spacer();
   }
 
-  defaultRuntime.log(`${label("问题排查:")} run ${formatCliCommand("clawdbot status")}`);
+  defaultRuntime.log(`${label("问题排查:")} run ${formatCliCommand("moltbot-cn status")}`);
   defaultRuntime.log(`${label("故障排除:")} https://docs.clawd.bot/troubleshooting`);
 }

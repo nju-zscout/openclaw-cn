@@ -491,8 +491,8 @@ Controls how WhatsApp direct chats (DMs) are handled:
 Pairing codes expire after 1 hour; the bot only sends a pairing code when a new request is created. Pending DM pairing requests are capped at **3 per channel** by default.
 
 Pairing approvals:
-- `clawdbot pairing list whatsapp`
-- `clawdbot pairing approve whatsapp <code>`
+- `moltbot-cn pairing list whatsapp`
+- `moltbot-cn pairing approve whatsapp <code>`
 
 ### `channels.whatsapp.allowFrom`
 
@@ -1260,7 +1260,7 @@ Slack action groups (gate `slack` tool actions):
 ### `channels.mattermost` (bot token)
 
 Mattermost ships as a plugin and is not bundled with the core install.
-Install it first: `clawdbot plugins install @clawdbot/mattermost` (or `./extensions/mattermost` from a git checkout).
+Install it first: `moltbot-cn plugins install @clawdbot/mattermost` (or `./extensions/mattermost` from a git checkout).
 
 Mattermost requires a bot token plus the base URL for your server:
 
@@ -2350,7 +2350,7 @@ the built-in `opencode` provider from pi-ai; set `OPENCODE_API_KEY` (or
 Notes:
 - Model refs use `opencode/<modelId>` (example: `opencode/claude-opus-4-5`).
 - If you enable an allowlist via `agents.defaults.models`, add each model you plan to use.
-- Shortcut: `clawdbot onboard --auth-choice opencode-zen`.
+- Shortcut: `moltbot-cn onboard --auth-choice opencode-zen`.
 
 ```json5
 {
@@ -2368,7 +2368,7 @@ Notes:
 Z.AI models are available via the built-in `zai` provider. Set `ZAI_API_KEY`
 in your environment and reference the model by provider/model.
 
-Shortcut: `clawdbot onboard --auth-choice zai-api-key`.
+Shortcut: `moltbot-cn onboard --auth-choice zai-api-key`.
 
 ```json5
 {
@@ -2430,7 +2430,7 @@ Use Moonshot's OpenAI-compatible endpoint:
 ```
 
 Notes:
-- Set `MOONSHOT_API_KEY` in the environment or use `clawdbot onboard --auth-choice moonshot-api-key`.
+- Set `MOONSHOT_API_KEY` in the environment or use `moltbot-cn onboard --auth-choice moonshot-api-key`.
 - Model ref: `moonshot/kimi-k2-0905-preview`.
 - Use `https://api.moonshot.cn/v1` if you need the China endpoint.
 
@@ -2474,7 +2474,7 @@ Use Kimi Code's dedicated OpenAI-compatible endpoint (separate from Moonshot):
 ```
 
 Notes:
-- Set `KIMICODE_API_KEY` in the environment or use `clawdbot onboard --auth-choice kimi-code-api-key`.
+- Set `KIMICODE_API_KEY` in the environment or use `moltbot-cn onboard --auth-choice kimi-code-api-key`.
 - Model ref: `kimi-code/kimi-for-coding`.
 
 ### Synthetic (Anthropic-compatible)
@@ -2515,7 +2515,7 @@ Use Synthetic's Anthropic-compatible endpoint:
 ```
 
 Notes:
-- Set `SYNTHETIC_API_KEY` or use `clawdbot onboard --auth-choice synthetic-api-key`.
+- Set `SYNTHETIC_API_KEY` or use `moltbot-cn onboard --auth-choice synthetic-api-key`.
 - Model ref: `synthetic/hf:MiniMaxAI/MiniMax-M2.1`.
 - Base URL should omit `/v1` because the Anthropic client appends it.
 
@@ -2562,7 +2562,7 @@ Use MiniMax M2.1 directly without LM Studio:
 ```
 
 Notes:
-- Set `MINIMAX_API_KEY` environment variable or use `clawdbot onboard --auth-choice minimax-api`.
+- Set `MINIMAX_API_KEY` environment variable or use `moltbot-cn onboard --auth-choice minimax-api`.
 - Available model: `MiniMax-M2.1` (default).
 - Update pricing in `models.json` if you need exact cost tracking.
 

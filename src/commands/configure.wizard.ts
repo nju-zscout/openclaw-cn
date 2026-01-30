@@ -196,7 +196,7 @@ export async function runConfigureWizard(
       }
       if (!snapshot.valid) {
         outro(
-          `配置无效。请运行 \`${formatCliCommand("clawdbot doctor")}\` 修复它，然后重新运行 configure。`,
+          `配置无效。请运行 \`${formatCliCommand("moltbot-cn doctor")}\` 修复它，然后重新运行 configure。`,
         );
         runtime.exit(1);
         return;

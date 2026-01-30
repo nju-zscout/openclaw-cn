@@ -302,7 +302,7 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
         "网关令牌：网关+控制界面的共享认证。",
         "存储在：~/.clawdbot/clawdbot.json（gateway.auth.token）或CLAWDBOT_GATEWAY_TOKEN。",
         "网页界面在此浏览器的localStorage中存储副本（clawdbot.control.settings.v1）。",
-        `随时获取带令牌的链接：${formatCliCommand("clawdbot dashboard --no-open")}`,
+        `随时获取带令牌的链接：${formatCliCommand("moltbot-cn dashboard --no-open")}`,
       ].join("\n"),
       "令牌",
     );
@@ -332,7 +332,7 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
       if (seededInBackground) {
         await prompter.note(
           `网页界面已在后台播种。稍后使用以下命令打开：${formatCliCommand(
-            "clawdbot dashboard --no-open",
+            "moltbot-cn dashboard --no-open",
           )}`,
           "网页界面",
         );
@@ -369,7 +369,7 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
       );
     } else {
       await prompter.note(
-        `当您准备就绪时：${formatCliCommand("clawdbot dashboard --no-open")}`,
+        `当您准备就绪时：${formatCliCommand("moltbot-cn dashboard --no-open")}`,
         "稍后",
       );
     }
@@ -444,7 +444,7 @@ export async function finalizeOnboardingWizard(options: FinalizeOnboardingOption
           "Clawdbot使用Brave Search作为`web_search`工具。没有Brave Search API密钥，网络搜索将无法工作。",
           "",
           "交互式设置：",
-          `- 运行：${formatCliCommand("clawdbot configure --section web")}`,
+          `- 运行：${formatCliCommand("moltbot-cn configure --section web")}`,
           "- 启用web_search并粘贴您的Brave Search API密钥",
           "",
           "替代方案：在网关环境中设置BRAVE_API_KEY（无需更改配置）。",

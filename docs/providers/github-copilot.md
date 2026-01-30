@@ -2,7 +2,7 @@
 summary: "Sign in to GitHub Copilot from Clawdbot using the device flow"
 read_when:
   - You want to use GitHub Copilot as a model provider
-  - You need the `clawdbot models auth login-github-copilot` flow
+  - You need the `moltbot-cn models auth login-github-copilot` flow
 ---
 # Github Copilot
 
@@ -34,7 +34,7 @@ profile.
 ## CLI setup
 
 ```bash
-clawdbot models auth login-github-copilot
+moltbot-cn models auth login-github-copilot
 ```
 
 You'll be prompted to visit a URL and enter a one-time code. Keep the terminal
@@ -43,14 +43,14 @@ open until it completes.
 ### Optional flags
 
 ```bash
-clawdbot models auth login-github-copilot --profile-id github-copilot:work
-clawdbot models auth login-github-copilot --yes
+moltbot-cn models auth login-github-copilot --profile-id github-copilot:work
+moltbot-cn models auth login-github-copilot --yes
 ```
 
 ## Set a default model
 
 ```bash
-clawdbot models set github-copilot/gpt-4o
+moltbot-cn models set github-copilot/gpt-4o
 ```
 
 ### Config snippet

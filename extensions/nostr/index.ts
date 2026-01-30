@@ -1,5 +1,5 @@
-import type { ClawdbotPluginApi, ClawdbotConfig } from "clawdbot/plugin-sdk";
-import { emptyPluginConfigSchema } from "clawdbot/plugin-sdk";
+import type { ClawdbotPluginApi, ClawdbotConfig } from "moltbot-cn/plugin-sdk";
+import { emptyPluginConfigSchema } from "moltbot-cn/plugin-sdk";
 
 import { nostrPlugin } from "./src/channel.js";
 import { setNostrRuntime, getNostrRuntime } from "./src/runtime.js";
