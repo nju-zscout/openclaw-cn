@@ -54,7 +54,7 @@ ls -la dist/
 npm whoami
 
 # 发布到 npm 公开仓库
-npm publish
+npm publish --access public
 
 # 或使用 OTP（如果启用了两步验证）
 npm publish --otp=YOUR_OTP_CODE

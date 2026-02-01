@@ -37,11 +37,15 @@
     "clean": "rm -rf dist"
   },
   "peerDependencies": {
+    "openclaw": "*",
     "openclaw-cn": "*"
   },
   "peerDependenciesMeta": {
+    "openclaw": {
+      "optional": true
+    },
     "openclaw-cn": {
-      "optional": false
+      "optional": true
     }
   },
   "publishConfig": {

@@ -12,7 +12,7 @@ import {
   type ChannelPlugin,
   type ResolvedFeishuAccount,
   type ClawdbotConfig,
-} from "openclaw-cn/plugin-sdk";
+} from "openclaw/plugin-sdk";
 import { feishuOnboardingAdapter } from "./onboarding.js";
 import { FeishuAccountSchema } from "./config-schema.js";
 import { getFeishuRuntime } from "./runtime.js";

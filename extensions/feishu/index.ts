@@ -1,5 +1,8 @@
-import type { ClawdbotPluginApi } from "openclaw-cn/plugin-sdk";
-import { emptyPluginConfigSchema } from "openclaw-cn/plugin-sdk";
+// Support both openclaw (upstream) and openclaw-cn (Chinese fork)
+// @ts-ignore - dynamic import resolution
+import type { ClawdbotPluginApi } from "openclaw/plugin-sdk";
+// @ts-ignore - dynamic import resolution
+import { emptyPluginConfigSchema } from "openclaw/plugin-sdk";
 import { feishuPlugin } from "./src/channel.js";
 import { setFeishuRuntime } from "./src/runtime.js";
 

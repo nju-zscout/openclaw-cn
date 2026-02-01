@@ -1,6 +1,6 @@
 /**
- * Type declarations for openclaw-cn/plugin-sdk
- * 支持 TypeScript 类型检查
+ * Type declarations for openclaw/plugin-sdk
+ * 支持 TypeScript 类型检查，兼容上游 openclaw 和 openclaw-cn
  */
 
 export interface ClawdbotPluginApi {
