@@ -1,11 +1,46 @@
+# Git and version control
 .git
+.gitignore
+.gitattributes
 .worktrees
+
+# Build tools cache
 .bun-cache
 .bun
+.turbo
+**/.turbo
+.cache
+**/.cache
+.pnpm-store
+**/.pnpm-store
+
+# Node modules (will be reinstalled)
+node_modules
+**/node_modules
+
+# Temporary files
 .tmp
 **/.tmp
+tmp
+**/tmp
+*.log
+
+# OS files
 .DS_Store
 **/.DS_Store
+.AppleDouble
+Thumbs.db
+
+# IDE and editor files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.env.local
+.env.*.local
+
+# Media files (large, not needed in Docker)
 *.png
 *.jpg
 *.jpeg
@@ -15,30 +50,26 @@
 *.mov
 *.wav
 *.mp3
-node_modules
-**/node_modules
-.pnpm-store
-**/.pnpm-store
-.turbo
-**/.turbo
-.cache
-**/.cache
-.next
-**/.next
-coverage
-**/coverage
-*.log
-tmp
-**/tmp
+*.pdf
 
-# build artifacts
+# Build artifacts (will be regenerated)
 dist
 **/dist
 apps/macos/.build
 apps/ios/build
 **/*.trace
+.next
+**/.next
 
-# large app trees not needed for CLI build
+# Test and coverage files
+coverage
+**/coverage
+*.test.*
+*.spec.*
+test/
+tests/
+
+# Large app trees not needed for CLI build
 apps/
 assets/
 Peekaboo/
@@ -46,3 +77,23 @@ Swabble/
 Core/
 Users/
 vendor/
+
+# CI/CD and development files
+.github
+.gitlab-ci.yml
+.circleci
+Jenkinsfile
+.env
+.env.example
+scripts/
+docs/
+
+# Package manager lock files (will be regenerated)
+yarn.lock
+package-lock.json
+
+# Misc
+README.md
+LICENSE
+CHANGELOG.md
+CONTRIBUTING.md

@@ -28,16 +28,37 @@ Docker 是 **可选的**。仅在您想要容器化网关或验证 Docker 流程
 
 ## 容器化网关（Docker Compose）
 
-### 快速开始（推荐）
+### 快速开始（推荐）— 使用预构建镜像
 
-从仓库根目录：
+**现在支持使用官方预构建的 Docker 镜像，无需从源码构建！**
+
+#### 方式 1：使用预构建镜像（最简单）
+
+如果您想使用预构建的镜像，设置环境变量：
+
+```bash
+export OPENCLAW_IMAGE="username/openclaw-cn:latest"
+./docker-setup.sh
+```
+
+替换 `username` 为你在 Docker Hub 上的用户名。
+
+预构建镜像的优点：
+- ✅ **快速部署** — 无需本地构建，直接拉取镜像
+- ✅ **多架构支持** — 自动选择适配你的系统（amd64/arm64）
+- ✅ **更新及时** — 官方镜像定期更新最新版本
+- ✅ **减少资源占用** — 不需要在本地构建耗时又耗资源
+
+#### 方式 2：从源码构建（本地镜像）
+
+从仓库根目录构建本地镜像：
 
 ```bash
 ./docker-setup.sh
 ```
 
 此脚本：
-- 构建网关镜像
+- 构建网关镜像（可能耗时 10-30 分钟）
 - 运行引导向导
 - 打印可选的提供商设置提示
 - 通过 Docker Compose 启动网关
@@ -410,6 +431,185 @@ docker build -t my-clawdbot-sbx -f Dockerfile.sandbox .
 
 两个选项：
 - `prune.idleHours`：移除 X 小时未使用的容器（0 = 禁用）
+
+---
+
+## 预构建 Docker 镜像
+
+本项目现在提供官方的预构建 Docker 镜像，支持多架构部署。
+
+### 支持的架构
+
+预构建镜像支持以下架构：
+
+- **linux/amd64** — Intel/AMD 64位处理器（大多数服务器和现代电脑）
+- **linux/arm64** — ARM 64位处理器（Apple Silicon Mac、树莓派 4/5、华为云鲲鹏等）
+
+Docker 会自动选择匹配你系统的镜像版本。
+
+### 镜像标签
+
+| 标签 | 说明 | 更新频率 |
+|------|------|--------|
+| `latest` | 最新稳定版本 | 每次推送到 `main` 分支 |
+| `vX.Y.Z` | 特定版本 | 每次发布新版本标签 |
+| `main-XXXXX` | 开发版本 | 每次提交到 `main` 分支 |
+
+### 快速开始（使用预构建镜像）
+
+最简单的方法是使用预构建镜像：
+
+```bash
+# 1. 设置镜像名称（替换为你的 Docker Hub 用户名）
+export OPENCLAW_IMAGE="username/openclaw-cn:latest"
+
+# 2. 运行一键部署脚本
+./docker-setup.sh
+
+# 3. 在浏览器中打开 http://127.0.0.1:18789/
+# 4. 复制并粘贴网关令牌到控制界面
+```
+
+### 手动运行预构建镜像
+
+如果你希望更细致的控制，可以手动运行：
+
+```bash
+# 拉取镜像
+docker pull username/openclaw-cn:latest
+
+# 运行网关
+docker run -d \
+  --name openclaw-gateway \
+  -p 18789:18789 \
+  -e HOME=/home/node \
+  -v ~/.openclaw:/home/node/.openclaw \
+  -v ~/clawd:/home/node/clawd \
+  username/openclaw-cn:latest \
+  node dist/index.js gateway --bind 0.0.0.0 --port 18789
+```
+
+### 使用 Docker Compose
+
+编辑 `.env` 文件：
+
+```bash
+OPENCLAW_IMAGE=username/openclaw-cn:latest
+```
+
+然后运行：
+
+```bash
+docker compose up -d openclaw-cn-gateway
+```
+
+### 构建和发布你自己的镜像
+
+如果你想对预构建镜像进行自定义或发布到你自己的 Docker Hub 账户：
+
+1. 确保你有 Docker Hub 账户
+2. 按照 [Docker Hub 预构建镜像配置指南](/install/docker-hub-setup) 设置 GitHub Actions
+3. GitHub Actions 会自动为你的每个推送和版本发布构建和推送多架构镜像
+
+### 镜像大小和性能
+
+- **镜像大小** — 约 500-600 MB（包含完整运行环境）
+- **首次启动** — 第一次拉取镜像约需 2-5 分钟（取决于网络速度）
+- **后续启动** — 使用本地缓存，启动时间 < 10 秒
+- **内存占用** — 运行时约 100-200 MB
+
+### 生产环境部署
+
+对于生产环境，建议：
+
+1. **使用特定版本标签** — 不要使用 `latest`，而是指定如 `v2026.1.31`
+2. **启用容器重启策略** — `restart: unless-stopped`
+3. **设置资源限制** — 限制 CPU 和内存
+4. **启用日志轮转** — 防止日志文件过大
+5. **监控容器健康** — 使用 `healthcheck` 指令
+
+示例 docker-compose 生产配置：
+
+```yaml
+services:
+  openclaw-gateway:
+    image: username/openclaw-cn:v2026.1.31
+    restart: unless-stopped
+    ports:
+      - "18789:18789"
+    volumes:
+      - ~/.openclaw:/home/node/.openclaw
+      - ~/clawd:/home/node/clawd
+    environment:
+      NODE_ENV: production
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:18789/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 512M
+        reservations:
+          cpus: '1'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+```
+
+### 故障排查
+
+#### 镜像拉取失败
+
+```bash
+# 检查镜像是否存在
+docker pull username/openclaw-cn:latest
+
+# 如果失败，检查 Docker Hub 仓库是否公开
+# 或使用本地构建：
+./docker-setup.sh
+```
+
+#### ARM64 兼容性问题
+
+如果在 ARM64 系统（如树莓派）上遇到问题：
+
+1. 确保 Docker 已更新到最新版本
+2. 验证镜像拉取时自动选择了 ARM64 版本：
+   ```bash
+   docker inspect username/openclaw-cn:latest | grep -i architecture
+   ```
+3. 如果上述步骤不成功，使用本地构建：
+   ```bash
+   ./docker-setup.sh
+   ```
+
+#### 权限错误
+
+如果遇到权限错误，确保当前用户被添加到 `docker` 组：
+
+```bash
+# 添加当前用户到 docker 组
+sudo usermod -aG docker $USER
+
+# 刷新组成员关系（重新登录或运行）
+newgrp docker
+
+# 验证
+docker ps
+```
+
+### 更多信息
+
+详见：
+- [Docker Hub 预构建镜像配置指南](/install/docker-hub-setup)
+- [Docker 官方文档](https://docs.docker.com/)
+- [Clawdbot Docker 示例](https://github.com/jiulingyun/moltbot-cn)
 - `prune.maxAgeDays`：移除超过 X 天的容器（0 = 禁用）
 
 示例：
