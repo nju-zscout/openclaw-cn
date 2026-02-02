@@ -77,16 +77,20 @@ async function getTenantAccessToken(credentials: FeishuStreamingCredentials): Pr
  */
 export async function createStreamingCard(
   credentials: FeishuStreamingCredentials,
-  title: string = "Moltbot",
+  title?: string,
 ): Promise<{ cardId: string }> {
   const cardJson = {
     schema: "2.0",
-    header: {
-      title: {
-        content: title,
-        tag: "plain_text",
-      },
-    },
+    ...(title
+      ? {
+          header: {
+            title: {
+              content: title,
+              tag: "plain_text",
+            },
+          },
+        }
+      : {}),
     config: {
       streaming_mode: true,
       summary: {

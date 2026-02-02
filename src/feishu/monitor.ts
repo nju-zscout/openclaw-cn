@@ -79,6 +79,7 @@ export async function monitorFeishuProvider(opts: MonitorFeishuOpts = {}): Promi
           accountId,
           resolvedConfig: feishuCfg,
           credentials: { appId, appSecret },
+          botName: account.name,
         });
       } catch (err) {
         logger.error(`Error processing Feishu message: ${String(err)}`);

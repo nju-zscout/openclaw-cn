@@ -27,6 +27,8 @@ export type ProcessFeishuMessageOptions = {
   resolvedConfig?: ResolvedFeishuConfig;
   /** Feishu app credentials for streaming card API */
   credentials?: { appId: string; appSecret: string };
+  /** Bot name for streaming card title (optional, defaults to no title) */
+  botName?: string;
 };
 
 export async function processFeishuMessage(
@@ -334,7 +336,7 @@ export async function processFeishuMessage(
         // Start streaming card when reply generation begins
         if (streamingSession && !streamingStarted) {
           try {
-            await streamingSession.start(chatId, "chat_id");
+            await streamingSession.start(chatId, "chat_id", options.botName);
             streamingStarted = true;
             logger.debug(`Started streaming card for chat ${chatId}`);
           } catch (err) {
