@@ -15,6 +15,12 @@ export type FeishuMediaRef = {
  * This is the correct API for downloading resources from messages sent by users.
  *
  * @param type - Resource type: "image", "file", "audio", or "video"
+ *
+ * Note: Feishu API only accepts two values for the type parameter:
+ * - "image": for images in messages or rich text
+ * - "file": for files, audio, and video
+ *
+ * See: https://open.feishu.cn/document/server-docs/im-v1/message/get
  */
 export async function downloadFeishuMessageResource(
   client: Client,
@@ -23,10 +29,14 @@ export async function downloadFeishuMessageResource(
   type: "image" | "file" | "audio" | "video",
   maxBytes: number = 30 * 1024 * 1024,
 ): Promise<FeishuMediaRef> {
-  logger.debug(`Downloading Feishu ${type}: messageId=${messageId}, fileKey=${fileKey}`);
+  // Feishu API type parameter: "image" for images, "file" for everything else (audio, video, file)
+  const apiType = type === "image" ? "image" : "file";
+  logger.debug(
+    `Downloading Feishu ${type} (API type: ${apiType}): messageId=${messageId}, fileKey=${fileKey}`,
+  );
 
   const res = await client.im.messageResource.get({
-    params: { type },
+    params: { type: apiType },
     path: {
       message_id: messageId,
       file_key: fileKey,
