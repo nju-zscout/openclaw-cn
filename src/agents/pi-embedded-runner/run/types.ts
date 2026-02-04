@@ -20,6 +20,8 @@ export type EmbeddedRunAttemptParams = {
   sessionKey?: string;
   messageChannel?: string;
   messageProvider?: string;
+  /** Chat type: "direct" (DM/private), "group", or "channel". */
+  messageChatType?: string;
   agentAccountId?: string;
   messageTo?: string;
   messageThreadId?: string | number;

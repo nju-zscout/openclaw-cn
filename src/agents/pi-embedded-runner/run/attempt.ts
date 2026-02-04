@@ -316,6 +316,7 @@ export async function runEmbeddedAttempt(
         model: `${params.provider}/${params.modelId}`,
         defaultModel: defaultModelLabel,
         channel: runtimeChannel,
+        chatType: params.messageChatType,
         capabilities: runtimeCapabilities,
         channelActions,
       },

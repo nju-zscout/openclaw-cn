@@ -18,6 +18,8 @@ export type RuntimeInfoInput = {
   model: string;
   defaultModel?: string;
   channel?: string;
+  /** Chat type: "direct" (DM/private), "group", or "channel". */
+  chatType?: string;
   capabilities?: string[];
   /** Supported message actions for the current channel (e.g., react, edit, unsend) */
   channelActions?: string[];

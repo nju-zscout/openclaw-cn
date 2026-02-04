@@ -75,6 +75,8 @@ export type CompactEmbeddedPiSessionParams = {
   sessionKey?: string;
   messageChannel?: string;
   messageProvider?: string;
+  /** Chat type: "direct" (DM/private), "group", or "channel". */
+  messageChatType?: string;
   agentAccountId?: string;
   authProfileId?: string;
   /** Group id for channel-level tool policy resolution. */
@@ -301,6 +303,7 @@ export async function compactEmbeddedPiSessionDirect(
       node: process.version,
       model: `${provider}/${modelId}`,
       channel: runtimeChannel,
+      chatType: params.messageChatType,
       capabilities: runtimeCapabilities,
       channelActions,
     };

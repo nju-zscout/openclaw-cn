@@ -223,6 +223,7 @@ export async function runAgentTurnWithFallback(params: {
             sessionId: params.followupRun.run.sessionId,
             sessionKey: params.sessionKey,
             messageProvider: params.sessionCtx.Provider?.trim().toLowerCase() || undefined,
+            messageChatType: params.sessionCtx.ChatType?.trim().toLowerCase() || undefined,
             agentAccountId: params.sessionCtx.AccountId,
             messageTo: params.sessionCtx.OriginatingTo ?? params.sessionCtx.To,
             messageThreadId: params.sessionCtx.MessageThreadId ?? undefined,

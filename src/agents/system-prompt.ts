@@ -161,6 +161,8 @@ export function buildAgentSystemPrompt(params: {
     model?: string;
     defaultModel?: string;
     channel?: string;
+    /** Chat type: "direct" (DM/private), "group", or "channel". */
+    chatType?: string;
     capabilities?: string[];
     repoRoot?: string;
   };
@@ -583,6 +585,7 @@ export function buildRuntimeLine(
     model?: string;
     defaultModel?: string;
     repoRoot?: string;
+    chatType?: string;
   },
   runtimeChannel?: string,
   runtimeCapabilities: string[] = [],
@@ -601,6 +604,7 @@ export function buildRuntimeLine(
     runtimeInfo?.model ? `model=${runtimeInfo.model}` : "",
     runtimeInfo?.defaultModel ? `default_model=${runtimeInfo.defaultModel}` : "",
     runtimeChannel ? `channel=${runtimeChannel}` : "",
+    runtimeInfo?.chatType ? `chat_type=${runtimeInfo.chatType}` : "",
     runtimeChannel
       ? `capabilities=${runtimeCapabilities.length > 0 ? runtimeCapabilities.join(",") : "none"}`
       : "",

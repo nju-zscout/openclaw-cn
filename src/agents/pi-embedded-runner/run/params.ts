@@ -22,6 +22,8 @@ export type RunEmbeddedPiAgentParams = {
   sessionKey?: string;
   messageChannel?: string;
   messageProvider?: string;
+  /** Chat type: "direct" (DM/private), "group", or "channel". */
+  messageChatType?: string;
   agentAccountId?: string;
   /** Delivery target (e.g. telegram:group:123:topic:456) for topic/thread routing. */
   messageTo?: string;
