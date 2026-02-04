@@ -235,7 +235,7 @@ openclaw-cn gateway restart
 
 1. 运行 `openclaw-cn status --all` 获取完整诊断报告
 2. 查看 [故障排除指南](/gateway/troubleshooting)
-3. 在 Discord 社区提问：https://discord.gg/clawd
+3. 在 Discord 社区提问：https://discord.gg/KFTVvJUu
 
 ---
 

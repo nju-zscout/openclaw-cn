@@ -9,7 +9,7 @@ summary: "由 Clawdbot 提供支持的社区构建项目和集成"
 来自社区的真实项目。看看人们正在用 Clawdbot 构建什么。
 
 <Info>
-**想被展示吗？** 在 Discord 的 [#showcase](https://discord.gg/clawd) 中分享您的项目或在 X 上 [标记 @clawdbot](https://x.com/clawdbot)。
+**想被展示吗？** 在 Discord 的 [#showcase](https://discord.gg/KFTVvJUu) 中分享您的项目或在 X 上 [标记 @clawdbot](https://x.com/clawdbot)。
 </Info>
 
 ## 🎥 Clawdbot 实战演示
@@ -405,7 +405,7 @@ VelvetShark 制作的完整设置教程（28分钟）。
 
 <Steps>
   <Step title="分享它">
-    在 Discord 的 [#showcase](https://discord.gg/clawd) 中发布或 [在 X 上标记 @clawdbot](https://x.com/clawdbot)
+    在 Discord 的 [#showcase](https://discord.gg/KFTVvJUu) 中发布或 [在 X 上标记 @clawdbot](https://x.com/clawdbot)
   </Step>
   <Step title="包含详细信息">
     告诉我们它是做什么的，链接到仓库/演示，分享截图（如果有）

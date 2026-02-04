@@ -4,7 +4,7 @@ Welcome to the lobster tank! 🦞
 
 ## Quick Links
 - **GitHub:** https://github.com/clawdbot/clawdbot
-- **Discord:** https://discord.gg/qkhbAGHRBT
+- **Discord:** https://discord.gg/KFTVvJUu
 - **X/Twitter:** [@steipete](https://x.com/steipete) / [@clawdbot](https://x.com/clawdbot)
 
 ## Maintainers
