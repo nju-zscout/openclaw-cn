@@ -498,7 +498,9 @@ export async function processFeishuMessage(
 
         // If streaming was active, close it with the final text
         if (streamingSession?.isActive() && info?.kind === "final") {
-          await streamingSession.close(payload.text);
+          // Use payload.text if available, otherwise fallback to lastPartialText
+          const finalText = payload.text || lastPartialText;
+          await streamingSession.close(finalText);
           streamingStarted = false;
           return; // Card already contains the final text
         }
@@ -662,6 +664,7 @@ export async function processFeishuMessage(
         },
       });
     }
-    await streamingSession.close();
+    // Always close with the complete accumulated text
+    await streamingSession.close(lastPartialText || undefined);
   }
 }
