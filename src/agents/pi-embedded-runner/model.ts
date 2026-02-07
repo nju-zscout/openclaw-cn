@@ -77,6 +77,8 @@ export function resolveModel(
         cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
         contextWindow: providerCfg?.models?.[0]?.contextWindow ?? DEFAULT_CONTEXT_TOKENS,
         maxTokens: providerCfg?.models?.[0]?.maxTokens ?? DEFAULT_CONTEXT_TOKENS,
+        baseUrl: providerCfg?.baseUrl,
+        headers: providerCfg?.headers,
       } as Model<Api>);
       return { model: fallbackModel, authStorage, modelRegistry };
     }
