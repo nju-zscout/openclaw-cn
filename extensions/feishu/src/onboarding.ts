@@ -1,6 +1,7 @@
 import type {
   ChannelOnboardingAdapter,
   ClawdbotConfig,
+  FeishuDomain,
   WizardPrompter,
 } from "openclaw/plugin-sdk";
 import {
@@ -85,7 +86,18 @@ export const feishuOnboardingAdapter: ChannelOnboardingAdapter = {
       ).trim();
     }
 
-    next = updateFeishuConfig(next, accountId, { appId, appSecret, enabled: true });
+    // Prompt for domain (Feishu China vs Lark International)
+    const currentDomain = resolved.config.domain ?? "feishu";
+    const domain = (await prompter.select({
+      message: "选择平台 / Select platform",
+      options: [
+        { value: "feishu", label: "飞书（国内版）", hint: "open.feishu.cn" },
+        { value: "lark", label: "Lark（国际版）", hint: "open.larksuite.com" },
+      ],
+      initialValue: currentDomain,
+    })) as FeishuDomain;
+
+    next = updateFeishuConfig(next, accountId, { appId, appSecret, domain, enabled: true });
 
     return { cfg: next, accountId };
   },
@@ -111,7 +123,7 @@ export const feishuOnboardingAdapter: ChannelOnboardingAdapter = {
 function updateFeishuConfig(
   cfg: ClawdbotConfig,
   accountId: string,
-  updates: { appId?: string; appSecret?: string; enabled?: boolean }
+  updates: { appId?: string; appSecret?: string; domain?: FeishuDomain; enabled?: boolean },
 ): ClawdbotConfig {
   const next = { ...cfg };
   const feishu = next.channels?.feishu || {};

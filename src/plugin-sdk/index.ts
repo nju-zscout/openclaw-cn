@@ -368,6 +368,7 @@ export {
 export type { ProcessedLineMessage } from "../line/markdown-to-line.js";
 
 // Channel: Feishu
+export type { FeishuDomain } from "../config/types.feishu.js";
 export {
   listFeishuAccountIds,
   resolveDefaultFeishuAccountId,
