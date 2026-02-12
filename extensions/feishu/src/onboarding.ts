@@ -66,27 +66,7 @@ export const feishuOnboardingAdapter: ChannelOnboardingAdapter = {
       }
     }
 
-    let appId = resolved.config.appId;
-    if (!appId) {
-      appId = String(
-        await prompter.text({
-          message: "Enter Feishu App ID (cli_...)",
-          validate: (val) => (val?.trim() ? undefined : "Required"),
-        }),
-      ).trim();
-    }
-
-    let appSecret = resolved.config.appSecret;
-    if (!appSecret) {
-      appSecret = String(
-        await prompter.text({
-          message: "Enter Feishu App Secret",
-          validate: (val) => (val?.trim() ? undefined : "Required"),
-        }),
-      ).trim();
-    }
-
-    // Prompt for domain (Feishu China vs Lark International)
+    // Prompt for domain (Feishu China vs Lark International) first
     const currentDomain = resolved.config.domain ?? "feishu";
     const domain = (await prompter.select({
       message: "选择平台 / Select platform",
@@ -96,6 +76,28 @@ export const feishuOnboardingAdapter: ChannelOnboardingAdapter = {
       ],
       initialValue: currentDomain,
     })) as FeishuDomain;
+
+    const platformLabel = domain === "lark" ? "Lark" : "飞书";
+
+    let appId = resolved.config.appId;
+    if (!appId) {
+      appId = String(
+        await prompter.text({
+          message: `输入 ${platformLabel} App ID (cli_...)`,
+          validate: (val) => (val?.trim() ? undefined : "Required"),
+        }),
+      ).trim();
+    }
+
+    let appSecret = resolved.config.appSecret;
+    if (!appSecret) {
+      appSecret = String(
+        await prompter.text({
+          message: `输入 ${platformLabel} App Secret`,
+          validate: (val) => (val?.trim() ? undefined : "Required"),
+        }),
+      ).trim();
+    }
 
     next = updateFeishuConfig(next, accountId, { appId, appSecret, domain, enabled: true });
 
