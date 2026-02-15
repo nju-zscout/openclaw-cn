@@ -15,7 +15,12 @@ import {
   resolveProfileContext,
   SELECTOR_UNSUPPORTED_MESSAGE,
 } from "./agent.shared.js";
-import { DEFAULT_DOWNLOAD_DIR, resolvePathWithinRoot } from "./path-output.js";
+import {
+  DEFAULT_DOWNLOAD_DIR,
+  DEFAULT_UPLOAD_DIR,
+  resolvePathWithinRoot,
+  resolvePathsWithinRoot,
+} from "./path-output.js";
 import { jsonError, toBoolean, toNumber, toStringArray, toStringOrEmpty } from "./utils.js";
 
 export function registerBrowserAgentActRoutes(app: express.Express, ctx: BrowserRouteContext) {
@@ -280,6 +285,17 @@ export function registerBrowserAgentActRoutes(app: express.Express, ctx: Browser
     const timeoutMs = toNumber(body.timeoutMs);
     if (!paths.length) return jsonError(res, 400, "paths are required");
     try {
+      const uploadPathsResult = resolvePathsWithinRoot({
+        rootDir: DEFAULT_UPLOAD_DIR,
+        requestedPaths: paths,
+        scopeLabel: `uploads directory (${DEFAULT_UPLOAD_DIR})`,
+      });
+      if (!uploadPathsResult.ok) {
+        res.status(400).json({ error: uploadPathsResult.error });
+        return;
+      }
+      const resolvedPaths = uploadPathsResult.paths;
+
       const tab = await profileCtx.ensureTabAvailable(targetId);
       const pw = await requirePwAi(res, "file chooser hook");
       if (!pw) return;
@@ -292,13 +308,13 @@ export function registerBrowserAgentActRoutes(app: express.Express, ctx: Browser
           targetId: tab.targetId,
           inputRef,
           element,
-          paths,
+          paths: resolvedPaths,
         });
       } else {
         await pw.armFileUploadViaPlaywright({
           cdpUrl: profileCtx.profile.cdpUrl,
           targetId: tab.targetId,
-          paths,
+          paths: resolvedPaths,
           timeoutMs: timeoutMs ?? undefined,
         });
         if (ref) {
