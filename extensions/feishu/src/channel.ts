@@ -52,6 +52,7 @@ export const feishuPlugin: ChannelPlugin<ResolvedFeishuAccount> = {
     polls: false,
     threads: true,
     media: true,
+    nativeCommands: true,
     reactions: true,
     edit: true,
     reply: true,

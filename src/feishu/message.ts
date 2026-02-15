@@ -1,60 +1,53 @@
 import type { Client } from "@larksuiteoapi/node-sdk";
-import type { ClawdbotConfig } from "../config/config.js";
-import { resolveSessionAgentId } from "../agents/agent-scope.js";
+import { formatInboundEnvelope, resolveEnvelopeFormatOptions } from "../auto-reply/envelope.js";
 import { dispatchReplyWithBufferedBlockDispatcher } from "../auto-reply/reply/provider-dispatcher.js";
+import { resolveSessionAgentId } from "../agents/agent-scope.js";
+import { parseTextCommand, getHelpMenuText, toSlashCommand } from "../channels/text-commands.js";
 import { createReplyPrefixOptions } from "../channels/reply-prefix.js";
+import type { ClawdbotConfig } from "../config/config.js";
 import { loadConfig } from "../config/config.js";
+import { readSessionUpdatedAt, resolveStorePath } from "../config/sessions.js";
 import { logVerbose } from "../globals.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import { getChildLogger } from "../logging.js";
 import { isSenderAllowed, normalizeAllowFromWithStore, resolveSenderAllowMatch } from "./access.js";
+import { resolveAgentRoute } from "../routing/resolve-route.js";
 import {
   resolveFeishuConfig,
   resolveFeishuGroupConfig,
   resolveFeishuGroupEnabled,
   type ResolvedFeishuConfig,
 } from "./config.js";
-import { resolveFeishuMedia, type FeishuMediaRef } from "./download.js";
+import { resolveFeishuDocsFromMessage } from "./docs.js";
+import {
+  resolveFeishuMedia,
+  downloadPostImages,
+  extractPostImageKeys,
+  type FeishuMediaRef,
+} from "./download.js";
 import { readFeishuAllowFromStore, upsertFeishuPairingRequest } from "./pairing-store.js";
 import { sendMessageFeishu } from "./send.js";
 import { FeishuStreamingSession } from "./streaming-card.js";
+import { createTypingIndicatorCallbacks } from "./typing.js";
+import { EmbeddedBlockChunker } from "../agents/pi-embedded-block-chunker.js";
 
 const logger = getChildLogger({ module: "feishu-message" });
 
-type FeishuSender = {
-  sender_id?: {
-    open_id?: string;
-    user_id?: string;
-    union_id?: string;
-  };
-};
-
-type FeishuMention = {
-  key?: string;
-};
-
-type FeishuMessage = {
-  chat_id?: string;
-  chat_type?: string;
-  message_type?: string;
-  content?: string;
-  mentions?: FeishuMention[];
-  create_time?: string | number;
-  message_id?: string;
-};
-
-type FeishuEventPayload = {
-  message?: FeishuMessage;
-  event?: {
-    message?: FeishuMessage;
-    sender?: FeishuSender;
-  };
-  sender?: FeishuSender;
-  mentions?: FeishuMention[];
-};
-
 // Supported message types for processing
-const SUPPORTED_MSG_TYPES = new Set(["text", "image", "file", "audio", "media", "sticker"]);
+// - post: rich text (may contain document links)
+const SUPPORTED_MSG_TYPES = new Set(["text", "post", "image", "file", "audio", "media", "sticker"]);
+
+/** Feishu mention structure from SDK */
+export type FeishuMention = {
+  key?: string;
+  id?: {
+    union_id?: string;
+    user_id?: string;
+    open_id?: string;
+  };
+  name?: string;
+  tenant_key?: string;
+};
 
 export type ProcessFeishuMessageOptions = {
   cfg?: ClawdbotConfig;
@@ -64,6 +57,8 @@ export type ProcessFeishuMessageOptions = {
   credentials?: { appId: string; appSecret: string; domain?: string };
   /** Bot name for streaming card title (optional, defaults to no title) */
   botName?: string;
+  /** Bot's own open_id for @mention detection in groups */
+  botOpenId?: string;
 };
 
 export async function processFeishuMessage(
@@ -76,27 +71,42 @@ export async function processFeishuMessage(
   const accountId = options.accountId ?? appId;
   const feishuCfg = options.resolvedConfig ?? resolveFeishuConfig({ cfg, accountId });
 
-  const payload = data as FeishuEventPayload;
-
   // SDK 2.0 schema: data directly contains message, sender, etc.
-  const message = payload.message ?? payload.event?.message;
-  const sender = payload.sender ?? payload.event?.sender;
+  const payload = data as Record<string, unknown>;
+  const message = (payload.message ?? (payload.event as Record<string, unknown>)?.message) as
+    | Record<string, unknown>
+    | undefined;
+  const sender = (payload.sender ?? (payload.event as Record<string, unknown>)?.sender) as
+    | Record<string, unknown>
+    | undefined;
 
   if (!message) {
     logger.warn(`Received event without message field`);
     return;
   }
 
-  const chatId = message.chat_id;
+  const chatId = message.chat_id as string | undefined;
   if (!chatId) {
     logger.warn("Received message without chat_id");
     return;
   }
   const isGroup = message.chat_type === "group";
-  const msgType = message.message_type;
-  const senderId = sender?.sender_id?.open_id || sender?.sender_id?.user_id || "unknown";
-  const senderUnionId = sender?.sender_id?.union_id;
+  const msgType = message.message_type as string | undefined;
+  const senderIdObj = sender?.sender_id as Record<string, string> | undefined;
+  const senderId = senderIdObj?.open_id || senderIdObj?.user_id || "unknown";
+  const senderUnionId = senderIdObj?.union_id;
   const maxMediaBytes = feishuCfg.mediaMaxMb * 1024 * 1024;
+
+  // Resolve agent route
+  const route = resolveAgentRoute({
+    cfg,
+    channel: "feishu",
+    accountId,
+    peer: {
+      kind: isGroup ? "group" : "dm",
+      id: isGroup ? chatId : senderId,
+    },
+  });
 
   // Check if this is a supported message type
   if (!msgType || !SUPPORTED_MSG_TYPES.has(msgType)) {
@@ -179,7 +189,7 @@ export async function processFeishuMessage(
             const { code, created } = await upsertFeishuPairingRequest({
               openId: senderId,
               unionId: senderUnionId,
-              name: sender?.sender_id?.user_id,
+              name: senderIdObj?.user_id,
             });
             if (created) {
               logger.info({ openId: senderId, unionId: senderUnionId }, "feishu pairing request");
@@ -215,8 +225,13 @@ export async function processFeishuMessage(
   }
 
   // Handle @mentions for group chats
-  const mentions = message.mentions ?? payload.mentions ?? [];
-  const wasMentioned = mentions.length > 0;
+  const mentions: FeishuMention[] =
+    (message.mentions as FeishuMention[]) ?? (payload.mentions as FeishuMention[]) ?? [];
+  const botOpenId = options.botOpenId;
+  // Check if the bot itself was mentioned, not just any @mention
+  const wasMentioned = botOpenId
+    ? mentions.some((m) => m.id?.open_id === botOpenId)
+    : mentions.length > 0; // Fallback if botOpenId not available
 
   // In group chat, check requireMention setting
   if (isGroup) {
@@ -228,16 +243,67 @@ export async function processFeishuMessage(
     }
   }
 
-  // Extract text content (for text messages or captions)
+  // Extract text content (for text messages or rich text)
   let text = "";
   if (msgType === "text") {
     try {
-      if (message.content) {
-        const content = JSON.parse(message.content);
+      const contentStr = message.content as string | undefined;
+      if (contentStr) {
+        const content = JSON.parse(contentStr);
         text = content.text || "";
       }
     } catch (err) {
       logger.error(`Failed to parse text message content: ${formatErrorMessage(err)}`);
+    }
+  } else if (msgType === "post") {
+    // Extract text from rich text (post) message
+    // Handles both direct format { title, content } and locale-wrapped format { post: { zh_cn: { title, content } } }
+    try {
+      const content = JSON.parse(message.content as string);
+      const parts: string[] = [];
+
+      // Try to find the actual post content
+      // Format 1: { post: { zh_cn: { title, content } } }
+      // Format 2: { title, content } (direct)
+      let postData = content;
+      if (content.post && typeof content.post === "object") {
+        // Find the first locale key (zh_cn, en_us, etc.)
+        const localeKey = Object.keys(content.post).find(
+          (key: string) => content.post[key]?.content || content.post[key]?.title,
+        );
+        if (localeKey) {
+          postData = content.post[localeKey];
+        }
+      }
+
+      // Include title if present
+      if (postData.title) {
+        parts.push(postData.title);
+      }
+
+      // Extract text from content elements
+      if (Array.isArray(postData.content)) {
+        for (const line of postData.content) {
+          if (!Array.isArray(line)) continue;
+          const lineParts: string[] = [];
+          for (const element of line) {
+            if (element.tag === "text" && element.text) {
+              lineParts.push(element.text);
+            } else if (element.tag === "a" && element.text) {
+              lineParts.push(element.text);
+            } else if (element.tag === "at" && element.user_name) {
+              lineParts.push(`@${element.user_name}`);
+            }
+          }
+          if (lineParts.length > 0) {
+            parts.push(lineParts.join(""));
+          }
+        }
+      }
+
+      text = parts.join("\n");
+    } catch (err) {
+      logger.error(`Failed to parse post message content: ${formatErrorMessage(err)}`);
     }
   }
 
@@ -248,13 +314,77 @@ export async function processFeishuMessage(
     }
   }
 
-  // Resolve media if present
+  // ===== Text Command Detection =====
+  // Detect help triggers and Chinese command aliases
+  const textCommandResult = parseTextCommand(text);
+
+  if (textCommandResult.type === "help") {
+    // Respond with help menu
+    logger.debug(`Text command detected: help trigger`);
+    await sendMessageFeishu(
+      client,
+      chatId,
+      { text: getHelpMenuText() },
+      {
+        msgType: "text",
+        receiveIdType: "chat_id",
+      },
+    );
+    return;
+  }
+
+  // Convert Chinese command alias to slash command
+  if (textCommandResult.type === "command") {
+    const slashCommand = toSlashCommand(textCommandResult);
+    if (slashCommand) {
+      logger.debug(`Text command detected: ${text} -> ${slashCommand}`);
+      text = slashCommand;
+    }
+  }
+
+  // Resolve media if present (for image, file, audio, media, sticker types)
   let media: FeishuMediaRef | null = null;
-  if (msgType !== "text") {
+  let postImages: FeishuMediaRef[] = [];
+  if (!["text", "post"].includes(msgType)) {
     try {
       media = await resolveFeishuMedia(client, message, maxMediaBytes);
     } catch (err) {
       logger.error(`Failed to download media: ${formatErrorMessage(err)}`);
+    }
+  } else if (msgType === "post") {
+    // Download embedded images from post (rich text) message
+    try {
+      const content = JSON.parse(message.content as string);
+      const imageKeys = extractPostImageKeys(content);
+      if (imageKeys.length > 0) {
+        logger.debug(`Found ${imageKeys.length} embedded images in post message`);
+        postImages = await downloadPostImages(
+          client,
+          message.message_id as string,
+          imageKeys,
+          maxMediaBytes,
+          5, // max 5 images
+        );
+        logger.debug(`Downloaded ${postImages.length} embedded images`);
+      }
+    } catch (err) {
+      logger.error(`Failed to download post images: ${formatErrorMessage(err)}`);
+    }
+  }
+
+  // Resolve document content if message contains Feishu doc links
+  let docContent: string | null = null;
+  if (msgType === "text" || msgType === "post") {
+    try {
+      docContent = await resolveFeishuDocsFromMessage(client, message, {
+        maxDocsPerMessage: 3,
+        maxTotalLength: 100000,
+      });
+      if (docContent) {
+        logger.debug(`Resolved ${docContent.length} chars of document content`);
+      }
+    } catch (err) {
+      logger.error(`Failed to resolve document content: ${formatErrorMessage(err)}`);
     }
   }
 
@@ -263,14 +393,54 @@ export async function processFeishuMessage(
   if (!bodyText && media) {
     bodyText = media.placeholder;
   }
+  // If we have embedded images from post message, add placeholders
+  if (postImages.length > 0 && !media) {
+    const imagePlaceholders = postImages.map(() => "<media:image>").join(" ");
+    bodyText = bodyText ? `${bodyText}\n${imagePlaceholders}` : imagePlaceholders;
+  }
+
+  // Append document content if available
+  if (docContent) {
+    bodyText = bodyText ? `${bodyText}\n\n${docContent}` : docContent;
+  }
 
   // Skip if no content
-  if (!bodyText && !media) {
+  if (!bodyText && !media && postImages.length === 0) {
     logger.debug(`Empty message after processing, skipping`);
     return;
   }
 
-  const senderName = sender?.sender_id?.user_id || "unknown";
+  // Build sender label (similar to Telegram format)
+  const senderName = senderIdObj?.user_id || "unknown";
+  const senderOpenId = senderIdObj?.open_id;
+  // For DM: use sender info as conversation label
+  // For group: use group title + id
+  const chat = message.chat as Record<string, string> | undefined;
+  const groupTitle = chat?.title || (message.chat_type === "group" ? "Group" : undefined);
+  const conversationLabel = isGroup
+    ? `${groupTitle} id:${chatId}`
+    : senderOpenId
+      ? `${senderName} id:${senderOpenId}`
+      : senderName;
+
+  // Resolve envelope options and previous timestamp for elapsed time
+  const envelopeOptions = resolveEnvelopeFormatOptions(cfg);
+  const storePath = resolveStorePath(cfg.session?.store, {
+    agentId: route.agentId,
+  });
+  const previousTimestamp = readSessionUpdatedAt({
+    storePath,
+    sessionKey: route.sessionKey,
+  });
+
+  // Resolve reply-to mode for group chats
+  // In group chats, we quote the original message to provide context
+  const { groupConfig } = isGroup
+    ? resolveFeishuGroupConfig({ cfg, accountId, chatId })
+    : { groupConfig: undefined };
+  const replyToMode = isGroup ? (groupConfig?.replyToMode ?? feishuCfg.replyToMode) : "off";
+  const originalMessageId = message.message_id as string | undefined;
+  let hasReplied = false; // Track if we've sent at least one reply (for "first" mode)
 
   // Streaming mode support
   const streamingEnabled = (feishuCfg.streaming ?? true) && Boolean(options.credentials);
@@ -280,28 +450,56 @@ export async function processFeishuMessage(
       : null;
   let streamingStarted = false;
   let lastPartialText = "";
+  // Chunker for throttling streaming updates (minimize API calls)
+  const streamingChunker = streamingSession
+    ? new EmbeddedBlockChunker({ minChars: 80, maxChars: 400, breakPreference: "sentence" })
+    : null;
+
+  // Typing indicator callbacks (for non-streaming mode)
+  const typingCallbacks = createTypingIndicatorCallbacks(client, message.message_id as string);
+
+  // Format body with standardized envelope (consistent with Telegram/WhatsApp)
+  const formattedBody = formatInboundEnvelope({
+    channel: "Feishu",
+    from: conversationLabel,
+    timestamp: message.create_time ? Number(message.create_time) * 1000 : undefined,
+    body: bodyText,
+    chatType: isGroup ? "group" : "direct",
+    sender: {
+      name: senderName,
+      id: senderOpenId || senderId,
+    },
+    previousTimestamp,
+    envelope: envelopeOptions,
+  });
 
   // Context construction
   const ctx = {
-    Body: bodyText,
+    Body: formattedBody,
     RawBody: text || media?.placeholder || "",
     From: senderId,
     To: chatId,
+    SessionKey: route.sessionKey,
     SenderId: senderId,
     SenderName: senderName,
-    ChatType: isGroup ? "group" : "dm",
+    ChatType: isGroup ? "group" : "direct",
     Provider: "feishu",
     Surface: "feishu",
     Timestamp: Number(message.create_time),
-    MessageSid: message.message_id,
-    AccountId: accountId,
+    MessageSid: message.message_id as string | undefined,
+    AccountId: route.accountId,
     OriginatingChannel: "feishu",
     OriginatingTo: chatId,
     // Media fields (similar to Telegram)
-    MediaPath: media?.path,
-    MediaType: media?.contentType,
-    MediaUrl: media?.path,
+    MediaPath: media?.path ?? postImages[0]?.path,
+    MediaType: media?.contentType ?? postImages[0]?.contentType,
+    MediaUrl: media?.path ?? postImages[0]?.path,
+    // Multiple media from post messages
+    MediaPaths: postImages.length > 0 ? postImages.map((img) => img.path) : undefined,
+    MediaUrls: postImages.length > 0 ? postImages.map((img) => img.path) : undefined,
     WasMentioned: isGroup ? wasMentioned : undefined,
+    // Command authorization - if message passed access control, sender is authorized
+    CommandAuthorized: true,
   };
 
   const agentId = resolveSessionAgentId({ config: cfg });
@@ -319,22 +517,22 @@ export async function processFeishuMessage(
       ...prefixOptions,
       deliver: async (payload, info) => {
         const hasMedia = payload.mediaUrl || (payload.mediaUrls && payload.mediaUrls.length > 0);
-        if (!payload.text && !hasMedia) {
-          return;
-        }
+        if (!payload.text && !hasMedia) return;
 
-        // Handle block replies - update streaming card with partial text
-        if (streamingSession?.isActive() && info?.kind === "block" && payload.text) {
-          logger.debug(`Updating streaming card with block text: ${payload.text.length} chars`);
-          await streamingSession.update(payload.text);
-          return;
-        }
+        // Block replies are handled by onPartialReply with chunking/throttling.
+        // Only skip when streaming is active to avoid duplicate updates;
+        // when streaming is not active, block replies should still be delivered.
+        if (info?.kind === "block" && streamingSession?.isActive()) return;
 
-        // If streaming was active, close it with the final text
+        // If streaming was active, close it with the final text.
+        // If close() fails (permissions, API issues), fallback to regular message.
         if (streamingSession?.isActive() && info?.kind === "final") {
-          await streamingSession.close(payload.text);
+          const finalText = payload.text || lastPartialText;
+          const closed = await streamingSession.close(finalText);
           streamingStarted = false;
-          return; // Card already contains the final text
+          if (closed) return; // Card already contains the final text
+          // Streaming close failed — fall through to sendMessageFeishu()
+          logger.warn("Streaming close failed, falling back to regular message");
         }
 
         // Handle media URLs
@@ -344,16 +542,24 @@ export async function processFeishuMessage(
             ? [payload.mediaUrl]
             : [];
 
+        // Determine if this reply should quote the original message
+        const shouldQuote = replyToMode === "all" || (replyToMode === "first" && !hasReplied);
+        const replyToMessageId = shouldQuote ? originalMessageId : undefined;
+
         if (mediaUrls.length > 0) {
           // Close streaming session before sending media
           if (streamingSession?.isActive()) {
             await streamingSession.close();
             streamingStarted = false;
           }
+          // Remove typing indicator before sending media
+          await typingCallbacks.onIdle();
           // Send each media item
           for (let i = 0; i < mediaUrls.length; i++) {
             const mediaUrl = mediaUrls[i];
             const caption = i === 0 ? payload.text || "" : "";
+            // Only quote on the first media item
+            const mediaReplyTo = i === 0 ? replyToMessageId : undefined;
             await sendMessageFeishu(
               client,
               chatId,
@@ -361,12 +567,16 @@ export async function processFeishuMessage(
               {
                 mediaUrl,
                 receiveIdType: "chat_id",
+                replyToMessageId: mediaReplyTo,
               },
             );
+            if (i === 0) hasReplied = true;
           }
         } else if (payload.text) {
           // If streaming wasn't used, send as regular message
           if (!streamingSession?.isActive()) {
+            // Remove typing indicator before sending final reply
+            await typingCallbacks.onIdle();
             await sendMessageFeishu(
               client,
               chatId,
@@ -374,17 +584,32 @@ export async function processFeishuMessage(
               {
                 msgType: "text",
                 receiveIdType: "chat_id",
+                replyToMessageId,
               },
             );
+            hasReplied = true;
           }
         }
       },
       onError: (err) => {
-        logger.error(`Reply error: ${formatErrorMessage(err)}`);
+        const msg = formatErrorMessage(err);
+        if (
+          msg.includes("permission") ||
+          msg.includes("forbidden") ||
+          msg.includes("code: 99991660")
+        ) {
+          logger.error(
+            `Reply error: ${msg} (Check if "im:message" or "im:resource" permissions are enabled in Feishu Console)`,
+          );
+        } else {
+          logger.error(`Reply error: ${msg}`);
+        }
         // Clean up streaming session on error
         if (streamingSession?.isActive()) {
           streamingSession.close().catch(() => {});
         }
+        // Clean up typing indicator on error
+        typingCallbacks.onIdle().catch(() => {});
       },
       onReplyStart: async () => {
         // Start streaming card when reply generation begins
@@ -394,9 +619,19 @@ export async function processFeishuMessage(
             streamingStarted = true;
             logger.debug(`Started streaming card for chat ${chatId}`);
           } catch (err) {
-            logger.warn(`Failed to start streaming card: ${formatErrorMessage(err)}`);
+            const msg = formatErrorMessage(err);
+            if (msg.includes("permission") || msg.includes("forbidden")) {
+              logger.warn(
+                `Failed to start streaming card: ${msg} (Check if "im:resource:msg:send" or card permissions are enabled)`,
+              );
+            } else {
+              logger.warn(`Failed to start streaming card: ${msg}`);
+            }
             // Continue without streaming
           }
+        } else if (!streamingSession) {
+          // Non-streaming mode: use typing indicator
+          await typingCallbacks.onReplyStart();
         }
       },
     },
@@ -405,34 +640,62 @@ export async function processFeishuMessage(
       onModelSelected,
       onPartialReply: streamingSession
         ? async (payload) => {
-            if (!streamingSession.isActive() || !payload.text) {
-              return;
-            }
-            if (payload.text === lastPartialText) {
-              return;
-            }
+            if (!streamingSession.isActive() || !payload.text) return;
+            if (payload.text === lastPartialText) return;
+            // Calculate delta from cumulative text
+            const delta = payload.text.slice(lastPartialText.length);
             lastPartialText = payload.text;
-            await streamingSession.update(payload.text);
+            if (!delta) return;
+            // Capture current text for the emit callback
+            const currentText = payload.text;
+            // Use chunker to throttle updates
+            streamingChunker?.append(delta);
+            streamingChunker?.drain({
+              force: false,
+              emit: () => {
+                // Update card with cumulative text (not just the chunk)
+                streamingSession.update(currentText).catch((err) => {
+                  logger.warn(`Streaming update failed: ${formatErrorMessage(err)}`);
+                });
+              },
+            });
           }
         : undefined,
       onReasoningStream: streamingSession
         ? async (payload) => {
             // Also update on reasoning stream for extended thinking models
-            if (!streamingSession.isActive() || !payload.text) {
-              return;
-            }
-            if (payload.text === lastPartialText) {
-              return;
-            }
+            if (!streamingSession.isActive() || !payload.text) return;
+            if (payload.text === lastPartialText) return;
+            const delta = payload.text.slice(lastPartialText.length);
             lastPartialText = payload.text;
-            await streamingSession.update(payload.text);
+            if (!delta) return;
+            const currentText = payload.text;
+            streamingChunker?.append(delta);
+            streamingChunker?.drain({
+              force: false,
+              emit: () => {
+                streamingSession.update(currentText).catch((err) => {
+                  logger.warn(`Reasoning stream update failed: ${formatErrorMessage(err)}`);
+                });
+              },
+            });
           }
         : undefined,
     },
   });
 
-  // Ensure streaming session is closed on completion
+  // Flush any remaining buffered content and close streaming session
   if (streamingSession?.isActive()) {
-    await streamingSession.close();
+    // Force drain remaining buffer before closing
+    if (streamingChunker?.hasBuffered()) {
+      streamingChunker.drain({
+        force: true,
+        emit: () => {
+          streamingSession.update(lastPartialText).catch(() => {});
+        },
+      });
+    }
+    // Always close with the complete accumulated text
+    await streamingSession.close(lastPartialText || undefined);
   }
 }
