@@ -77,6 +77,7 @@ export type ZalouserAccountConfig = {
   groupPolicy?: "open" | "allowlist" | "disabled";
   groups?: Record<string, { allow?: boolean; enabled?: boolean; tools?: { allow?: string[]; deny?: string[] } }>;
   messagePrefix?: string;
+  responsePrefix?: string;
 };
 
 export type ZalouserConfig = {
@@ -89,6 +90,7 @@ export type ZalouserConfig = {
   groupPolicy?: "open" | "allowlist" | "disabled";
   groups?: Record<string, { allow?: boolean; enabled?: boolean; tools?: { allow?: string[]; deny?: string[] } }>;
   messagePrefix?: string;
+  responsePrefix?: string;
   accounts?: Record<string, ZalouserAccountConfig>;
 };
 

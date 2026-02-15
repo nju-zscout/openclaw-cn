@@ -1,7 +1,7 @@
 import type { LocationMessageEventContent, MatrixClient } from "matrix-bot-sdk";
 
 import {
-  createReplyPrefixContext,
+  createReplyPrefixOptions,
   createTypingCallbacks,
   formatAllowlistMatchMeta,
   logInboundDrop,
@@ -565,7 +565,12 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
         channel: "matrix",
         accountId: route.accountId,
       });
-      const prefixContext = createReplyPrefixContext({ cfg, agentId: route.agentId });
+      const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
+        cfg,
+        agentId: route.agentId,
+        channel: "matrix",
+        accountId: route.accountId,
+      });
       const typingCallbacks = createTypingCallbacks({
         start: () => sendTypingMatrix(roomId, true, undefined, client),
         stop: () => sendTypingMatrix(roomId, false, undefined, client),
@@ -590,8 +595,7 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
       });
       const { dispatcher, replyOptions, markDispatchIdle } =
         core.channel.reply.createReplyDispatcherWithTyping({
-          responsePrefix: prefixContext.responsePrefix,
-          responsePrefixContextProvider: prefixContext.responsePrefixContextProvider,
+          ...prefixOptions,
           humanDelay: core.channel.reply.resolveHumanDelayConfig(cfg, route.agentId),
           deliver: async (payload) => {
             await deliverMatrixReplies({
@@ -621,7 +625,7 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
         replyOptions: {
           ...replyOptions,
           skillFilter: roomConfig?.skills,
-          onModelSelected: prefixContext.onModelSelected,
+          onModelSelected,
         },
       });
       markDispatchIdle();

@@ -1,4 +1,5 @@
 import {
+  createReplyPrefixOptions,
   logInboundDrop,
   resolveControlCommandGate,
   type ClawdbotConfig,
@@ -302,10 +303,18 @@ export async function handleNextcloudTalkInbound(params: {
     },
   });
 
+  const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
+    cfg: config as OpenClawConfig,
+    agentId: route.agentId,
+    channel: CHANNEL_ID,
+    accountId: account.accountId,
+  });
+
   await core.channel.reply.dispatchReplyWithBufferedBlockDispatcher({
     ctx: ctxPayload,
     cfg: config as ClawdbotConfig,
     dispatcherOptions: {
+      ...prefixOptions,
       deliver: async (payload) => {
         await deliverNextcloudTalkReply({
           payload: payload as {
@@ -327,6 +336,7 @@ export async function handleNextcloudTalkInbound(params: {
     },
     replyOptions: {
       skillFilter: roomConfig?.skills,
+      onModelSelected,
       disableBlockStreaming:
         typeof account.config.blockStreaming === "boolean"
           ? !account.config.blockStreaming
