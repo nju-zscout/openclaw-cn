@@ -1,24 +1,37 @@
-import type { ClawdbotConfig } from "../config/config.js";
+import type { OpenClawConfig } from "../config/config.js";
 import type { ModelDefinitionConfig } from "../config/types.models.js";
 import {
   DEFAULT_COPILOT_API_BASE_URL,
   resolveCopilotApiToken,
 } from "../providers/github-copilot-token.js";
-import { getCopilotModelDefinitions } from "../providers/github-copilot-models.js";
 import { ensureAuthProfileStore, listProfilesForProvider } from "./auth-profiles.js";
-import { resolveAwsSdkEnvVarName, resolveEnvApiKey } from "./model-auth.js";
 import { discoverBedrockModels } from "./bedrock-discovery.js";
+import {
+  buildCloudflareAiGatewayModelDefinition,
+  resolveCloudflareAiGatewayBaseUrl,
+} from "./cloudflare-ai-gateway.js";
+import {
+  discoverHuggingfaceModels,
+  HUGGINGFACE_BASE_URL,
+  HUGGINGFACE_MODEL_CATALOG,
+  buildHuggingfaceModelDefinition,
+} from "./huggingface-models.js";
+import { resolveAwsSdkEnvVarName, resolveEnvApiKey } from "./model-auth.js";
 import {
   buildSyntheticModelDefinition,
   SYNTHETIC_BASE_URL,
   SYNTHETIC_MODEL_CATALOG,
 } from "./synthetic-models.js";
+import {
+  TOGETHER_BASE_URL,
+  TOGETHER_MODEL_CATALOG,
+  buildTogetherModelDefinition,
+} from "./together-models.js";
 import { discoverVeniceModels, VENICE_BASE_URL } from "./venice-models.js";
 
-type ModelsConfig = NonNullable<ClawdbotConfig["models"]>;
+type ModelsConfig = NonNullable<OpenClawConfig["models"]>;
 export type ProviderConfig = NonNullable<ModelsConfig["providers"]>[string];
 
-const MINIMAX_API_BASE_URL = "https://api.minimax.chat/v1";
 const MINIMAX_PORTAL_BASE_URL = "https://api.minimax.io/anthropic";
 const MINIMAX_DEFAULT_MODEL_ID = "MiniMax-M2.1";
 const MINIMAX_DEFAULT_VISION_MODEL_ID = "MiniMax-VL-01";
@@ -33,23 +46,22 @@ const MINIMAX_API_COST = {
   cacheWrite: 10,
 };
 
-const MOONSHOT_BASE_URL = "https://api.moonshot.ai/v1";
-const MOONSHOT_DEFAULT_MODEL_ID = "kimi-k2-0905-preview";
-const MOONSHOT_DEFAULT_CONTEXT_WINDOW = 256000;
-const MOONSHOT_DEFAULT_MAX_TOKENS = 8192;
-const MOONSHOT_DEFAULT_COST = {
+const XIAOMI_BASE_URL = "https://api.xiaomimimo.com/anthropic";
+export const XIAOMI_DEFAULT_MODEL_ID = "mimo-v2-flash";
+const XIAOMI_DEFAULT_CONTEXT_WINDOW = 262144;
+const XIAOMI_DEFAULT_MAX_TOKENS = 8192;
+const XIAOMI_DEFAULT_COST = {
   input: 0,
   output: 0,
   cacheRead: 0,
   cacheWrite: 0,
 };
-const KIMI_CODE_BASE_URL = "https://api.kimi.com/coding/v1";
-const KIMI_CODE_MODEL_ID = "kimi-for-coding";
-const KIMI_CODE_CONTEXT_WINDOW = 262144;
-const KIMI_CODE_MAX_TOKENS = 32768;
-const KIMI_CODE_HEADERS = { "User-Agent": "KimiCLI/0.77" } as const;
-const KIMI_CODE_COMPAT = { supportsDeveloperRole: false } as const;
-const KIMI_CODE_DEFAULT_COST = {
+
+const MOONSHOT_BASE_URL = "https://api.moonshot.ai/v1";
+const MOONSHOT_DEFAULT_MODEL_ID = "kimi-k2.5";
+const MOONSHOT_DEFAULT_CONTEXT_WINDOW = 256000;
+const MOONSHOT_DEFAULT_MAX_TOKENS = 8192;
+const MOONSHOT_DEFAULT_COST = {
   input: 0,
   output: 0,
   cacheRead: 0,
@@ -78,35 +90,21 @@ const OLLAMA_DEFAULT_COST = {
   cacheWrite: 0,
 };
 
-// 新增：OpenAI兼容供应商（硅基流动、阿里云百炼、DeepSeek）默认配置
-const SILICONFLOW_BASE_URL = "https://api.siliconflow.cn/v1";
-// 采用在中文环境中更常见且可用的Qwen 2.5指令模型作为默认
-const SILICONFLOW_DEFAULT_MODEL_ID = "Qwen/Qwen2.5-32B-Instruct";
-const SILICONFLOW_DEFAULT_CONTEXT_WINDOW = 128000;
-const SILICONFLOW_DEFAULT_MAX_TOKENS = 8192;
-const SILICONFLOW_DEFAULT_COST = {
+const VLLM_BASE_URL = "http://127.0.0.1:8000/v1";
+const VLLM_DEFAULT_CONTEXT_WINDOW = 128000;
+const VLLM_DEFAULT_MAX_TOKENS = 8192;
+const VLLM_DEFAULT_COST = {
   input: 0,
   output: 0,
   cacheRead: 0,
   cacheWrite: 0,
 };
 
-const DASHSCOPE_BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1";
-const DASHSCOPE_DEFAULT_MODEL_ID = "qwen-plus";
-const DASHSCOPE_DEFAULT_CONTEXT_WINDOW = 128000;
-const DASHSCOPE_DEFAULT_MAX_TOKENS = 8192;
-const DASHSCOPE_DEFAULT_COST = {
-  input: 0,
-  output: 0,
-  cacheRead: 0,
-  cacheWrite: 0,
-};
-
-const DEEPSEEK_BASE_URL = "https://api.deepseek.com/v1";
-const DEEPSEEK_DEFAULT_MODEL_ID = "deepseek-chat";
-const DEEPSEEK_DEFAULT_CONTEXT_WINDOW = 128000;
-const DEEPSEEK_DEFAULT_MAX_TOKENS = 8192;
-const DEEPSEEK_DEFAULT_COST = {
+export const QIANFAN_BASE_URL = "https://qianfan.baidubce.com/v2";
+export const QIANFAN_DEFAULT_MODEL_ID = "deepseek-v3.2";
+const QIANFAN_DEFAULT_CONTEXT_WINDOW = 98304;
+const QIANFAN_DEFAULT_MAX_TOKENS = 32768;
+const QIANFAN_DEFAULT_COST = {
   input: 0,
   output: 0,
   cacheRead: 0,
@@ -128,13 +126,37 @@ interface OllamaTagsResponse {
   models: OllamaModel[];
 }
 
-async function discoverOllamaModels(): Promise<ModelDefinitionConfig[]> {
+type VllmModelsResponse = {
+  data?: Array<{
+    id?: string;
+  }>;
+};
+
+/**
+ * Derive the Ollama native API base URL from a configured base URL.
+ *
+ * Users typically configure `baseUrl` with a `/v1` suffix (e.g.
+ * `http://192.168.20.14:11434/v1`) for the OpenAI-compatible endpoint.
+ * The native Ollama API lives at the root (e.g. `/api/tags`), so we
+ * strip the `/v1` suffix when present.
+ */
+export function resolveOllamaApiBase(configuredBaseUrl?: string): string {
+  if (!configuredBaseUrl) {
+    return OLLAMA_API_BASE_URL;
+  }
+  // Strip trailing slash, then strip /v1 suffix if present
+  const trimmed = configuredBaseUrl.replace(/\/+$/, "");
+  return trimmed.replace(/\/v1$/i, "");
+}
+
+async function discoverOllamaModels(baseUrl?: string): Promise<ModelDefinitionConfig[]> {
   // Skip Ollama discovery in test environments
   if (process.env.VITEST || process.env.NODE_ENV === "test") {
     return [];
   }
   try {
-    const response = await fetch(`${OLLAMA_API_BASE_URL}/api/tags`, {
+    const apiBase = resolveOllamaApiBase(baseUrl);
+    const response = await fetch(`${apiBase}/api/tags`, {
       signal: AbortSignal.timeout(5000),
     });
     if (!response.ok) {
@@ -158,10 +180,68 @@ async function discoverOllamaModels(): Promise<ModelDefinitionConfig[]> {
         cost: OLLAMA_DEFAULT_COST,
         contextWindow: OLLAMA_DEFAULT_CONTEXT_WINDOW,
         maxTokens: OLLAMA_DEFAULT_MAX_TOKENS,
+        // Disable streaming by default for Ollama to avoid SDK issue #1205
+        // See: https://github.com/badlogic/pi-mono/issues/1205
+        params: {
+          streaming: false,
+        },
       };
     });
   } catch (error) {
     console.warn(`Failed to discover Ollama models: ${String(error)}`);
+    return [];
+  }
+}
+
+async function discoverVllmModels(
+  baseUrl: string,
+  apiKey?: string,
+): Promise<ModelDefinitionConfig[]> {
+  // Skip vLLM discovery in test environments
+  if (process.env.VITEST || process.env.NODE_ENV === "test") {
+    return [];
+  }
+
+  const trimmedBaseUrl = baseUrl.trim().replace(/\/+$/, "");
+  const url = `${trimmedBaseUrl}/models`;
+
+  try {
+    const trimmedApiKey = apiKey?.trim();
+    const response = await fetch(url, {
+      headers: trimmedApiKey ? { Authorization: `Bearer ${trimmedApiKey}` } : undefined,
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!response.ok) {
+      console.warn(`Failed to discover vLLM models: ${response.status}`);
+      return [];
+    }
+    const data = (await response.json()) as VllmModelsResponse;
+    const models = data.data ?? [];
+    if (models.length === 0) {
+      console.warn("No vLLM models found on local instance");
+      return [];
+    }
+
+    return models
+      .map((m) => ({ id: typeof m.id === "string" ? m.id.trim() : "" }))
+      .filter((m) => Boolean(m.id))
+      .map((m) => {
+        const modelId = m.id;
+        const lower = modelId.toLowerCase();
+        const isReasoning =
+          lower.includes("r1") || lower.includes("reasoning") || lower.includes("think");
+        return {
+          id: modelId,
+          name: modelId,
+          reasoning: isReasoning,
+          input: ["text"],
+          cost: VLLM_DEFAULT_COST,
+          contextWindow: VLLM_DEFAULT_CONTEXT_WINDOW,
+          maxTokens: VLLM_DEFAULT_MAX_TOKENS,
+        } satisfies ModelDefinitionConfig;
+      });
+  } catch (error) {
+    console.warn(`Failed to discover vLLM models: ${String(error)}`);
     return [];
   }
 }
@@ -174,7 +254,9 @@ function normalizeApiKeyConfig(value: string): string {
 
 function resolveEnvApiKeyVarName(provider: string): string | undefined {
   const resolved = resolveEnvApiKey(provider);
-  if (!resolved) return undefined;
+  if (!resolved) {
+    return undefined;
+  }
   const match = /^(?:env: |shell env: )([A-Z0-9_]+)$/.exec(resolved.source);
   return match ? match[1] : undefined;
 }
@@ -190,16 +272,26 @@ function resolveApiKeyFromProfiles(params: {
   const ids = listProfilesForProvider(params.store, params.provider);
   for (const id of ids) {
     const cred = params.store.profiles[id];
-    if (!cred) continue;
-    if (cred.type === "api_key") return cred.key;
-    if (cred.type === "token") return cred.token;
+    if (!cred) {
+      continue;
+    }
+    if (cred.type === "api_key") {
+      return cred.key;
+    }
+    if (cred.type === "token") {
+      return cred.token;
+    }
   }
   return undefined;
 }
 
 export function normalizeGoogleModelId(id: string): string {
-  if (id === "gemini-3-pro") return "gemini-3-pro-preview";
-  if (id === "gemini-3-flash") return "gemini-3-flash-preview";
+  if (id === "gemini-3-pro") {
+    return "gemini-3-pro-preview";
+  }
+  if (id === "gemini-3-flash") {
+    return "gemini-3-flash-preview";
+  }
   return id;
 }
 
@@ -207,7 +299,9 @@ function normalizeGoogleProvider(provider: ProviderConfig): ProviderConfig {
   let mutated = false;
   const models = provider.models.map((model) => {
     const nextId = normalizeGoogleModelId(model.id);
-    if (nextId === model.id) return model;
+    if (nextId === model.id) {
+      return model;
+    }
     mutated = true;
     return { ...model, id: nextId };
   });
@@ -219,7 +313,9 @@ export function normalizeProviders(params: {
   agentDir: string;
 }): ModelsConfig["providers"] {
   const { providers } = params;
-  if (!providers) return providers;
+  if (!providers) {
+    return providers;
+  }
   const authStore = ensureAuthProfileStore(params.agentDir, {
     allowKeychainPrompt: false,
   });
@@ -269,27 +365,10 @@ export function normalizeProviders(params: {
 
     if (normalizedKey === "google") {
       const googleNormalized = normalizeGoogleProvider(normalizedProvider);
-      if (googleNormalized !== normalizedProvider) mutated = true;
-      normalizedProvider = googleNormalized;
-    }
-
-    if (
-      normalizedKey === "volcengine" &&
-      process.env.MODEL_AGENT_CLIENT_REQ_ID &&
-      process.env.MODEL_AGENT_CLIENT_REQ_VALUE
-    ) {
-      const keyName = process.env.MODEL_AGENT_CLIENT_REQ_ID;
-      const valName = process.env.MODEL_AGENT_CLIENT_REQ_VALUE;
-      if (normalizedProvider.headers?.[keyName] !== valName) {
+      if (googleNormalized !== normalizedProvider) {
         mutated = true;
-        normalizedProvider = {
-          ...normalizedProvider,
-          headers: {
-            ...normalizedProvider.headers,
-            [keyName]: valName,
-          },
-        };
       }
+      normalizedProvider = googleNormalized;
     }
 
     next[key] = normalizedProvider;
@@ -300,7 +379,7 @@ export function normalizeProviders(params: {
 
 function buildMinimaxProvider(): ProviderConfig {
   return {
-    baseUrl: MINIMAX_API_BASE_URL,
+    baseUrl: MINIMAX_PORTAL_BASE_URL,
     api: "anthropic-messages",
     models: [
       {
@@ -386,32 +465,12 @@ function buildMoonshotProvider(): ProviderConfig {
     models: [
       {
         id: MOONSHOT_DEFAULT_MODEL_ID,
-        name: "Kimi K2 0905 Preview",
+        name: "Kimi K2.5",
         reasoning: false,
         input: ["text"],
         cost: MOONSHOT_DEFAULT_COST,
         contextWindow: MOONSHOT_DEFAULT_CONTEXT_WINDOW,
         maxTokens: MOONSHOT_DEFAULT_MAX_TOKENS,
-      },
-    ],
-  };
-}
-
-function buildKimiCodeProvider(): ProviderConfig {
-  return {
-    baseUrl: KIMI_CODE_BASE_URL,
-    api: "openai-completions",
-    models: [
-      {
-        id: KIMI_CODE_MODEL_ID,
-        name: "Kimi For Coding",
-        reasoning: true,
-        input: ["text"],
-        cost: KIMI_CODE_DEFAULT_COST,
-        contextWindow: KIMI_CODE_CONTEXT_WINDOW,
-        maxTokens: KIMI_CODE_MAX_TOKENS,
-        headers: KIMI_CODE_HEADERS,
-        compat: KIMI_CODE_COMPAT,
       },
     ],
   };
@@ -452,91 +511,19 @@ function buildSyntheticProvider(): ProviderConfig {
   };
 }
 
-function buildSiliconflowProvider(): ProviderConfig {
+export function buildXiaomiProvider(): ProviderConfig {
   return {
-    baseUrl: SILICONFLOW_BASE_URL,
-    api: "openai-completions",
+    baseUrl: XIAOMI_BASE_URL,
+    api: "anthropic-messages",
     models: [
       {
-        id: SILICONFLOW_DEFAULT_MODEL_ID,
-        name: "SiliconFlow Auto",
+        id: XIAOMI_DEFAULT_MODEL_ID,
+        name: "Xiaomi MiMo V2 Flash",
         reasoning: false,
         input: ["text"],
-        cost: SILICONFLOW_DEFAULT_COST,
-        contextWindow: SILICONFLOW_DEFAULT_CONTEXT_WINDOW,
-        maxTokens: SILICONFLOW_DEFAULT_MAX_TOKENS,
-      },
-    ],
-  };
-}
-
-function buildDashscopeProvider(): ProviderConfig {
-  return {
-    baseUrl: DASHSCOPE_BASE_URL,
-    api: "openai-completions",
-    models: [
-      {
-        id: DASHSCOPE_DEFAULT_MODEL_ID,
-        name: "Qwen Plus",
-        reasoning: false,
-        input: ["text"],
-        cost: DASHSCOPE_DEFAULT_COST,
-        contextWindow: DASHSCOPE_DEFAULT_CONTEXT_WINDOW,
-        maxTokens: DASHSCOPE_DEFAULT_MAX_TOKENS,
-      },
-      {
-        id: "qwen-turbo",
-        name: "Qwen Turbo",
-        reasoning: false,
-        input: ["text"],
-        cost: DASHSCOPE_DEFAULT_COST,
-        contextWindow: 1000000,
-        maxTokens: DASHSCOPE_DEFAULT_MAX_TOKENS,
-      },
-      {
-        id: "qwen-max",
-        name: "Qwen Max",
-        reasoning: false,
-        input: ["text"],
-        cost: DASHSCOPE_DEFAULT_COST,
-        contextWindow: 32000,
-        maxTokens: DASHSCOPE_DEFAULT_MAX_TOKENS,
-      },
-      {
-        id: "qwen-long",
-        name: "Qwen Long",
-        reasoning: false,
-        input: ["text"],
-        cost: DASHSCOPE_DEFAULT_COST,
-        contextWindow: 10000000,
-        maxTokens: DASHSCOPE_DEFAULT_MAX_TOKENS,
-      },
-    ],
-  };
-}
-
-function buildDeepseekProvider(): ProviderConfig {
-  return {
-    baseUrl: DEEPSEEK_BASE_URL,
-    api: "openai-completions",
-    models: [
-      {
-        id: DEEPSEEK_DEFAULT_MODEL_ID,
-        name: "DeepSeek Chat",
-        reasoning: false,
-        input: ["text"],
-        cost: DEEPSEEK_DEFAULT_COST,
-        contextWindow: DEEPSEEK_DEFAULT_CONTEXT_WINDOW,
-        maxTokens: DEEPSEEK_DEFAULT_MAX_TOKENS,
-      },
-      {
-        id: "deepseek-reasoner",
-        name: "DeepSeek Reasoner",
-        reasoning: true,
-        input: ["text"],
-        cost: DEEPSEEK_DEFAULT_COST,
-        contextWindow: DEEPSEEK_DEFAULT_CONTEXT_WINDOW,
-        maxTokens: DEEPSEEK_DEFAULT_MAX_TOKENS,
+        cost: XIAOMI_DEFAULT_COST,
+        contextWindow: XIAOMI_DEFAULT_CONTEXT_WINDOW,
+        maxTokens: XIAOMI_DEFAULT_MAX_TOKENS,
       },
     ],
   };
@@ -551,44 +538,76 @@ async function buildVeniceProvider(): Promise<ProviderConfig> {
   };
 }
 
-async function buildOllamaProvider(): Promise<ProviderConfig> {
-  const models = await discoverOllamaModels();
+async function buildOllamaProvider(configuredBaseUrl?: string): Promise<ProviderConfig> {
+  const models = await discoverOllamaModels(configuredBaseUrl);
   return {
-    baseUrl: OLLAMA_BASE_URL,
+    baseUrl: configuredBaseUrl ?? OLLAMA_BASE_URL,
     api: "openai-completions",
     models,
   };
 }
 
-export const VOLCENGINE_API_BASE_URL = "https://ark.cn-beijing.volces.com/api/v3";
-
-export function buildVolcengineProvider(): ProviderConfig {
+async function buildHuggingfaceProvider(apiKey?: string): Promise<ProviderConfig> {
+  // Resolve env var name to value for discovery (GET /v1/models requires Bearer token).
+  const resolvedSecret =
+    apiKey?.trim() !== ""
+      ? /^[A-Z][A-Z0-9_]*$/.test(apiKey!.trim())
+        ? (process.env[apiKey!.trim()] ?? "").trim()
+        : apiKey!.trim()
+      : "";
+  const models =
+    resolvedSecret !== ""
+      ? await discoverHuggingfaceModels(resolvedSecret)
+      : HUGGINGFACE_MODEL_CATALOG.map(buildHuggingfaceModelDefinition);
   return {
-    baseUrl: VOLCENGINE_API_BASE_URL,
+    baseUrl: HUGGINGFACE_BASE_URL,
     api: "openai-completions",
-    models: [],
+    models,
   };
 }
 
-export const XIAOMI_API_BASE_URL = "https://api.xiaomimimo.com/v1";
-
-// Xiaomi MiMo API does not support the developer role (returns 400 Param Incorrect)
-const XIAOMI_COMPAT = { supportsDeveloperRole: false } as const;
-
-export function buildXiaomiProvider(): ProviderConfig {
+function buildTogetherProvider(): ProviderConfig {
   return {
-    baseUrl: XIAOMI_API_BASE_URL,
+    baseUrl: TOGETHER_BASE_URL,
+    api: "openai-completions",
+    models: TOGETHER_MODEL_CATALOG.map(buildTogetherModelDefinition),
+  };
+}
+
+async function buildVllmProvider(params?: {
+  baseUrl?: string;
+  apiKey?: string;
+}): Promise<ProviderConfig> {
+  const baseUrl = (params?.baseUrl?.trim() || VLLM_BASE_URL).replace(/\/+$/, "");
+  const models = await discoverVllmModels(baseUrl, params?.apiKey);
+  return {
+    baseUrl,
+    api: "openai-completions",
+    models,
+  };
+}
+export function buildQianfanProvider(): ProviderConfig {
+  return {
+    baseUrl: QIANFAN_BASE_URL,
     api: "openai-completions",
     models: [
       {
-        id: "mimo-v2-flash",
-        name: "MiMo V2 Flash",
+        id: QIANFAN_DEFAULT_MODEL_ID,
+        name: "DEEPSEEK V3.2",
         reasoning: true,
-        input: ["text"] as ("text" | "image")[],
-        cost: { input: 0.7, output: 2.1, cacheRead: 0.07, cacheWrite: 0 },
-        contextWindow: 131072,
-        maxTokens: 65536,
-        compat: XIAOMI_COMPAT,
+        input: ["text"],
+        cost: QIANFAN_DEFAULT_COST,
+        contextWindow: QIANFAN_DEFAULT_CONTEXT_WINDOW,
+        maxTokens: QIANFAN_DEFAULT_MAX_TOKENS,
+      },
+      {
+        id: "ernie-5.0-thinking-preview",
+        name: "ERNIE-5.0-Thinking-Preview",
+        reasoning: true,
+        input: ["text", "image"],
+        cost: QIANFAN_DEFAULT_COST,
+        contextWindow: 119000,
+        maxTokens: 64000,
       },
     ],
   };
@@ -596,6 +615,7 @@ export function buildXiaomiProvider(): ProviderConfig {
 
 export async function resolveImplicitProviders(params: {
   agentDir: string;
+  explicitProviders?: Record<string, ProviderConfig> | null;
 }): Promise<ModelsConfig["providers"]> {
   const providers: Record<string, ProviderConfig> = {};
   const authStore = ensureAuthProfileStore(params.agentDir, {
@@ -624,13 +644,6 @@ export async function resolveImplicitProviders(params: {
     providers.moonshot = { ...buildMoonshotProvider(), apiKey: moonshotKey };
   }
 
-  const kimiCodeKey =
-    resolveEnvApiKeyVarName("kimi-code") ??
-    resolveApiKeyFromProfiles({ provider: "kimi-code", store: authStore });
-  if (kimiCodeKey) {
-    providers["kimi-code"] = { ...buildKimiCodeProvider(), apiKey: kimiCodeKey };
-  }
-
   const syntheticKey =
     resolveEnvApiKeyVarName("synthetic") ??
     resolveApiKeyFromProfiles({ provider: "synthetic", store: authStore });
@@ -645,32 +658,12 @@ export async function resolveImplicitProviders(params: {
     providers.venice = { ...(await buildVeniceProvider()), apiKey: veniceKey };
   }
 
-  const siliconKey =
-    resolveEnvApiKeyVarName("siliconflow") ??
-    resolveApiKeyFromProfiles({ provider: "siliconflow", store: authStore });
-  if (siliconKey) {
-    providers.siliconflow = { ...buildSiliconflowProvider(), apiKey: siliconKey };
-  }
-
-  const dashscopeKey =
-    resolveEnvApiKeyVarName("dashscope") ??
-    resolveApiKeyFromProfiles({ provider: "dashscope", store: authStore });
-  if (dashscopeKey) {
-    providers.dashscope = { ...buildDashscopeProvider(), apiKey: dashscopeKey };
-  }
-
-  const deepseekKey =
-    resolveEnvApiKeyVarName("deepseek") ??
-    resolveApiKeyFromProfiles({ provider: "deepseek", store: authStore });
-  if (deepseekKey) {
-    providers.deepseek = { ...buildDeepseekProvider(), apiKey: deepseekKey };
-  }
-
-  const volcengineKey =
-    resolveEnvApiKeyVarName("volcengine") ??
-    resolveApiKeyFromProfiles({ provider: "volcengine", store: authStore });
-  if (volcengineKey) {
-    providers.volcengine = { ...buildVolcengineProvider(), apiKey: volcengineKey };
+  const qwenProfiles = listProfilesForProvider(authStore, "qwen-portal");
+  if (qwenProfiles.length > 0) {
+    providers["qwen-portal"] = {
+      ...buildQwenPortalProvider(),
+      apiKey: QWEN_PORTAL_OAUTH_PLACEHOLDER,
+    };
   }
 
   const xiaomiKey =
@@ -680,20 +673,88 @@ export async function resolveImplicitProviders(params: {
     providers.xiaomi = { ...buildXiaomiProvider(), apiKey: xiaomiKey };
   }
 
-  const qwenProfiles = listProfilesForProvider(authStore, "qwen-portal");
-  if (qwenProfiles.length > 0) {
-    providers["qwen-portal"] = {
-      ...buildQwenPortalProvider(),
-      apiKey: QWEN_PORTAL_OAUTH_PLACEHOLDER,
+  const cloudflareProfiles = listProfilesForProvider(authStore, "cloudflare-ai-gateway");
+  for (const profileId of cloudflareProfiles) {
+    const cred = authStore.profiles[profileId];
+    if (cred?.type !== "api_key") {
+      continue;
+    }
+    const accountId = cred.metadata?.accountId?.trim();
+    const gatewayId = cred.metadata?.gatewayId?.trim();
+    if (!accountId || !gatewayId) {
+      continue;
+    }
+    const baseUrl = resolveCloudflareAiGatewayBaseUrl({ accountId, gatewayId });
+    if (!baseUrl) {
+      continue;
+    }
+    const apiKey = resolveEnvApiKeyVarName("cloudflare-ai-gateway") ?? cred.key?.trim() ?? "";
+    if (!apiKey) {
+      continue;
+    }
+    providers["cloudflare-ai-gateway"] = {
+      baseUrl,
+      api: "anthropic-messages",
+      apiKey,
+      models: [buildCloudflareAiGatewayModelDefinition()],
     };
+    break;
   }
 
-  // Ollama provider - only add if explicitly configured
+  // Ollama provider - only add if explicitly configured.
+  // Use the user's configured baseUrl (from explicit providers) for model
+  // discovery so that remote / non-default Ollama instances are reachable.
   const ollamaKey =
     resolveEnvApiKeyVarName("ollama") ??
     resolveApiKeyFromProfiles({ provider: "ollama", store: authStore });
   if (ollamaKey) {
-    providers.ollama = { ...(await buildOllamaProvider()), apiKey: ollamaKey };
+    const ollamaBaseUrl = params.explicitProviders?.ollama?.baseUrl;
+    providers.ollama = { ...(await buildOllamaProvider(ollamaBaseUrl)), apiKey: ollamaKey };
+  }
+
+  // vLLM provider - OpenAI-compatible local server (opt-in via env/profile).
+  // If explicitly configured, keep user-defined models/settings as-is.
+  if (!params.explicitProviders?.vllm) {
+    const vllmEnvVar = resolveEnvApiKeyVarName("vllm");
+    const vllmProfileKey = resolveApiKeyFromProfiles({ provider: "vllm", store: authStore });
+    const vllmKey = vllmEnvVar ?? vllmProfileKey;
+    if (vllmKey) {
+      const discoveryApiKey = vllmEnvVar
+        ? (process.env[vllmEnvVar]?.trim() ?? "")
+        : (vllmProfileKey ?? "");
+      providers.vllm = {
+        ...(await buildVllmProvider({ apiKey: discoveryApiKey || undefined })),
+        apiKey: vllmKey,
+      };
+    }
+  }
+
+  const togetherKey =
+    resolveEnvApiKeyVarName("together") ??
+    resolveApiKeyFromProfiles({ provider: "together", store: authStore });
+  if (togetherKey) {
+    providers.together = {
+      ...buildTogetherProvider(),
+      apiKey: togetherKey,
+    };
+  }
+
+  const huggingfaceKey =
+    resolveEnvApiKeyVarName("huggingface") ??
+    resolveApiKeyFromProfiles({ provider: "huggingface", store: authStore });
+  if (huggingfaceKey) {
+    const hfProvider = await buildHuggingfaceProvider(huggingfaceKey);
+    providers.huggingface = {
+      ...hfProvider,
+      apiKey: huggingfaceKey,
+    };
+  }
+
+  const qianfanKey =
+    resolveEnvApiKeyVarName("qianfan") ??
+    resolveApiKeyFromProfiles({ provider: "qianfan", store: authStore });
+  if (qianfanKey) {
+    providers.qianfan = { ...buildQianfanProvider(), apiKey: qianfanKey };
   }
 
   return providers;
@@ -704,12 +765,16 @@ export async function resolveImplicitCopilotProvider(params: {
   env?: NodeJS.ProcessEnv;
 }): Promise<ProviderConfig | null> {
   const env = params.env ?? process.env;
-  const authStore = ensureAuthProfileStore(params.agentDir, { allowKeychainPrompt: false });
+  const authStore = ensureAuthProfileStore(params.agentDir, {
+    allowKeychainPrompt: false,
+  });
   const hasProfile = listProfilesForProvider(authStore, "github-copilot").length > 0;
   const envToken = env.COPILOT_GITHUB_TOKEN ?? env.GH_TOKEN ?? env.GITHUB_TOKEN;
   const githubToken = (envToken ?? "").trim();
 
-  if (!hasProfile && !githubToken) return null;
+  if (!hasProfile && !githubToken) {
+    return null;
+  }
 
   let selectedGithubToken = githubToken;
   if (!selectedGithubToken && hasProfile) {
@@ -735,32 +800,51 @@ export async function resolveImplicitCopilotProvider(params: {
     }
   }
 
-  // Provide the full model list so the model registry uses our maintained
-  // catalog (which includes newer models like claude-opus-4.6 that the
-  // upstream pi-ai built-in list may not have yet).
-  // This makes the provider a "full replacement" in the model registry.
-  // normalizeProviders() will auto-fill apiKey from env or auth profiles.
+  // pi-coding-agent's ModelRegistry marks a model "available" only if its
+  // `AuthStorage` has auth configured for that provider (via auth.json/env/etc).
+  // Our Copilot auth lives in OpenClaw's auth-profiles store instead, so we also
+  // write a runtime-only auth.json entry for pi-coding-agent to pick up.
+  //
+  // This is safe because it's (1) within OpenClaw's agent dir, (2) contains the
+  // GitHub token (not the exchanged Copilot token), and (3) matches existing
+  // patterns for OAuth-like providers in pi-coding-agent.
+  // Note: we deliberately do not write pi-coding-agent's `auth.json` here.
+  // OpenClaw uses its own auth store and exchanges tokens at runtime.
+  // `models list` uses OpenClaw's auth heuristics for availability.
+
+  // We intentionally do NOT define custom models for Copilot in models.json.
+  // pi-coding-agent treats providers with models as replacements requiring apiKey.
+  // We only override baseUrl; the model list comes from pi-ai built-ins.
   return {
     baseUrl,
-    models: getCopilotModelDefinitions(),
+    models: [],
   } satisfies ProviderConfig;
 }
 
 export async function resolveImplicitBedrockProvider(params: {
   agentDir: string;
-  config?: ClawdbotConfig;
+  config?: OpenClawConfig;
   env?: NodeJS.ProcessEnv;
 }): Promise<ProviderConfig | null> {
   const env = params.env ?? process.env;
   const discoveryConfig = params.config?.models?.bedrockDiscovery;
   const enabled = discoveryConfig?.enabled;
   const hasAwsCreds = resolveAwsSdkEnvVarName(env) !== undefined;
-  if (enabled === false) return null;
-  if (enabled !== true && !hasAwsCreds) return null;
+  if (enabled === false) {
+    return null;
+  }
+  if (enabled !== true && !hasAwsCreds) {
+    return null;
+  }
 
   const region = discoveryConfig?.region ?? env.AWS_REGION ?? env.AWS_DEFAULT_REGION ?? "us-east-1";
-  const models = await discoverBedrockModels({ region, config: discoveryConfig });
-  if (models.length === 0) return null;
+  const models = await discoverBedrockModels({
+    region,
+    config: discoveryConfig,
+  });
+  if (models.length === 0) {
+    return null;
+  }
 
   return {
     baseUrl: `https://bedrock-runtime.${region}.amazonaws.com`,
