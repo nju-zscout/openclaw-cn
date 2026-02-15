@@ -349,7 +349,7 @@ read_when:
     path: "/hooks",
     token: "shared-secret",
     presets: ["gmail"],
-    transformsDir: "~/.openclaw/hooks",
+    transformsDir: "~/.openclaw/hooks/transforms",
     mappings: [
       {
         id: "gmail-hook",
@@ -365,8 +365,11 @@ read_when:
         to: "+15555550123",
         thinking: "low",
         timeoutSeconds: 300,
-        transform: { module: "./transforms/gmail.js", export: "transformGmail" }
-      }
+        transform: {
+          module: "gmail.js",
+          export: "transformGmail",
+        },
+      },
     ],
     gmail: {
       account: "openclaw-cn@gmail.com",

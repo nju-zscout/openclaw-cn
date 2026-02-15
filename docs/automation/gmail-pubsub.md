@@ -85,7 +85,8 @@ read_when:
 - Gmail 钩子内容默认用外部内容安全边界包装。
   要禁用（危险），请设置 `hooks.gmail.allowUnsafeExternalContent: true`。
 
-要进一步自定义载荷处理，请添加 `hooks.mappings` 或 `hooks.transformsDir` 下的 JS/TS 转换模块
+要进一步自定义载荷处理，请添加 `hooks.mappings` 或
+`~/.clawdbot-cn/hooks/transforms` 下的 JS/TS 转换模块
 （参见 [Webhooks](/automation/webhook)）。
 
 ## 向导（推荐）

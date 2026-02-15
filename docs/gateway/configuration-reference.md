@@ -1974,7 +1974,7 @@ See [Multiple Gateways](/gateway/multiple-gateways).
     maxBodyBytes: 262144,
     allowedAgentIds: ["hooks", "main"],
     presets: ["gmail"],
-    transformsDir: "~/.openclaw/hooks",
+    transformsDir: "~/.openclaw/hooks/transforms",
     mappings: [
       {
         match: { path: "gmail" },
