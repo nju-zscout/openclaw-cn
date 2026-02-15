@@ -6,7 +6,11 @@ import {
   normalizeApiKeyInput,
   validateApiKeyInput,
 } from "./auth-choice.api-key.js";
-import { applyAuthProfileConfig, applyVolcengineConfig, setVolcengineApiKey } from "./onboard-auth.js";
+import {
+  applyAuthProfileConfig,
+  applyVolcengineConfig,
+  setVolcengineApiKey,
+} from "./onboard-auth.js";
 
 export async function applyAuthChoiceVolcengine(
   params: ApplyAuthChoiceParams,
