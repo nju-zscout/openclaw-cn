@@ -594,3 +594,96 @@ QMD:            14 项  ← 需对比评估
 | ⬜ | P0 | #7313 | v2026.X.X | Feishu: add Feishu/Lark plugin support + docs. | CHANNEL-FIX | HIGH | 飞书渠道支持，需合并 |
 | 🔲 | P3 | #N/A | v2026.X.X | Web UI: add Agents dashboard for managing agent files, tools, skills, models, channels, and cron jobs. | NICE-TO-HAVE | HIGH | Web UI新功能，可选合并 |
 | ⬜ | P1 | #3160 | v2026.X.X | Memory: implement the opt-in QMD backend for workspace memory. | CORE-FEATURE | HIGH | QMD记忆系统实现，需对比本地实现 |
+
+---
+
+## 自动扫描新增条目 (2026-02-15)
+
+| 状态 | 优先级 | 上游 PR | Release | 描述 | 类别 | 冲突风险 | 备注 |
+|------|--------|---------|---------|------|------|----------|------|
+| ⬜ | P2 | #11755 | v2026.X.X | Plugins: device pairing + phone control plugins (Telegram `/pair`, iOS/Android node controls). | CHANNEL-FIX | MEDIUM | Telegram渠道功能增强，Telegram为使用中渠道。 |
+| ⬜ | P2 | #12419 | v2026.X.X | Tools: add Grok (xAI) as a `web_search` provider. | MODEL | LOW | 新增模型/提供商支持。 |
+| 🔲 | P3 | #11045 | v2026.X.X | Gateway: add agent management RPC methods for the web UI (`agents.create`, `agents.update`, `agents.delete`). | CORE-FEATURE | MEDIUM | Web UI新功能增强，可选合并。 |
+| 🔲 | P3 | #11341 | v2026.X.X | Web UI: show a Compaction divider in chat history. | NICE-TO-HAVE | LOW | Web UI界面调整，可选合并。 |
+| ⬜ | P2 | #1835 | v2026.X.X | Agents: include runtime shell in agent envelopes. | CORE-FEATURE | LOW | 核心Agent功能增强。 |
+| ⬜ | P2 | #12091 | v2026.X.X | Paths: add `OPENCLAW_HOME` for overriding the home directory used by internal path resolution. | CORE-FEATURE | MEDIUM | 配置/路径系统重要功能。 |
+| ⬜ | P1 | #12156 | v2026.X.X | Telegram: harden quote parsing; preserve quote context; avoid QUOTE_TEXT_INVALID; avoid nested reply quote misclassification. | CHANNEL-FIX | MEDIUM | Telegram渠道重要bug修复，Telegram为使用中渠道。 |
+| ⬜ | P1 | #11620 | v2026.X.X | Telegram: recover proactive sends when stale topic thread IDs are used by retrying without `message_thread_id`. | CHANNEL-FIX | MEDIUM | Telegram渠道重要bug修复，Telegram为使用中渠道。 |
+| ⬜ | P2 | #11543 | v2026.X.X | Telegram: render markdown spoilers with `<tg-spoiler>` HTML tags. | CHANNEL-FIX | LOW | Telegram渠道功能修复，Telegram为使用中渠道。 |
+| ⬜ | P2 | #12356 | v2026.X.X | Telegram: truncate command registration to 100 entries to avoid `BOT_COMMANDS_TOO_MUCH` failures on startup. | CHANNEL-FIX | LOW | Telegram渠道bug修复，Telegram为使用中渠道。 |
+| ⬜ | P2 | #12779 | v2026.X.X | Telegram: match DM `allowFrom` against sender user id (fallback to chat id) and clarify pairing logs. | CHANNEL-FIX | LOW | Telegram渠道功能修复，Telegram为使用中渠道。 |
+| 🔲 | P4 | #N/A | v2026.X.X | Onboarding: QuickStart now auto-installs shell completion (prompt only in Manual). | NICE-TO-HAVE | LOW | CLI/Onboarding改善，可选合并。 |
+| ⬜ | P1 | #N/A | v2026.X.X | Auth: strip embedded line breaks from pasted API keys and tokens before storing/resolving credentials. | CRITICAL-BUG | LOW | 认证/安全相关修复。 |
+| ⬜ | P2 | #N/A | v2026.X.X | Web UI: make chat refresh smoothly scroll to the latest messages and suppress new-messages badge flash during manual refresh. | CHANNEL-FIX | LOW | Web UI bug修复，Web UI为使用中渠道。 |
+| ⬜ | P2 | #12419 | v2026.X.X | Tools/web_search: include provider-specific settings in the web search cache key, and pass `inlineCitations` for Grok. | CORE-FEATURE | LOW | 工具/web_search功能修复，与Grok支持相关。 |
+| ⬜ | P2 | #12795 | v2026.X.X | Tools/web_search: normalize direct Perplexity model IDs while keeping OpenRouter model IDs unchanged. | CORE-FEATURE | LOW | 工具/web_search功能修复。 |
+| ⬜ | P1 | #1879 | v2026.X.X | Model failover: treat HTTP 400 errors as failover-eligible, enabling automatic model fallback. | CRITICAL-BUG | LOW | 核心模型故障转移逻辑重要修复。 |
+| ⬜ | P2 | #2078 | v2026.X.X | Errors: prevent false positive context overflow detection when conversation mentions "context overflow" topic. | CRITICAL-BUG | LOW | 核心错误处理逻辑修复。 |
+| ⬜ | P0 | #12283 | v2026.X.X | Gateway: no more post-compaction amnesia; injected transcript writes now preserve Pi session `parentId` chain so agents can remember again. | CRITICAL-BUG | HIGH | 核心Gateway/Compaction/记忆系统关键修复，防止记忆丢失。 |
+| ⬜ | P1 | #11523 | v2026.X.X | Gateway: fix multi-agent sessions.usage discovery. | CRITICAL-BUG | MEDIUM | 核心Gateway/Agent功能修复。 |
+| ⬜ | P1 | #11579 | v2026.X.X | Agents: recover from context overflow caused by oversized tool results (pre-emptive capping + fallback truncation). | CRITICAL-BUG | MEDIUM | 核心Agent/上下文溢出处理修复。 |
+| ⬜ | P2 | #11664 | v2026.X.X | Subagents/compaction: stabilize announce timing and preserve compaction metrics across retries. | CORE-FEATURE | MEDIUM | 核心Subagent/Compaction功能修复。 |
+| ⬜ | P1 | #11641 | v2026.X.X | Cron: share isolated announce flow and harden scheduling/delivery reliability. | CRITICAL-BUG | MEDIUM | 核心Cron功能重要修复。 |
+| ⬜ | P2 | #12124 | v2026.X.X | Cron tool: recover flat params when LLM omits the `job` wrapper for add requests. | CORE-FEATURE | LOW | Cron工具功能修复。 |
+| ⬜ | P2 | #11448 | v2026.X.X | Gateway/CLI: when `gateway.bind=lan`, use a LAN IP for probe URLs and Control UI links. | CORE-FEATURE | LOW | Gateway/CLI网络配置修复。 |
+| ⬜ | P1 | #9295 | v2026.X.X | Hooks: fix bundled hooks broken since 2026.2.2 (tsdown migration). | CRITICAL-BUG | MEDIUM | Hooks功能关键修复。 |
+| ⬜ | P1 | #11372 | v2026.X.X | Routing: refresh bindings per message by loading config at route resolution so binding changes apply without restart. | CRITICAL-BUG | MEDIUM | 核心路由配置动态加载修复。 |
+| ⬜ | P2 | #11937 | v2026.X.X | Exec approvals: render forwarded commands in monospace for safer approval scanning. | CORE-FEATURE | LOW | Exec approvals安全相关改善。 |
+| ⬜ | P1 | #5516 | v2026.X.X | Config: clamp `maxTokens` to `contextWindow` to prevent invalid model configs. | CRITICAL-BUG | LOW | 配置系统重要修复，防止无效配置。 |
+| ⬜ | P2 | #11646 | v2026.X.X | Thinking: allow xhigh for `github-copilot/gpt-5.2-codex` and `github-copilot/gpt-5.2`. | MODEL | LOW | 模型/Thinking功能支持修复。 |
+| ⬜ | P1 | #10062 | v2026.X.X | Discord: support forum/media thread-create starter messages, wire `message thread create --message`, and harden routing. | CHANNEL-FIX | MEDIUM | Discord渠道重要功能修复，Discord为使用中渠道。 |
+| ⬜ | P2 | #12125 | v2026.X.X | Paths: structurally resolve `OPENCLAW_HOME`-derived home paths and fix Windows drive-letter handling in tool meta shortening. | CORE-FEATURE | MEDIUM | 路径/Windows跨平台兼容性修复。 |
+| ⬜ | P2 | #10818 | v2026.X.X | Memory: set Voyage embeddings `input_type` for improved retrieval. | CORE-FEATURE | LOW | Memory功能修复。 |
+| ⬜ | P2 | #12114 | v2026.X.X | Memory/QMD: reuse default model cache across agents instead of re-downloading per agent. | CORE-FEATURE | LOW | Memory/QMD性能优化修复。 |
+| ⬜ | P2 | #10982 | v2026.X.X | Media understanding: recognize `.caf` audio attachments for transcription. | CORE-FEATURE | LOW | 媒体理解功能修复。 |
+| ⬜ | P2 | #4824 | v2026.X.X | State dir: honor `OPENCLAW_STATE_DIR` for default device identity and canvas storage paths. | CORE-FEATURE | LOW | 配置/路径系统修复。 |
+| ⬜ | P2 | #9853, #10720, #9995 | v2026.X.X | Models: support Anthropic Opus 4.6 and OpenAI Codex gpt-5.3-codex (forward-compat fallbacks). | MODEL | LOW | 新模型支持。 |
+| ⬜ | P2 | #9885 | v2026.X.X | Providers: add xAI (Grok) support. | MODEL | LOW | 新提供商支持。 |
+| 🔲 | P3 | #10072 | v2026.X.X | Web UI: add token usage dashboard. | NICE-TO-HAVE | MEDIUM | Web UI新功能增强，可选合并。 |
+| ⬜ | P2 | #7078 | v2026.X.X | Memory: native Voyage AI support. | CORE-FEATURE | LOW | Memory新提供商支持。 |
+| ⬜ | P1 | #10000 | v2026.X.X | Sessions: cap sessions_history payloads to reduce context overflow. | CRITICAL-BUG | MEDIUM | 核心Session/上下文溢出预防修复。 |
+| 🔲 | P4 | #8068 | v2026.X.X | CLI: sort commands alphabetically in help output. | NICE-TO-HAVE | LOW | CLI改善，可选合并。 |
+| ⬜ | P2 | #N/A | v2026.X.X | Agents: bump pi-mono to 0.52.7; add embedded forward-compat fallback for Opus 4.6 model ids. | MODEL | LOW | 模型兼容性更新。 |
+| ⬜ | P1 | #7235 | v2026.X.X | Telegram: auto-inject DM topic threadId in message tool + subagent announce. | CHANNEL-FIX | MEDIUM | Telegram渠道功能修复，Telegram为使用中渠道。 |
+| ⬜ | P0 | #9518 | v2026.X.X | Security: require auth for Gateway canvas host and A2UI assets. | SECURITY | MEDIUM | 安全修复，Gateway认证。 |
+| ⬜ | P1 | #9733, #9823, #9948, #9932 | v2026.X.X | Cron: fix scheduling and reminder delivery regressions; harden next-run recompute + timer re-arming + legacy schedule fields. | CRITICAL-BUG | MEDIUM | 核心Cron功能重要修复。 |
+| ⬜ | P1 | #10146 | v2026.X.X | Update: harden Control UI asset handling in update flow. | CRITICAL-BUG | MEDIUM | 更新流程/Control UI修复。 |
+| ⬜ | P0 | #9806, #9858 | v2026.X.X | Security: add skill/plugin code safety scanner; redact credentials from config.get gateway responses. | SECURITY | MEDIUM | 安全修复，代码扫描和凭证保护。 |
+| ⬜ | P2 | #9903 | v2026.X.X | Exec approvals: coerce bare string allowlist entries to objects. | CORE-FEATURE | LOW | Exec approvals配置解析修复。 |
+| ⬜ | P2 | #9971 | v2026.X.X | Slack: add mention stripPatterns for /new and /reset. | CHANNEL-FIX | LOW | Slack渠道功能修复，Slack为使用中渠道。 |
+| ⬜ | P2 | #8914 | v2026.X.X | Chrome extension: fix bundled path resolution. | CORE-FEATURE | LOW | Chrome扩展路径修复。 |
+| ⬜ | P1 | #8928, #8391 | v2026.X.X | Compaction/errors: allow multiple compaction retries on context overflow; show clear billing errors. | CRITICAL-BUG | MEDIUM | 核心Compaction/错误处理修复。 |
+| 🔲 | P4 | #7914 | v2026.X.X | Onboarding: add Cloudflare AI Gateway provider setup and docs. | NICE-TO-HAVE | LOW | Onboarding/文档更新，可选合并。 |
+| ⬜ | P1 | #7180 | v2026.X.X | Onboarding: add Moonshot (.cn) auth choice and keep the China base URL when preserving defaults. | MODEL | LOW | 中国相关Provider (Moonshot) 支持增强。 |
+| 🔲 | P4 | #7737 | v2026.X.X | Docs: clarify tmux send-keys for TUI by splitting text and Enter. | NICE-TO-HAVE | LOW | 文档更新，可选合并。 |
+| ⬜ | P1 | #8994 | v2026.X.X | Docs: mirror the landing page revamp for zh-CN (features, quickstart, docs directory, network model, credits). | NICE-TO-HAVE | LOW | 中文文档更新，对中文本地化fork重要。 |
+| ⬜ | P2 | #9001 | v2026.X.X | Messages: add per-channel and per-account responsePrefix overrides across channels. | CORE-FEATURE | MEDIUM | 核心消息处理功能增强。 |
+| ⬜ | P2 | #N/A | v2026.X.X | Cron: multiple enhancements for isolated jobs, delivery modes, ISO 8601 support, and cleanup. | CORE-FEATURE | MEDIUM | 核心Cron功能增强和修复。 |
+| ⬜ | P1 | #8702 | v2026.X.X | Heartbeat: allow explicit accountId routing for multi-account channels. | CRITICAL-BUG | MEDIUM | 核心Heartbeat功能修复，支持多账户。 |
+| ⬜ | P1 | #8432 | v2026.X.X | TUI/Gateway: handle non-streaming finals, refresh history for non-local chat runs, and avoid event gap warnings for targeted tool streams. | CHANNEL-FIX | MEDIUM | TUI/Gateway流式输出和事件处理修复，TUI为使用中渠道。 |
+| ⬜ | P2 | #N/A | v2026.X.X | Shell completion: auto-detect and migrate slow dynamic patterns to cached files for faster terminal startup; add completion health checks to doctor/update/onboard. | CORE-FEATURE | LOW | CLI/Shell性能优化和健康检查。 |
+| ⬜ | P2 | #8193 | v2026.X.X | Telegram: honor session model overrides in inline model selection. | CHANNEL-FIX | LOW | Telegram渠道模型选择修复，Telegram为使用中渠道。 |
+| ⬜ | P2 | #N/A | v2026.X.X | Web UI: fix agent model selection saves for default/non-default agents and wrap long workspace paths. | CHANNEL-FIX | LOW | Web UI bug修复，Web UI为使用中渠道。 |
+| ⬜ | P2 | #7178 | v2026.X.X | Web UI: resolve header logo path when `gateway.controlUi.basePath` is set. | CHANNEL-FIX | LOW | Web UI路径修复，Web UI为使用中渠道。 |
+| 🔲 | P4 | #N/A | v2026.X.X | Web UI: apply button styling to the new-messages indicator. | NICE-TO-HAVE | LOW | Web UI样式调整，可选合并。 |
+| ⬜ | P2 | #8484 | v2026.X.X | Onboarding: infer auth choice from non-interactive API key flags. | CORE-FEATURE | LOW | Onboarding非交互式流程修复。 |
+| ⬜ | P0 | #N/A | v2026.X.X | Security: keep untrusted channel metadata out of system prompts (Slack/Discord). | SECURITY | MEDIUM | 安全修复，防止提示词污染。 |
+| ⬜ | P0 | #9182 | v2026.X.X | Security: enforce sandboxed media paths for message tool attachments. | SECURITY | MEDIUM | 安全修复，媒体路径沙箱。 |
+| ⬜ | P0 | #8113 | v2026.X.X | Security: require explicit credentials for gateway URL overrides to prevent credential leakage. | SECURITY | MEDIUM | 安全修复，防止凭证泄漏。 |
+| ⬜ | P0 | #8768 | v2026.X.X | Security: gate `whatsapp_login` tool to owner senders and default-deny non-owner contexts. | SECURITY | MEDIUM | 安全修复，WhatsApp工具权限控制。 |
+| ⬜ | P0 | #N/A | v2026.X.X | Voice call: multiple security hardening fixes (webhook verification, allowlists, caller ID policy). | SECURITY | MEDIUM | 安全修复，语音通话安全加固。 |
+| ⬜ | P2 | #N/A | v2026.X.X | Cron: multiple parsing and reliability fixes (epoch timestamps, store reload). | CORE-FEATURE | LOW | Cron功能修复。 |
+| ⬜ | P1 | #8540 | v2026.X.X | Cron: deliver announce runs directly, honor delivery mode, and respect wakeMode for summaries. | CRITICAL-BUG | MEDIUM | 核心Cron交付逻辑修复。 |
+| ⬜ | P2 | #8392 | v2026.X.X | Telegram: include forward_from_chat metadata in forwarded messages and harden cron delivery target checks. | CHANNEL-FIX | LOW | Telegram渠道元数据和Cron交付修复，Telegram为使用中渠道。 |
+| ⬜ | P2 | #N/A | v2026.X.X | macOS: fix cron payload summary rendering and ISO 8601 formatter concurrency safety. | CORE-FEATURE | LOW | macOS平台Cron修复，涉及日期格式处理。 |
+| ⬜ | P1 | #7313 | v2026.X.X | Feishu: add Feishu/Lark plugin support + docs. | CHANNEL-FIX | MEDIUM | 中国相关渠道飞书/Feishu支持，必须合并。 |
+| 🔲 | P3 | #N/A | v2026.X.X | Web UI: add Agents dashboard for managing agent files, tools, skills, models, channels, and cron jobs. | NICE-TO-HAVE | HIGH | Web UI新功能增强，可选合并。 |
+| ⬜ | P2 | #3160 | v2026.X.X | Memory: implement the opt-in QMD backend for workspace memory. | CORE-FEATURE | HIGH | Memory/QMD新功能实现，需对比本地实现。 |
+| ⬜ | P0 | #7641 | v2026.X.X | Security: add healthcheck skill and bootstrap audit guidance. | SECURITY | LOW | 安全修复，健康检查和审计指导。 |
+| ⬜ | P2 | #7372 | v2026.X.X | Config: allow setting a default subagent thinking level via `agents.defaults.subagents.thinking` (and per-agent `agents.list[].subagents.thinking`). | CORE-FEATURE | MEDIUM | 配置系统功能增强。 |
+| ⬜ | P1 | #8202, #6995, #6619, #7242, #7303, #7415 | v2026.X.X | Docs: zh-CN translations seed + polish, pipeline guidance, nav/landing updates, and typo fixes. | NICE-TO-HAVE | LOW | 中文文档翻译和更新，对中文本地化fork重要。 |
+| ⬜ | P0 | #1 | v2026.X.X | Security: require operator.approvals for gateway /approve commands. | SECURITY | MEDIUM | 安全修复，Gateway命令审批。 |
+| ⬜ | P0 | #N/A | v2026.X.X | Security: Matrix allowlists now require full MXIDs; ambiguous name resolution no longer grants access. | SECURITY | MEDIUM | 安全修复，Matrix访问控制。 |
+| ⬜ | P0 | #N/A | v2026.X.X | Security: enforce access-group gating for Slack slash commands when channel type lookup fails. | SECURITY | MEDIUM | 安全修复，Slack命令访问控制。 |
+| ⬜ | P0 | #N/A | v2026.X.X | Security: require validated shared-secret auth before skipping device identity on gateway connect. | SECURITY | MEDIUM | 安全修复，Gateway连接认证。 |
+| ⬜ | P0 | #N/A | v2026.X.X | Security: guard skill installer downloads with SSRF checks (block private/localhost URLs). | SECURITY | MEDIUM | 安全修复，Skill安装SSRF防护。 |
