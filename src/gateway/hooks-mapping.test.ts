@@ -218,7 +218,6 @@ describe("hooks mapping", () => {
       expect("skipped" in result).toBe(true);
     }
   });
-
   it("treats null transform as a handled skip", async () => {
     const configDir = fs.mkdtempSync(path.join(os.tmpdir(), "clawdbot-config-skip-"));
     const transformsRoot = path.join(configDir, "hooks", "transforms");
