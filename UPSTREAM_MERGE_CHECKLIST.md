@@ -12,7 +12,7 @@
 |--------|------|------|------|
 | P0-SECURITY | 安全修复 | 73 | ✅ 全部完成 |
 | P1-CRITICAL-BUG | 关键 Bug 修复 | 48 | ✅ 全部完成（#26, #32, #35, #36b 已包含/跳过） |
-| P2-CORE-FEATURE | 核心新功能 | — | 待开始 |
+| P2-CORE-FEATURE | 核心新功能 | 37 | ✅ 全部完成（#14 已包含在 #12、#20 已包含在 #16、#25/#34/#36 已包含/跳过） |
 | P3-CHANNEL-BUG | 渠道 Bug 修复 | — | 待开始 |
 | P4-CHANNEL-FEATURE | 渠道新功能 | — | 待开始 |
 | P5-NICE-TO-HAVE | 可选改进 | — | 待开始 |
@@ -217,63 +217,63 @@
 
 | # | 上游 PR | Release | 描述 | 备注 |
 |---|---------|---------|------|------|
-| 1 | #5445 | v2026.2.1 | Agents: add system prompt safety guardrails | 安全框架 |
-| 2 | - | v2026.2.1 | Agents: update pi-ai to 0.50.9 and rename cacheControlTtl -> cacheRetention | 依赖更新 |
-| 3 | - | v2026.2.1 | Agents: extend CreateAgentSessionOptions | API 扩展 |
-| 4 | #7372 | v2026.2.2 | Config: allow setting default subagent thinking level | 子 Agent 配置 |
-| 5 | #10000 | v2026.2.6 | Sessions: cap sessions_history payloads to reduce context overflow | 上下文管理 |
-| 6 | - | v2026.2.6 | Agents: bump pi-mono to 0.52.7 + Opus 4.6 forward-compat | 运行时更新 |
-| 7 | #11045 | v2026.2.9 | Gateway: add agent management RPC methods | Web UI agent 管理 |
-| 8 | #12091 | v2026.2.9 | Paths: add OPENCLAW_HOME for overriding home directory | 路径自定义 |
-| 9 | #8930 | v2026.2.13 | Agents: add pre-prompt context diagnostics | 调试增强 |
-| 10 | #16457 | v2026.2.14 | Agents/Workspace: create BOOTSTRAP.md for partially initialized workspaces | 工作区初始化 |
-| 11 | #16131 | v2026.2.14 | Agents: keep unresolved mutating tool failures visible | 错误可见性 |
+| 1 ✅ | #5445 | v2026.2.1 | Agents: add system prompt safety guardrails | 安全框架 |
+| 2 ✅ | - | v2026.2.1 | Agents: update pi-ai to 0.50.9 and rename cacheControlTtl -> cacheRetention | 依赖更新 |
+| 3 ✅ | - | v2026.2.1 | Agents: extend CreateAgentSessionOptions | API 扩展 |
+| 4 ✅ | #7372 | v2026.2.2 | Config: allow setting default subagent thinking level | 子 Agent 配置 |
+| 5 ✅ | #10000 | v2026.2.6 | Sessions: cap sessions_history payloads to reduce context overflow | 上下文管理 |
+| 6 ✅ | - | v2026.2.6 | Agents: bump pi-mono to 0.52.7 + Opus 4.6 forward-compat | 运行时更新 |
+| 7 ✅ | #11045 | v2026.2.9 | Gateway: add agent management RPC methods | Web UI agent 管理 |
+| 8 ✅ | #12091 | v2026.2.9 | Paths: add OPENCLAW_HOME for overriding home directory | 路径自定义 |
+| 9 ✅ | #8930 | v2026.2.13 | Agents: add pre-prompt context diagnostics | 调试增强 |
+| 10 ✅ | #16457 | v2026.2.14 | Agents/Workspace: create BOOTSTRAP.md for partially initialized workspaces | 工作区初始化 |
+| 11 ✅ | #16131 | v2026.2.14 | Agents: keep unresolved mutating tool failures visible | 错误可见性 |
 
 ### P2-B：Cron / 定时任务增强
 
 | # | 上游 PR | Release | 描述 | 备注 |
 |---|---------|---------|------|------|
-| 12 | - | v2026.2.3 | Cron: add announce delivery mode for isolated jobs | 公告投递 |
-| 13 | - | v2026.2.3 | Cron: default isolated jobs to announce delivery; ISO 8601 support | 投递默认值 |
-| 14 | - | v2026.2.3 | Cron: hard-migrate isolated jobs to announce/none delivery | 迁移 |
-| 15 | - | v2026.2.3 | Cron: delete one-shot jobs after success by default | 清理行为 |
-| 16 | #15368 | v2026.2.13 | Cron: honor deleteAfterRun in isolated announce delivery | 清理行为 |
-| 17 | #14983 | v2026.2.12 | Cron: honor stored session model overrides for isolated-agent runs | 模型覆盖 |
+| 12 ✅ | - | v2026.2.3 | Cron: add announce delivery mode for isolated jobs | 公告投递 |
+| 13 ✅ | - | v2026.2.3 | Cron: default isolated jobs to announce delivery; ISO 8601 support | 投递默认值 |
+| 14 ✅ | - | v2026.2.3 | Cron: hard-migrate isolated jobs to announce/none delivery | 迁移 |
+| 15 ✅ | - | v2026.2.3 | Cron: delete one-shot jobs after success by default | 清理行为 |
+| 16 ✅ | #15368 | v2026.2.13 | Cron: honor deleteAfterRun in isolated announce delivery | 清理行为 |
+| 17 ✅ | #14983 | v2026.2.12 | Cron: honor stored session model overrides for isolated-agent runs | 模型覆盖 |
 
 ### P2-C：Config / 配置系统改进
 
 | # | 上游 PR | Release | 描述 | 备注 |
 |---|---------|---------|------|------|
-| 18 | #5516 | v2026.2.9 | Config: clamp maxTokens to contextWindow | 配置校验 |
-| 19 | #14006 | v2026.2.12 | Config: avoid redacting maxTokens-like fields | 配置快照 |
-| 20 | #13342 | v2026.2.12 | Config/Cron: exclude maxTokens from redaction | 配置修复 |
-| 21 | #13460 | v2026.2.12 | Config: ignore meta field changes in watcher | 文件监听 |
-| 22 | #11560 | v2026.2.13 | Config: preserve ${VAR} env references when writing config files | 环境变量保留 |
-| 23 | #14998 | v2026.2.13 | Config: accept $schema key in config file | JSON Schema 支持 |
-| 24 | #5042 | v2026.2.13 | Config: keep legacy audio transcription migration strict | 迁移安全 |
+| 18 ✅ | #5516 | v2026.2.9 | Config: clamp maxTokens to contextWindow | 配置校验 |
+| 19 ✅ | #14006 | v2026.2.12 | Config: avoid redacting maxTokens-like fields | 配置快照 |
+| 20 ✅ | #13342 | v2026.2.12 | Config/Cron: exclude maxTokens from redaction | 配置修复 |
+| 21 ✅ | #13460 | v2026.2.12 | Config: ignore meta field changes in watcher | 文件监听 |
+| 22 ✅ | #11560 | v2026.2.13 | Config: preserve ${VAR} env references when writing config files | 环境变量保留 |
+| 23 ✅ | #14998 | v2026.2.13 | Config: accept $schema key in config file | JSON Schema 支持 |
+| 24 ✅ | #5042 | v2026.2.13 | Config: keep legacy audio transcription migration strict | 迁移安全 |
 
 ### P2-D：其他核心功能
 
 | # | 上游 PR | Release | 描述 | 备注 |
 |---|---------|---------|------|------|
-| 25 | #7641 | v2026.2.2 | Security: add healthcheck skill and bootstrap audit guidance | 健康检查 |
-| 26 | - | v2026.2.2 | Web UI: add Agents dashboard | Web UI 增强 |
-| 27 | #9001 | v2026.2.3 | Messages: add per-channel and per-account responsePrefix overrides | 回复前缀 |
-| 28 | #10072 | v2026.2.6 | Web UI: add token usage dashboard | Token 仪表盘 |
-| 29 | #7078 | v2026.2.6 | Memory: native Voyage AI support | 嵌入模型 |
-| 30 | #11341 | v2026.2.9 | Web UI: show Compaction divider in chat history | UI 增强 |
-| 31 | #13818 | v2026.2.12 | CLI: add openclaw logs --local-time | CLI 增强 |
-| 32 | #15376 | v2026.2.13 | Web tools/web_fetch: prefer text/markdown responses | Web 工具 |
-| 33 | #15429 | v2026.2.13 | Memory: switch default local embedding model to QAT variant | 嵌入质量 |
-| 34 | #8068 | v2026.2.6 | CLI: sort commands alphabetically in help output | CLI 改善 |
-| 35 | #7014 | v2026.2.1 | Streaming: flush block streaming on paragraph boundaries | 流式输出 |
-| 36 | #3705 | v2026.2.1 | Gateway: inject timestamps into agent and chat.send messages | 消息时间戳 |
+| 25 ✅ | #7641 | v2026.2.2 | Security: add healthcheck skill and bootstrap audit guidance | 健康检查 |
+| 26 ✅ | - | v2026.2.2 | Web UI: add Agents dashboard | Web UI 增强 |
+| 27 ✅ | #9001 | v2026.2.3 | Messages: add per-channel and per-account responsePrefix overrides | 回复前缀 |
+| 28 ✅ | #10072 | v2026.2.6 | Web UI: add token usage dashboard | Token 仪表盘 |
+| 29 ✅ | #7078 | v2026.2.6 | Memory: native Voyage AI support | 嵌入模型 |
+| 30 ✅ | #11341 | v2026.2.9 | Web UI: show Compaction divider in chat history | UI 增强 |
+| 31 ✅ | #13818 | v2026.2.12 | CLI: add openclaw logs --local-time | CLI 增强 |
+| 32 ✅ | #15376 | v2026.2.13 | Web tools/web_fetch: prefer text/markdown responses | Web 工具 |
+| 33 ✅ | #15429 | v2026.2.13 | Memory: switch default local embedding model to QAT variant | 嵌入质量 |
+| 34 ✅ | #8068 | v2026.2.6 | CLI: sort commands alphabetically in help output | CLI 改善 |
+| 35 ✅ | #7014 | v2026.2.1 | Streaming: flush block streaming on paragraph boundaries | 流式输出 |
+| 36 ✅ | #3705 | v2026.2.1 | Gateway: inject timestamps into agent and chat.send messages | 消息时间戳 |
 
 ### P2-E：BREAKING CHANGES（需兼容性验证）
 
 | # | 上游 PR | Release | 描述 | 备注 |
 |---|---------|---------|------|------|
-| 37 | - | v2026.2.12 | **Hooks: POST /hooks/agent now rejects payload sessionKey overrides by default** | ⚠️ 需验证兼容性 |
+| 37 ✅ | - | v2026.2.12 | **Hooks: POST /hooks/agent now rejects payload sessionKey overrides by default** | ⚠️ 需验证兼容性 |
 
 ---
 

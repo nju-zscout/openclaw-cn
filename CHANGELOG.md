@@ -6,6 +6,50 @@ Docs: https://docs.clawd.bot
 
 > 🔒 **安全加固**：同步上游 73 项安全修复（P0-A + P0-B + P0-C），覆盖 v2026.2.1 ~ v2026.2.14 全部安全补丁。
 > 🐛 **关键 Bug 修复**：同步上游 48 项关键 Bug 修复（P1-A ~ P1-D），涵盖会话/网关/定时任务/心跳/内存/CJK 等核心稳定性问题。
+> ✨ **核心功能同步**：同步上游 37 项核心功能改进（P2-A ~ P2-E），覆盖 Agent/会话管理、Cron 增强、Config 改进等。
+
+### ✨ 核心功能（Core Features）
+
+#### P2-A：Agent / 会话管理
+
+- **系统提示安全护栏**：增强 system prompt 安全检查（upstream #5445）
+- **缓存保留重命名**：`cacheControlTtl` 重命名为 `cacheRetention`（upstream ba4a55f6d）
+- **子代理默认 thinking**：为子代理设置默认 thinking 模式（upstream #7372）
+- **会话历史限制**：限制 sessions_history 载荷大小（upstream #10000）
+- **Agent 管理 RPC**：新增 agent 管理 RPC 方法（upstream #11045）
+- **OPENCLAW_HOME 路径覆盖**：支持通过环境变量覆盖配置目录（upstream #12091）
+- **Pre-prompt 上下文诊断**：增加 pre-prompt 上下文诊断信息（upstream #8930）
+- **BOOTSTRAP.MD 部分工作区**：支持部分工作区 BOOTSTRAP.MD 引导（upstream #16457）
+- **Tool 变更可见性**：保持未解决的变更工具失败可见（upstream #16131）
+
+#### P2-B：Cron 增强
+
+- **Announce 投递模式**：新增 announce 投递模式 + 增强作业配置（upstream 3f82daefd）
+- **默认 announce + ISO 8601**：隔离作业默认使用 announce 投递 + ISO 8601 支持（upstream 0bb0dfc9b）
+- **One-shot 清理**：成功后默认删除一次性作业（upstream ab9f06f4f）
+- **deleteAfterRun**：honor deleteAfterRun + 排除 maxTokens 重编辑（upstream #13342）
+- **Session 模型覆盖**：隔离 agent 运行时尊重 session 模型覆盖（upstream #14983）
+
+#### P2-C：Config 改进
+
+- **maxTokens 钳位**：将 maxTokens 钳位到 contextWindow（upstream #5516）
+- **避免重编辑 maxTokens**：避免重编辑 maxTokens 类字段（upstream #14006）
+- **忽略 meta 字段变更**：config watcher 忽略 meta 字段变更（upstream #13460）
+- **保留环境变量引用**：写回 config 时保留 `${VAR}` 环境变量引用（upstream #11560）
+- **接受 $schema**：根 config 接受 `$schema` 键（upstream #14998）
+- **遗留音频迁移**：遗留音频转录配置迁移 + exec 审批提示修复（upstream #5042）
+
+#### P2-D：其他核心功能
+
+- **Agents 仪表板**：Web UI 新增 Agents 仪表板（upstream 2a68bcbeb）
+- **per-channel responsePrefix**：支持每通道 responsePrefix 覆盖（upstream #9001）
+- **Token 使用仪表板**：Web UI 新增 token 使用量仪表板（upstream #10072）
+- **Voyage 嵌入**：文档化 Voyage embeddings + VOYAGE_API_KEY（upstream #7078）
+- **压缩分隔符**：聊天历史中显示压缩分隔符（upstream #11341）
+- **本地时间日志**：`logs` 命令新增 `--localTime` 选项（upstream #13818）
+- **Cloudflare Markdown**：web_fetch 支持 Cloudflare Markdown for Agents（upstream #15376）
+- **QAT 嵌入**：对齐 QAT 默认文档/测试（upstream #15429）
+- **流式刷新**：段落边界上刷新 block streaming（upstream #7014）
 
 ### 🔒 安全（Security）
 
