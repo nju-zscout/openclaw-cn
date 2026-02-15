@@ -847,8 +847,18 @@ async function handleSendAction(ctx: ResolvedActionContext): Promise<MessageActi
   if (resolvedThreadId && !params.threadId) {
     params.threadId = resolvedThreadId;
   }
+  // Skip outbound session mirroring when the agent is replying to the same
+  // channel/chat it received the inbound message from.  The tool result already
+  // records the send in the agent's running session, so creating a separate
+  // outbound session entry would only produce a confusing duplicate session
+  // in the web UI.  This also avoids Feishu oc_ prefix ambiguity (used for
+  // both group and p2p chats).
+  const isReplyToSameChat =
+    input.toolContext?.currentChannelProvider === channel &&
+    !!input.toolContext?.currentChannelId &&
+    input.toolContext.currentChannelId.trim().toLowerCase() === to.trim().toLowerCase();
   const outboundRoute =
-    agentId && !dryRun
+    agentId && !dryRun && !isReplyToSameChat
       ? await resolveOutboundSessionRoute({
           cfg,
           channel,
