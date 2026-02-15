@@ -3,6 +3,13 @@ import path from "node:path";
 
 import JSON5 from "json5";
 
+// New sync collectors from upstream hardening
+export {
+  collectMinimalProfileOverrideFindings,
+  collectNodeDenyCommandPatternFindings,
+  collectSandboxDockerNoopFindings,
+} from "./audit-extra.sync.js";
+
 import type { ClawdbotConfig, ConfigFileSnapshot } from "../config/config.js";
 import { createConfigIO } from "../config/config.js";
 import { resolveNativeSkillsEnabled } from "../config/commands.js";
