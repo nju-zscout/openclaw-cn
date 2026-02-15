@@ -291,6 +291,11 @@ jobs:
               "### 优先级建议" \
               "优先处理 P0 (安全) 和 P1 (关键修复) 条目。" \
               > /tmp/issue-body.md
+
+            # 确保 label 存在（不存在则创建）
+            gh label create upstream --description "上游变更追踪" --color "0075ca" 2>/dev/null || true
+            gh label create merge-needed --description "需要合并的上游变更" --color "d93f0b" 2>/dev/null || true
+
             gh issue create \
               --title "上游更新: $TAGS - ${MERGE_COUNT} 项需合并, ${OPTIONAL_COUNT} 项可选" \
               --body-file /tmp/issue-body.md \
