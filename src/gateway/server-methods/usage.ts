@@ -19,7 +19,6 @@ import {
   loadSessionCostSummary,
   loadSessionUsageTimeSeries,
   discoverAllSessions,
-  type DiscoveredSession,
 } from "../../infra/session-cost-usage.js";
 import { parseAgentSessionKey } from "../../routing/session-key.js";
 import {
@@ -28,11 +27,7 @@ import {
   formatValidationErrors,
   validateSessionsUsageParams,
 } from "../protocol/index.js";
-import {
-  listAgentsForGateway,
-  loadCombinedSessionStoreForGateway,
-  loadSessionEntry,
-} from "../session-utils.js";
+import { loadCombinedSessionStoreForGateway, loadSessionEntry } from "../session-utils.js";
 
 const COST_USAGE_CACHE_TTL_MS = 30_000;
 
@@ -114,27 +109,6 @@ const parseDateRange = (params: {
   return { startMs: defaultStartMs, endMs: todayEndMs };
 };
 
-type DiscoveredSessionWithAgent = DiscoveredSession & { agentId: string };
-
-async function discoverAllSessionsForUsage(params: {
-  config: ReturnType<typeof loadConfig>;
-  startMs: number;
-  endMs: number;
-}): Promise<DiscoveredSessionWithAgent[]> {
-  const agents = listAgentsForGateway(params.config).agents;
-  const results = await Promise.all(
-    agents.map(async (agent) => {
-      const sessions = await discoverAllSessions({
-        agentId: agent.id,
-        startMs: params.startMs,
-        endMs: params.endMs,
-      });
-      return sessions.map((session) => ({ ...session, agentId: agent.id }));
-    }),
-  );
-  return results.flat().toSorted((a, b) => b.mtime - a.mtime);
-}
-
 async function loadCostUsageSummaryCached(params: {
   startMs: number;
   endMs: number;
@@ -192,7 +166,6 @@ export const __test = {
   parseDateToMs,
   parseDays,
   parseDateRange,
-  discoverAllSessionsForUsage,
   loadCostUsageSummaryCached,
   costUsageCache,
 };
@@ -309,37 +282,18 @@ export const usageHandlers: GatewayRequestHandlers = {
 
     // Optimization: If a specific key is requested, skip full directory scan
     if (specificKey) {
-      const parsed = parseAgentSessionKey(specificKey);
-      const agentIdFromKey = parsed?.agentId;
-      const keyRest = parsed?.rest ?? specificKey;
-
-      // Prefer the store entry when available, even if the caller provides a discovered key
-      // (`agent:<id>:<sessionId>`) for a session that now has a canonical store key.
-      const storeBySessionId = new Map<string, { key: string; entry: SessionEntry }>();
-      for (const [key, entry] of Object.entries(store)) {
-        if (entry?.sessionId) {
-          storeBySessionId.set(entry.sessionId, { key, entry });
-        }
-      }
-
-      const storeMatch = store[specificKey]
-        ? { key: specificKey, entry: store[specificKey] }
-        : null;
-      const storeByIdMatch = storeBySessionId.get(keyRest) ?? null;
-      const resolvedStoreKey = storeMatch?.key ?? storeByIdMatch?.key ?? specificKey;
-      const storeEntry = storeMatch?.entry ?? storeByIdMatch?.entry;
-      const sessionId = storeEntry?.sessionId ?? keyRest;
+      // Check if it's a named session in the store
+      const storeEntry = store[specificKey];
+      let sessionId = storeEntry?.sessionId ?? specificKey;
 
       // Resolve the session file path
-      const sessionFile = resolveSessionFilePath(sessionId, storeEntry, {
-        agentId: agentIdFromKey,
-      });
+      const sessionFile = resolveSessionFilePath(sessionId, storeEntry);
 
       try {
         const stats = fs.statSync(sessionFile);
         if (stats.isFile()) {
           mergedEntries.push({
-            key: resolvedStoreKey,
+            key: specificKey,
             sessionId,
             sessionFile,
             label: storeEntry?.label,
@@ -352,8 +306,7 @@ export const usageHandlers: GatewayRequestHandlers = {
       }
     } else {
       // Full discovery for list view
-      const discoveredSessions = await discoverAllSessionsForUsage({
-        config,
+      const discoveredSessions = await discoverAllSessions({
         startMs,
         endMs,
       });
@@ -381,8 +334,7 @@ export const usageHandlers: GatewayRequestHandlers = {
         } else {
           // Unnamed session - use session ID as key, no label
           mergedEntries.push({
-            // Keep agentId in the key so the dashboard can attribute sessions and later fetch logs.
-            key: `agent:${discovered.agentId}:${discovered.sessionId}`,
+            key: discovered.sessionId,
             sessionId: discovered.sessionId,
             sessionFile: discovered.sessionFile,
             label: undefined, // No label for unnamed sessions
@@ -481,13 +433,11 @@ export const usageHandlers: GatewayRequestHandlers = {
     };
 
     for (const merged of limitedEntries) {
-      const agentId = parseAgentSessionKey(merged.key)?.agentId;
       const usage = await loadSessionCostSummary({
         sessionId: merged.sessionId,
         sessionEntry: merged.storeEntry,
         sessionFile: merged.sessionFile,
         config,
-        agentId,
         startMs,
         endMs,
       });
@@ -506,6 +456,7 @@ export const usageHandlers: GatewayRequestHandlers = {
         aggregateTotals.missingCostEntries += usage.missingCostEntries;
       }
 
+      const agentId = parseAgentSessionKey(merged.key)?.agentId;
       const channel = merged.storeEntry?.channel ?? merged.storeEntry?.origin?.provider;
       const chatType = merged.storeEntry?.chatType ?? merged.storeEntry?.origin?.chatType;
 
@@ -760,19 +711,14 @@ export const usageHandlers: GatewayRequestHandlers = {
     const { entry } = loadSessionEntry(key);
 
     // For discovered sessions (not in store), try using key as sessionId directly
-    const parsed = parseAgentSessionKey(key);
-    const agentId = parsed?.agentId;
-    const rawSessionId = parsed?.rest ?? key;
-    const sessionId = entry?.sessionId ?? rawSessionId;
-    const sessionFile =
-      entry?.sessionFile ?? resolveSessionFilePath(rawSessionId, entry, { agentId });
+    const sessionId = entry?.sessionId ?? key;
+    const sessionFile = entry?.sessionFile ?? resolveSessionFilePath(key);
 
     const timeseries = await loadSessionUsageTimeSeries({
       sessionId,
       sessionEntry: entry,
       sessionFile,
       config,
-      agentId,
       maxPoints: 200,
     });
 
@@ -803,12 +749,8 @@ export const usageHandlers: GatewayRequestHandlers = {
     const { entry } = loadSessionEntry(key);
 
     // For discovered sessions (not in store), try using key as sessionId directly
-    const parsed = parseAgentSessionKey(key);
-    const agentId = parsed?.agentId;
-    const rawSessionId = parsed?.rest ?? key;
-    const sessionId = entry?.sessionId ?? rawSessionId;
-    const sessionFile =
-      entry?.sessionFile ?? resolveSessionFilePath(rawSessionId, entry, { agentId });
+    const sessionId = entry?.sessionId ?? key;
+    const sessionFile = entry?.sessionFile ?? resolveSessionFilePath(key);
 
     const { loadSessionLogs } = await import("../../infra/session-cost-usage.js");
     const logs = await loadSessionLogs({
@@ -816,7 +758,6 @@ export const usageHandlers: GatewayRequestHandlers = {
       sessionEntry: entry,
       sessionFile,
       config,
-      agentId,
       limit,
     });
 
