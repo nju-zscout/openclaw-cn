@@ -75,7 +75,7 @@ describe("normalizeCronJobCreate", () => {
     expect(payload.channel).toBe("telegram");
   });
 
-  it("coerces ISO schedule.at to normalized ISO (UTC)", () => {
+  it("coerces ISO schedule.at to atMs (UTC)", () => {
     const normalized = normalizeCronJobCreate({
       name: "iso at",
       enabled: true,
@@ -90,10 +90,10 @@ describe("normalizeCronJobCreate", () => {
 
     const schedule = normalized.schedule as Record<string, unknown>;
     expect(schedule.kind).toBe("at");
-    expect(schedule.at).toBe(new Date(Date.parse("2026-01-12T18:00:00Z")).toISOString());
+    expect(schedule.atMs).toBe(Date.parse("2026-01-12T18:00:00Z"));
   });
 
-  it("coerces schedule.atMs string to schedule.at (UTC)", () => {
+  it("coerces ISO schedule.atMs string to atMs (UTC)", () => {
     const normalized = normalizeCronJobCreate({
       name: "iso atMs",
       enabled: true,
@@ -108,23 +108,7 @@ describe("normalizeCronJobCreate", () => {
 
     const schedule = normalized.schedule as Record<string, unknown>;
     expect(schedule.kind).toBe("at");
-    expect(schedule.at).toBe(new Date(Date.parse("2026-01-12T18:00:00Z")).toISOString());
-  });
-
-  it("defaults deleteAfterRun for one-shot schedules", () => {
-    const normalized = normalizeCronJobCreate({
-      name: "default delete",
-      enabled: true,
-      schedule: { at: "2026-01-12T18:00:00Z" },
-      sessionTarget: "main",
-      wakeMode: "next-heartbeat",
-      payload: {
-        kind: "systemEvent",
-        text: "hi",
-      },
-    }) as unknown as Record<string, unknown>;
-
-    expect(normalized.deleteAfterRun).toBe(true);
+    expect(schedule.atMs).toBe(Date.parse("2026-01-12T18:00:00Z"));
   });
 
   it("normalizes delivery mode and channel", () => {
@@ -166,7 +150,7 @@ describe("normalizeCronJobCreate", () => {
     expect(delivery.mode).toBe("announce");
   });
 
-  it("migrates legacy delivery fields to delivery", () => {
+  it("does not override explicit legacy delivery fields", () => {
     const normalized = normalizeCronJobCreate({
       name: "legacy deliver",
       enabled: true,
@@ -175,38 +159,14 @@ describe("normalizeCronJobCreate", () => {
         kind: "agentTurn",
         message: "hi",
         deliver: true,
-        channel: "telegram",
-        to: "7200373102",
-        bestEffortDeliver: true,
-      },
-    }) as unknown as Record<string, unknown>;
-
-    const delivery = normalized.delivery as Record<string, unknown>;
-    expect(delivery.mode).toBe("announce");
-    expect(delivery.channel).toBe("telegram");
-    expect(delivery.to).toBe("7200373102");
-    expect(delivery.bestEffort).toBe(true);
-  });
-
-  it("maps legacy deliver=false to delivery none", () => {
-    const normalized = normalizeCronJobCreate({
-      name: "legacy off",
-      enabled: true,
-      schedule: { kind: "cron", expr: "* * * * *" },
-      payload: {
-        kind: "agentTurn",
-        message: "hi",
-        deliver: false,
-        channel: "telegram",
         to: "7200373102",
       },
     }) as unknown as Record<string, unknown>;
 
-    const delivery = normalized.delivery as Record<string, unknown>;
-    expect(delivery.mode).toBe("none");
+    expect(normalized.delivery).toBeUndefined();
   });
 
-  it("migrates legacy isolation settings to announce delivery", () => {
+  it("does not override legacy isolation settings", () => {
     const normalized = normalizeCronJobCreate({
       name: "legacy isolation",
       enabled: true,
@@ -218,8 +178,6 @@ describe("normalizeCronJobCreate", () => {
       isolation: { postToMainPrefix: "Cron" },
     }) as unknown as Record<string, unknown>;
 
-    const delivery = normalized.delivery as Record<string, unknown>;
-    expect(delivery.mode).toBe("announce");
-    expect((normalized as { isolation?: unknown }).isolation).toBeUndefined();
+    expect(normalized.delivery).toBeUndefined();
   });
 });

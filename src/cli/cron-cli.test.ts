@@ -95,67 +95,6 @@ describe("cron cli", () => {
     expect(params?.delivery?.mode).toBe("announce");
   });
 
-  it("infers sessionTarget from payload when --session is omitted", async () => {
-    callGatewayFromCli.mockClear();
-
-    const { registerCronCli } = await import("./cron-cli.js");
-    const program = new Command();
-    program.exitOverride();
-    registerCronCli(program);
-
-    await program.parseAsync(
-      ["cron", "add", "--name", "Main reminder", "--cron", "* * * * *", "--system-event", "hi"],
-      { from: "user" },
-    );
-
-    let addCall = callGatewayFromCli.mock.calls.find((call) => call[0] === "cron.add");
-    let params = addCall?.[2] as { sessionTarget?: string; payload?: { kind?: string } };
-    expect(params?.sessionTarget).toBe("main");
-    expect(params?.payload?.kind).toBe("systemEvent");
-
-    callGatewayFromCli.mockClear();
-
-    await program.parseAsync(
-      ["cron", "add", "--name", "Isolated task", "--cron", "* * * * *", "--message", "hello"],
-      { from: "user" },
-    );
-
-    addCall = callGatewayFromCli.mock.calls.find((call) => call[0] === "cron.add");
-    params = addCall?.[2] as { sessionTarget?: string; payload?: { kind?: string } };
-    expect(params?.sessionTarget).toBe("isolated");
-    expect(params?.payload?.kind).toBe("agentTurn");
-  });
-
-  it("supports --keep-after-run on cron add", async () => {
-    callGatewayFromCli.mockClear();
-
-    const { registerCronCli } = await import("./cron-cli.js");
-    const program = new Command();
-    program.exitOverride();
-    registerCronCli(program);
-
-    await program.parseAsync(
-      [
-        "cron",
-        "add",
-        "--name",
-        "Keep me",
-        "--at",
-        "20m",
-        "--session",
-        "main",
-        "--system-event",
-        "hello",
-        "--keep-after-run",
-      ],
-      { from: "user" },
-    );
-
-    const addCall = callGatewayFromCli.mock.calls.find((call) => call[0] === "cron.add");
-    const params = addCall?.[2] as { deleteAfterRun?: boolean };
-    expect(params?.deleteAfterRun).toBe(false);
-  });
-
   it("sends agent id on cron add", async () => {
     callGatewayFromCli.mockClear();
 
@@ -310,7 +249,7 @@ describe("cron cli", () => {
     };
 
     expect(patch?.patch?.payload?.kind).toBe("agentTurn");
-    expect(patch?.patch?.delivery?.mode).toBe("announce");
+    expect(patch?.patch?.delivery?.mode).toBe("deliver");
     expect(patch?.patch?.delivery?.channel).toBe("telegram");
     expect(patch?.patch?.delivery?.to).toBe("19098680");
     expect(patch?.patch?.payload?.message).toBeUndefined();
@@ -408,7 +347,7 @@ describe("cron cli", () => {
 
     // Should include everything
     expect(patch?.patch?.payload?.message).toBe("Updated message");
-    expect(patch?.patch?.delivery?.mode).toBe("announce");
+    expect(patch?.patch?.delivery?.mode).toBe("deliver");
     expect(patch?.patch?.delivery?.channel).toBe("telegram");
     expect(patch?.patch?.delivery?.to).toBe("19098680");
   });
@@ -428,15 +367,11 @@ describe("cron cli", () => {
 
     const updateCall = callGatewayFromCli.mock.calls.find((call) => call[0] === "cron.update");
     const patch = updateCall?.[2] as {
-      patch?: {
-        payload?: { message?: string };
-        delivery?: { bestEffort?: boolean; mode?: string };
-      };
+      patch?: { payload?: { message?: string; bestEffortDeliver?: boolean } };
     };
 
     expect(patch?.patch?.payload?.message).toBe("Updated message");
-    expect(patch?.patch?.delivery?.mode).toBe("announce");
-    expect(patch?.patch?.delivery?.bestEffort).toBe(true);
+    expect(patch?.patch?.payload?.bestEffortDeliver).toBe(true);
   });
 
   it("includes no-best-effort delivery when provided with message", async () => {
@@ -454,14 +389,10 @@ describe("cron cli", () => {
 
     const updateCall = callGatewayFromCli.mock.calls.find((call) => call[0] === "cron.update");
     const patch = updateCall?.[2] as {
-      patch?: {
-        payload?: { message?: string };
-        delivery?: { bestEffort?: boolean; mode?: string };
-      };
+      patch?: { payload?: { message?: string; bestEffortDeliver?: boolean } };
     };
 
     expect(patch?.patch?.payload?.message).toBe("Updated message");
-    expect(patch?.patch?.delivery?.mode).toBe("announce");
-    expect(patch?.patch?.delivery?.bestEffort).toBe(false);
+    expect(patch?.patch?.payload?.bestEffortDeliver).toBe(false);
   });
 });

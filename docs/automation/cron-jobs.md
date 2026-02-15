@@ -23,7 +23,7 @@ cron is the mechanism.
 - Jobs persist under `~/.openclaw/cron/` so restarts don’t lose schedules.
 - Two execution styles:
   - **Main session**: enqueue a system event, then run on the next heartbeat.
-  - **Isolated**: run a dedicated agent turn in `cron:<jobId>`, with delivery (announce by default or none).
+  - **Isolated**: run a dedicated agent turn in `cron:<jobId>`, with delivery (announce by default, full output or none; legacy main summary still supported).
 - Wakeups are first-class: a job can request “wake now” vs “next heartbeat”.
 
 ## Quick start (actionable)
@@ -86,8 +86,7 @@ Think of a cron job as: **when** to run + **what** to do.
    - Main session → `payload.kind = "systemEvent"`
    - Isolated session → `payload.kind = "agentTurn"`
 
-Optional: one-shot jobs (`schedule.kind = "at"`) delete after success by default. Set
-`deleteAfterRun: false` to keep them (they will disable after success).
+Optional: `deleteAfterRun: true` removes successful one-shot jobs from the store.
 
 ## Concepts
 
@@ -97,19 +96,19 @@ A cron job is a stored record with:
 
 - a **schedule** (when it should run),
 - a **payload** (what it should do),
-- optional **delivery mode** (announce or none).
+- optional **delivery mode** (announce, full output, or none).
 - optional **agent binding** (`agentId`): run the job under a specific agent; if
   missing or unknown, the gateway falls back to the default agent.
 
 Jobs are identified by a stable `jobId` (used by CLI/Gateway APIs).
 In agent tool calls, `jobId` is canonical; legacy `id` is accepted for compatibility.
-One-shot jobs auto-delete after success by default; set `deleteAfterRun: false` to keep them.
+Jobs can optionally auto-delete after a successful one-shot run via `deleteAfterRun: true`.
 
 ### Schedules
 
 Cron supports three schedule kinds:
 
-- `at`: one-shot timestamp via `schedule.at` (ISO 8601).
+- `at`: one-shot timestamp. Prefer ISO 8601 via `schedule.at`; `atMs` (epoch ms) is also accepted.
 - `every`: fixed interval (ms).
 - `cron`: 5-field cron expression with optional IANA timezone.
 
@@ -137,10 +136,13 @@ Key behaviors:
 
 - Prompt is prefixed with `[cron:<jobId> <job name>]` for traceability.
 - Each run starts a **fresh session id** (no prior conversation carry-over).
-- Default behavior: if `delivery` is omitted, isolated jobs announce a summary immediately (`delivery.mode = "announce"`).
-- `delivery.mode` (isolated-only) chooses what happens:
+- Default behavior: if `delivery` is omitted, isolated jobs announce a summary immediately (`delivery.mode = "announce"`), unless legacy isolation settings or legacy payload delivery fields are provided.
+- Legacy behavior: jobs with legacy isolation settings, legacy payload delivery fields, or older stored jobs without `delivery` post a summary to the main session (prefix `Cron`, configurable).
+- `delivery.mode` (isolated-only) chooses what happens instead of the legacy summary:
   - `announce`: subagent-style summary delivered immediately to a chat.
-  - `none`: internal only (no delivery).
+  - `deliver`: full agent output delivered immediately to a chat.
+  - `none`: internal only (no main summary, no delivery).
+- `wakeMode: "now"` only triggers an immediate heartbeat when using the legacy main-summary path.
 
 Use isolated jobs for noisy, frequent, or "background chores" that shouldn't spam
 your main chat history.
@@ -160,15 +162,28 @@ Common `agentTurn` fields:
 
 Delivery config (isolated jobs only):
 
-- `delivery.mode`: `none` | `announce`.
+- `delivery.mode`: `none` | `announce` | `deliver`.
 - `delivery.channel`: `last` or a specific channel.
 - `delivery.to`: channel-specific target (phone/chat/channel id).
-- `delivery.bestEffort`: avoid failing the job if announce delivery fails.
+- `delivery.bestEffort`: avoid failing the job if delivery fails (deliver mode).
 
-Announce delivery suppresses messaging tool sends for the run; use `delivery.channel`/`delivery.to`
-to target the chat instead.
+If `delivery` is omitted for isolated jobs, OpenClaw defaults to `announce` unless legacy isolation
+settings are present.
 
-If `delivery` is omitted for isolated jobs, OpenClaw defaults to `announce`.
+Legacy delivery fields (still accepted when `delivery` is omitted):
+
+- `payload.deliver`: `true` to send output to a channel target.
+- `payload.channel`: `last` or a specific channel.
+- `payload.to`: channel-specific target (phone/chat/channel id).
+- `payload.bestEffortDeliver`: avoid failing the job if delivery fails.
+
+Isolation options (only for `session=isolated`):
+
+- `postToMainPrefix` (CLI: `--post-prefix`): prefix for the system event in main.
+- `postToMainMode`: `summary` (default) or `full`.
+- `postToMainMaxChars`: max chars when `postToMainMode=full` (default 8000).
+
+Note: setting isolation post-to-main options opts into the legacy main-summary path (no `delivery` field). If `delivery` is set, the legacy summary is skipped.
 
 ### Model and thinking overrides
 
@@ -191,7 +206,7 @@ Resolution priority:
 
 Isolated jobs can deliver output to a channel via the top-level `delivery` config:
 
-- `delivery.mode`: `announce` (subagent-style summary) or `none`.
+- `delivery.mode`: `announce` (subagent-style summary) or `deliver` (full output).
 - `delivery.channel`: `whatsapp` / `telegram` / `discord` / `slack` / `mattermost` (plugin) / `signal` / `imessage` / `last`.
 - `delivery.to`: channel-specific recipient target.
 
@@ -199,6 +214,14 @@ Delivery config is only valid for isolated jobs (`sessionTarget: "isolated"`).
 
 If `delivery.channel` or `delivery.to` is omitted, cron can fall back to the main session’s
 “last route” (the last place the agent replied).
+
+Legacy behavior (no `delivery` field with legacy isolation settings or older jobs):
+
+- If `payload.to` is set, cron auto-delivers the agent’s final output even if `payload.deliver` is omitted.
+- Use `payload.deliver: true` when you want last-route delivery without an explicit `to`.
+- Use `payload.deliver: false` to keep output internal even if a `to` is present.
+
+If `delivery` is set, it overrides legacy payload delivery fields and skips the legacy main-session summary.
 
 Target format reminders:
 
@@ -222,7 +245,7 @@ Prefixed targets like `telegram:...` / `telegram:group:...` are also accepted:
 
 Use these shapes when calling Gateway `cron.*` tools directly (agent tool calls or RPC).
 CLI flags accept human durations like `20m`, but tool calls should use an ISO 8601 string
-for `schedule.at` and milliseconds for `schedule.everyMs`.
+for `schedule.at` (preferred) or epoch milliseconds for `atMs` and `everyMs`.
 
 ### cron.add params
 
@@ -262,12 +285,11 @@ Recurring, isolated job with delivery:
 
 Notes:
 
-- `schedule.kind`: `at` (`at`), `every` (`everyMs`), or `cron` (`expr`, optional `tz`).
+- `schedule.kind`: `at` (`at` or `atMs`), `every` (`everyMs`), or `cron` (`expr`, optional `tz`).
 - `schedule.at` accepts ISO 8601 (timezone optional; treated as UTC when omitted).
-- `everyMs` is milliseconds.
+- `atMs` and `everyMs` are epoch milliseconds.
 - `sessionTarget` must be `"main"` or `"isolated"` and must match `payload.kind`.
-- Optional fields: `agentId`, `description`, `enabled`, `deleteAfterRun` (defaults to true for `at`),
-  `delivery`.
+- Optional fields: `agentId`, `description`, `enabled`, `deleteAfterRun`, `delivery`, `isolation`.
 - `wakeMode` defaults to `"next-heartbeat"` when omitted.
 
 ### cron.update params
@@ -368,7 +390,7 @@ openclaw cron add \
   --tz "America/Los_Angeles" \
   --session isolated \
   --message "Summarize today; send to the nightly topic." \
-  --announce \
+  --deliver \
   --channel telegram \
   --to "-1001234567890:topic:123"
 ```
@@ -384,7 +406,7 @@ openclaw cron add \
   --message "Weekly deep analysis of project progress." \
   --model "opus" \
   --thinking high \
-  --announce \
+  --deliver \
   --channel whatsapp \
   --to "+15551234567"
 ```
