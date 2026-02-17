@@ -209,18 +209,36 @@ for i in $(seq 0 $((GROUP_COUNT - 1))); do
   ISSUE_NUM=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')
   echo "   ✅ 创建 Issue #$ISSUE_NUM" >&2
 
-  # 分配 Copilot Agent
+  # 分配 Copilot Agent (需要 agent_assignment + copilot-swe-agent[bot])
   echo "   🤖 分配给 Copilot Agent..." >&2
 
-  ASSIGN_RESULT=$(gh api -X POST \
-    "repos/$REPO/issues/$ISSUE_NUM/assignees" \
-    -f 'assignees[]=copilot-swe-agent' 2>&1) || true
+  ASSIGN_BODY=$(cat <<ASSIGN_JSON
+{
+  "assignees": ["copilot-swe-agent[bot]"],
+  "agent_assignment": {
+    "target_repo": "$REPO",
+    "base_branch": "main",
+    "custom_instructions": "",
+    "custom_agent": "",
+    "model": ""
+  }
+}
+ASSIGN_JSON
+)
 
-  ASSIGNED=$(echo "$ASSIGN_RESULT" | jq -r '.assignees[]?.login // empty' 2>/dev/null | head -1)
+  ASSIGN_RESULT=$(gh api \
+    --method POST \
+    -H "Accept: application/vnd.github+json" \
+    -H "X-GitHub-Api-Version: 2022-11-28" \
+    "repos/$REPO/issues/$ISSUE_NUM/assignees" \
+    --input - <<< "$ASSIGN_BODY" 2>&1) || true
+
+  ASSIGNED=$(echo "$ASSIGN_RESULT" | jq -r '[.assignees[]?.login] | map(select(. == "Copilot" or . == "copilot-swe-agent[bot]")) | first // empty' 2>/dev/null)
   if [ -n "$ASSIGNED" ]; then
     echo "   ✅ 已分配给 $ASSIGNED" >&2
   else
-    echo "   ⚠️ API 分配未生效，可能需要在 GitHub UI 中手动分配 Copilot" >&2
+    echo "   ⚠️ Copilot 分配未生效 (可能需要 PAT 而非 GITHUB_TOKEN)" >&2
+    echo "   ℹ️  可在 GitHub UI 中手动分配: $ISSUE_URL" >&2
   fi
 
   CREATED=$((CREATED + 1))

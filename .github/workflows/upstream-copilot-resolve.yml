@@ -56,8 +56,10 @@ on:
         default: false
 
 permissions:
-  contents: read
+  contents: write
   issues: write
+  pull-requests: write
+  actions: read
 
 jobs:
   resolve:
@@ -234,7 +236,7 @@ jobs:
         if: ${{ !inputs.dry_run && steps.conflicts.outputs.conflict_count != '0' }}
         id: create
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
         run: |
           chmod +x scripts/upstream-copilot-resolve.sh
 
