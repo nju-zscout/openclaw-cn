@@ -207,9 +207,9 @@ jobs:
               echo ""
               echo "| Commit | 描述 | 类别 |"
               echo "|--------|------|------|"
-              jq -r '.[] | select(.action == "OPTIONAL") |
+              jq -r '[.[] | select(.action == "OPTIONAL")] | limit(50; .[]) |
                 "| `\(.sha[:10])` | \(.message | gsub("[|]"; "/") | .[0:80]) | \(.category) |"' \
-                /tmp/commits.json | head -50
+                /tmp/commits.json
               echo ""
               echo "</details>"
               echo ""
@@ -219,9 +219,9 @@ jobs:
             echo ""
             echo "| Commit | 描述 | 类别 |"
             echo "|--------|------|------|"
-            jq -r '.[] | select(.action == "SKIP") |
+            jq -r '[.[] | select(.action == "SKIP")] | limit(50; .[]) |
               "| `\(.sha[:10])` | \(.message | gsub("[|]"; "/") | .[0:60]) | \(.category) |"' \
-              /tmp/commits.json | head -50
+              /tmp/commits.json
             SKIP_INT=$(jq '[.[] | select(.action == "SKIP")] | length' /tmp/commits.json)
             if [ "$SKIP_INT" -gt 50 ]; then
               echo ""
@@ -247,12 +247,15 @@ jobs:
             echo "自动恢复本地文件: \`docs/\` \`extensions/feishu/\` \`package.json\` \`.github/workflows/\` \`CHANGELOG.md\` \`README.md\`"
           } > /tmp/issue-body.md
 
-          gh label create upstream --description "上游变更追踪" --color "0075ca" 2>/dev/null || true
+          gh label create upstream --description "上游变更追踪" --color "0075ca" --force 2>&1 || true
 
           ISSUE_URL=$(gh issue create \
             --title "上游更新: $TAGS — ${P0} P0 + ${P1} P1 待合并" \
             --body-file /tmp/issue-body.md \
-            --label "upstream")
+            --label "upstream" 2>&1) || \
+          ISSUE_URL=$(gh issue create \
+            --title "上游更新: $TAGS — ${P0} P0 + ${P1} P1 待合并" \
+            --body-file /tmp/issue-body.md)
 
           NUMBER=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')
           echo "number=$NUMBER" >> "$GITHUB_OUTPUT"
