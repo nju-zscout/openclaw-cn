@@ -145,8 +145,7 @@ async function pollOAuthToken(params: {
       status: "error",
       message:
         payload?.base_resp?.status_msg ??
-        text ||
-        "MiniMax OAuth failed to parse response.",
+        (text || "MiniMax OAuth failed to parse response."),
     };
   }
 
