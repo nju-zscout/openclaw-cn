@@ -28,6 +28,7 @@ Docs: https://docs.clawd.bot
 - **Pre-commit Hook 兼容性**：修复 VS Code 提交时报 `mapfile: command not found` 的问题
   - 兼容 macOS 默认 Bash 3.2，使用 `while read` 循环替代 Bash 4+ 的 `mapfile` 命令
   - 保持 NUL 分隔文件列表处理的安全性
+- **OTEL 诊断导出修复**：更新 OTEL 导出协议与指标/trace 统计，完善诊断事件处理（#324，感谢 @Ronald-Kong99）
 
 ### 🔧 CI/CD 改进
 

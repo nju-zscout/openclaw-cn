@@ -104,6 +104,12 @@ pnpm openclaw-cn onboard --install-daemon
 - Bug 修复和功能优化会考虑贡献回上游
 - 翻译改进、文档完善、国内渠道适配都非常欢迎
 
+## 🙌 Thanks to all clawtributors
+
+<p align="left">
+  <a href="https://github.com/Ronald-Kong99"><img src="https://avatars.githubusercontent.com/Ronald-Kong99?v=4" width="48" height="48" alt="Ronald-Kong99" /></a>
+</p>
+
 ## 📋 开发计划
 
 - [x] CLI 界面汉化
