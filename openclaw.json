@@ -1,0 +1,248 @@
+{
+  "meta": {
+    "lastTouchedVersion": "0.1.6",
+    "lastTouchedAt": "2026-02-28T08:05:25.188Z"
+  },
+  "wizard": {
+    "lastRunAt": "2026-02-28T08:05:25.163Z",
+    "lastRunVersion": "0.1.6",
+    "lastRunCommand": "onboard",
+    "lastRunMode": "local"
+  },
+  "auth": {
+    "profiles": {
+      "minimax-portal:default": {
+        "provider": "minimax-portal",
+        "mode": "oauth"
+      }
+    }
+  },
+  "models": {
+    "providers": {
+      "minimax-portal": {
+        "baseUrl": "https://api.minimaxi.com/anthropic",
+        "apiKey": "minimax-oauth",
+        "api": "anthropic-messages",
+        "models": [
+          {
+            "id": "MiniMax-M2.5",
+            "name": "MiniMax M2.5",
+            "reasoning": true,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 204800,
+            "maxTokens": 8192
+          },
+          {
+            "id": "MiniMax-M2.5-highspeed",
+            "name": "MiniMax M2.5 Highspeed",
+            "reasoning": true,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 204800,
+            "maxTokens": 8192
+          },
+          {
+            "id": "MiniMax-M2.1",
+            "name": "MiniMax M2.1",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 204800,
+            "maxTokens": 8192
+          },
+          {
+            "id": "MiniMax-M2.1-highspeed",
+            "name": "MiniMax M2.1 Highspeed",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 204800,
+            "maxTokens": 8192
+          },
+          {
+            "id": "MiniMax-M2",
+            "name": "MiniMax M2",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 204800,
+            "maxTokens": 8192
+          }
+        ]
+      },
+      "openai": {
+        "baseUrl": "http://127.0.0.1:1234/v1",
+        "apiKey": "api-key",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "gpt-oss-20b",
+            "name": "gpt-oss-20b",
+            "reasoning": true,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 204800,
+            "maxTokens": 8192
+          }
+        ]
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "minimax-portal/MiniMax-M2.5"
+      },
+      "models": {
+        "minimax-portal/MiniMax-M2.5": {
+          "alias": "minimax-m2.5"
+        },
+        "minimax-portal/MiniMax-M2.5-highspeed": {
+          "alias": "minimax-m2.5-highspeed"
+        },
+        "minimax-portal/MiniMax-M2.1": {
+          "alias": "minimax-m2.1"
+        },
+        "minimax-portal/MiniMax-M2.1-highspeed": {
+          "alias": "minimax-m2.1-highspeed"
+        },
+        "minimax-portal/MiniMax-M2": {
+          "alias": "minimax-m2"
+        }
+      },
+      "workspace": "C:\\Users\\zenghao\\.openclaw\\workspace",
+      "compaction": {
+        "mode": "safeguard"
+      },
+      "maxConcurrent": 4,
+      "subagents": {
+        "maxConcurrent": 8
+      }
+    },
+    "list": [
+      {
+        "id": "main",
+        "workspace": "~/.openclaw/workspace-main",
+        "subagents": {
+          "allowAgents": [
+            "guard"
+          ]
+        }
+      },
+      {
+        "id": "guard",
+        "workspace": "~/.openclaw/workspace-guard",
+        "model": "openai/gpt-oss-20b"
+      }
+    ]
+  },
+  "messages": {
+    "ackReactionScope": "group-mentions"
+  },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto"
+  },
+  "gateway": {
+    "port": 18789,
+    "mode": "local",
+    "bind": "loopback",
+    "auth": {
+      "mode": "token",
+      "token": "6087850a2dae7aa293c681a065ffa982e48f0b62f349aa32"
+    },
+    "tailscale": {
+      "mode": "off",
+      "resetOnExit": false
+    }
+  },
+  "plugins": {
+    "entries": {
+      "minimax-portal-auth": {
+        "enabled": true
+      },
+      "guardclaw": {
+        "enabled": true,
+        "config": {
+          "privacy": {
+            "enabled": true,
+            "localModel": {
+              "enabled": true,
+              "provider": "openai",
+              "model": "gpt-oss-20b",
+              "endpoint": "http://127.0.0.1:1234/v1"
+            },
+            "guardAgent": {
+              "id": "guard",
+              "workspace": "C:\\Users\\zenghao\\.openclaw\\workspace-guard",
+              "model": "openai/gpt-oss-20b"
+            },
+            "rules": {
+              "paths": {
+                "S3": [
+                  "D:\\workspace\\privacy"
+                ]
+              }
+            },
+            "checkpoints": {
+              "onUserMessage": [
+                "ruleDetector",
+                "localModelDetector"
+              ],
+              "onToolCallProposed": [
+                "ruleDetector"
+              ],
+              "onToolCallExecuted": [
+                "ruleDetector",
+                "localModelDetector"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

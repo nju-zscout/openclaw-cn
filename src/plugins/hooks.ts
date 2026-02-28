@@ -26,6 +26,9 @@ import type {
   PluginHookMessageSentEvent,
   PluginHookName,
   PluginHookRegistration,
+  PluginHookResolveModelContext,
+  PluginHookResolveModelEvent,
+  PluginHookResolveModelResult,
   PluginHookSessionContext,
   PluginHookSessionEndEvent,
   PluginHookSessionStartEvent,
@@ -61,6 +64,9 @@ export type {
   PluginHookGatewayContext,
   PluginHookGatewayStartEvent,
   PluginHookGatewayStopEvent,
+  PluginHookResolveModelContext,
+  PluginHookResolveModelEvent,
+  PluginHookResolveModelResult,
 };
 
 export type HookRunnerLogger = {
@@ -84,7 +90,7 @@ function getHooksForName<K extends PluginHookName>(
 ): PluginHookRegistration<K>[] {
   return (registry.typedHooks as PluginHookRegistration<K>[])
     .filter((h) => h.hookName === hookName)
-    .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+    .toSorted((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
 }
 
 /**
@@ -104,7 +110,9 @@ export function createHookRunner(registry: PluginRegistry, options: HookRunnerOp
     ctx: Parameters<NonNullable<PluginHookRegistration<K>["handler"]>>[1],
   ): Promise<void> {
     const hooks = getHooksForName(registry, hookName);
-    if (hooks.length === 0) return;
+    if (hooks.length === 0) {
+      return;
+    }
 
     logger?.debug?.(`[hooks] running ${hookName} (${hooks.length} handlers)`);
 
@@ -116,7 +124,7 @@ export function createHookRunner(registry: PluginRegistry, options: HookRunnerOp
         if (catchErrors) {
           logger?.error(msg);
         } else {
-          throw new Error(msg);
+          throw new Error(msg, { cause: err });
         }
       }
     });
@@ -135,7 +143,9 @@ export function createHookRunner(registry: PluginRegistry, options: HookRunnerOp
     mergeResults?: (accumulated: TResult | undefined, next: TResult) => TResult,
   ): Promise<TResult | undefined> {
     const hooks = getHooksForName(registry, hookName);
-    if (hooks.length === 0) return undefined;
+    if (hooks.length === 0) {
+      return undefined;
+    }
 
     logger?.debug?.(`[hooks] running ${hookName} (${hooks.length} handlers, sequential)`);
 
@@ -159,7 +169,7 @@ export function createHookRunner(registry: PluginRegistry, options: HookRunnerOp
         if (catchErrors) {
           logger?.error(msg);
         } else {
-          throw new Error(msg);
+          throw new Error(msg, { cause: err });
         }
       }
     }
@@ -323,7 +333,9 @@ export function createHookRunner(registry: PluginRegistry, options: HookRunnerOp
     ctx: PluginHookToolResultPersistContext,
   ): PluginHookToolResultPersistResult | undefined {
     const hooks = getHooksForName(registry, "tool_result_persist");
-    if (hooks.length === 0) return undefined;
+    if (hooks.length === 0) {
+      return undefined;
+    }
 
     let current = event.message;
 
@@ -353,7 +365,7 @@ export function createHookRunner(registry: PluginRegistry, options: HookRunnerOp
         if (catchErrors) {
           logger?.error(msg);
         } else {
-          throw new Error(msg);
+          throw new Error(msg, { cause: err });
         }
       }
     }
@@ -385,6 +397,41 @@ export function createHookRunner(registry: PluginRegistry, options: HookRunnerOp
     ctx: PluginHookSessionContext,
   ): Promise<void> {
     return runVoidHook("session_end", event, ctx);
+  }
+
+  // Model Selection Hooks
+  // =========================================================================
+
+  /**
+   * Run resolve_model hook.
+   * Allows plugins to override model selection and session routing (e.g., for privacy routing).
+   * Runs sequentially, returns first non-null result.
+   */
+  async function runResolveModel(
+    event: PluginHookResolveModelEvent,
+    ctx: PluginHookResolveModelContext,
+  ): Promise<PluginHookResolveModelResult | undefined> {
+    return runModifyingHook<"resolve_model", PluginHookResolveModelResult>(
+      "resolve_model",
+      event,
+      ctx,
+      // Merge overrides - model, session, delivery, and content options
+      (acc, next): PluginHookResolveModelResult => {
+        if (next.model || next.provider || next.sessionKey || next.userPromptOverride || next.extraSystemPrompt || next.directResponse) {
+          return {
+            provider: next.provider ?? acc?.provider,
+            model: next.model ?? acc?.model,
+            reason: next.reason ?? acc?.reason,
+            sessionKey: next.sessionKey ?? acc?.sessionKey,
+            deliverToOriginal: next.deliverToOriginal ?? acc?.deliverToOriginal,
+            extraSystemPrompt: next.extraSystemPrompt ?? acc?.extraSystemPrompt,
+            userPromptOverride: next.userPromptOverride ?? acc?.userPromptOverride,
+            directResponse: next.directResponse ?? acc?.directResponse,
+          };
+        }
+        return acc ?? next;
+      },
+    );
   }
 
   // =========================================================================
@@ -448,6 +495,8 @@ export function createHookRunner(registry: PluginRegistry, options: HookRunnerOp
     // Session hooks
     runSessionStart,
     runSessionEnd,
+    // Model selection hooks
+    runResolveModel,
     // Gateway hooks
     runGatewayStart,
     runGatewayStop,

@@ -98,6 +98,10 @@ export type MsgContext = {
   WasMentioned?: boolean;
   CommandAuthorized?: boolean;
   CommandSource?: "text" | "native";
+  /** Flag for privacy guard redirect (S3 subsession) */
+  PrivacyRedirect?: boolean;
+  /** Privacy system prompt for guard agent */
+  PrivacySystemPrompt?: string;
   CommandTargetSessionKey?: string;
   /** Gateway client scopes when the message originates from the gateway. */
   GatewayClientScopes?: string[];

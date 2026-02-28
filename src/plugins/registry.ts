@@ -491,6 +491,13 @@ export function createPluginRegistry(registryParams: PluginRegistryParams) {
       registerCommand: (command) => registerCommand(record, command),
       resolvePath: (input: string) => resolveUserPath(input),
       on: (hookName, handler, opts) => registerTypedHook(record, hookName, handler, opts),
+      emitEvent: (eventType: string, payload: Record<string, unknown>) => {
+        // TODO: Implement event broadcasting to WebSocket clients
+        // For now, log the event for debugging
+        registryParams.logger.debug?.(
+          `[plugin:${record.id}] emitEvent: ${eventType} ${JSON.stringify(payload)}`,
+        );
+      },
     };
   };
 

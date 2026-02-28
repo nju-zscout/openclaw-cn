@@ -1,14 +1,16 @@
 import type { ExecToolDefaults } from "../../agents/bash-tools.js";
 import type { ModelAliasIndex } from "../../agents/model-selection.js";
 import type { SkillCommandSpec } from "../../agents/skills.js";
-import { resolveSandboxRuntimeStatus } from "../../agents/sandbox.js";
 import type { ClawdbotConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
-import { listChatCommands, shouldHandleTextCommands } from "../commands-registry.js";
-import { listSkillCommandsForWorkspace } from "../skill-commands.js";
 import type { MsgContext, TemplateContext } from "../templating.js";
 import type { ElevatedLevel, ReasoningLevel, ThinkLevel, VerboseLevel } from "../thinking.js";
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
+import type { TypingController } from "./typing.js";
+import { resolveSandboxRuntimeStatus } from "../../agents/sandbox.js";
+import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
+import { listChatCommands, shouldHandleTextCommands } from "../commands-registry.js";
+import { listSkillCommandsForWorkspace } from "../skill-commands.js";
 import { resolveBlockStreamingChunking } from "./block-streaming.js";
 import { buildCommandContext } from "./commands.js";
 import { type InlineDirectives, parseInlineDirectives } from "./directive-handling.js";
@@ -19,7 +21,6 @@ import { CURRENT_MESSAGE_MARKER, stripMentions, stripStructuralPrefixes } from "
 import { createModelSelectionState, resolveContextTokens } from "./model-selection.js";
 import { formatElevatedUnavailableMessage, resolveElevatedPermissions } from "./reply-elevated.js";
 import { stripInlineStatus } from "./reply-inline.js";
-import type { TypingController } from "./typing.js";
 
 type AgentDefaults = NonNullable<ClawdbotConfig["agents"]>["defaults"];
 type ExecOverrides = Pick<ExecToolDefaults, "host" | "security" | "ask" | "node">;
@@ -74,7 +75,9 @@ function resolveExecOverrides(params: {
     (params.sessionEntry?.execSecurity as ExecOverrides["security"]);
   const ask = params.directives.execAsk ?? (params.sessionEntry?.execAsk as ExecOverrides["ask"]);
   const node = params.directives.execNode ?? params.sessionEntry?.execNode;
-  if (!host && !security && !ask && !node) return undefined;
+  if (!host && !security && !ask && !node) {
+    return undefined;
+  }
   return { host, security, ask, node };
 }
 
@@ -271,7 +274,9 @@ export async function resolveReplyDirectives(params: {
       };
   const existingBody = sessionCtx.BodyStripped ?? sessionCtx.Body ?? "";
   let cleanedBody = (() => {
-    if (!existingBody) return parsedDirectives.cleaned;
+    if (!existingBody) {
+      return parsedDirectives.cleaned;
+    }
     if (!sessionCtx.CommandBody && !sessionCtx.RawBody) {
       return parseInlineDirectives(existingBody, {
         modelAliases: configuredAliases,
@@ -340,20 +345,20 @@ export async function resolveReplyDirectives(params: {
   });
   const defaultActivation = defaultGroupActivation(requireMention);
   const resolvedThinkLevel =
-    (directives.thinkLevel as ThinkLevel | undefined) ??
+    directives.thinkLevel ??
     (sessionEntry?.thinkingLevel as ThinkLevel | undefined) ??
     (agentCfg?.thinkingDefault as ThinkLevel | undefined);
 
   const resolvedVerboseLevel =
-    (directives.verboseLevel as VerboseLevel | undefined) ??
+    directives.verboseLevel ??
     (sessionEntry?.verboseLevel as VerboseLevel | undefined) ??
     (agentCfg?.verboseDefault as VerboseLevel | undefined);
   const resolvedReasoningLevel: ReasoningLevel =
-    (directives.reasoningLevel as ReasoningLevel | undefined) ??
+    directives.reasoningLevel ??
     (sessionEntry?.reasoningLevel as ReasoningLevel | undefined) ??
     "off";
   const resolvedElevatedLevel = elevatedAllowed
-    ? ((directives.elevatedLevel as ElevatedLevel | undefined) ??
+    ? (directives.elevatedLevel ??
       (sessionEntry?.elevatedLevel as ElevatedLevel | undefined) ??
       (agentCfg?.elevatedDefault as ElevatedLevel | undefined) ??
       "on")
@@ -446,6 +451,38 @@ export async function resolveReplyDirectives(params: {
   provider = applyResult.provider;
   model = applyResult.model;
   contextTokens = applyResult.contextTokens;
+
+  // Allow plugins to override model selection (e.g., privacy plugins for local model routing)
+  const hookRunner = getGlobalHookRunner();
+  if (hookRunner?.hasHooks("resolve_model")) {
+    const modelOverride = await hookRunner.runResolveModel(
+      {
+        message: cleanedBody,
+        provider,
+        model,
+        isDefault: provider === defaultProvider && model === defaultModel,
+      },
+      {
+        agentId,
+        sessionKey,
+        channel: messageProviderKey,
+      },
+    );
+    if (modelOverride?.provider || modelOverride?.model) {
+      if (modelOverride.provider) {
+        provider = modelOverride.provider;
+      }
+      if (modelOverride.model) {
+        model = modelOverride.model;
+      }
+      // Log the override for debugging
+      if (modelOverride.reason) {
+        console.log(`[resolve_model] Model override: ${provider}/${model} (${modelOverride.reason})`);
+      }
+      // Note: Plugin emits its own event through api.emitEvent() - no need to emit here
+    }
+  }
+
   const { directiveAck, perMessageQueueMode, perMessageQueueOptions } = applyResult;
   const execOverrides = resolveExecOverrides({ directives, sessionEntry });
 

@@ -55,6 +55,7 @@ import { defaultRuntime, type RuntimeEnv } from "../runtime.js";
 import { applyVerboseOverride } from "../sessions/level-overrides.js";
 import { applyModelOverrideToSessionEntry } from "../sessions/model-overrides.js";
 import { resolveSendPolicy } from "../sessions/send-policy.js";
+import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
 import { resolveMessageChannel } from "../utils/message-channel.js";
 import { deliverAgentCommandResult } from "./agent/delivery.js";
 import { resolveAgentRunContext } from "./agent/run-context.js";
@@ -337,6 +338,36 @@ export async function agentCommand(
             });
           }
         }
+      }
+    }
+
+    // Allow plugins to override model selection (e.g., privacy plugins for local model routing)
+    const hookRunner = getGlobalHookRunner();
+    if (hookRunner?.hasHooks("resolve_model")) {
+      const modelOverride = await hookRunner.runResolveModel(
+        {
+          message: body,
+          provider,
+          model,
+          isDefault: provider === defaultProvider && model === defaultModel,
+        },
+        {
+          agentId: sessionAgentId,
+          sessionKey,
+          channel: opts.channel,
+        },
+      );
+      if (modelOverride?.provider || modelOverride?.model) {
+        if (modelOverride.provider) {
+          provider = modelOverride.provider;
+        }
+        if (modelOverride.model) {
+          model = modelOverride.model;
+        }
+        if (modelOverride.reason) {
+          runtime.log(`[resolve_model] Model override: ${provider}/${model} (${modelOverride.reason})`);
+        }
+        // Note: Plugin emits its own event through api.emitEvent() - no need to emit here
       }
     }
 

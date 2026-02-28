@@ -1,21 +1,19 @@
-import type { IncomingMessage, ServerResponse } from "node:http";
-import type { Command } from "commander";
-
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
-
+import type { Command } from "commander";
+import type { IncomingMessage, ServerResponse } from "node:http";
 import type { AuthProfileCredential, OAuthCredential } from "../agents/auth-profiles/types.js";
 import type { AnyAgentTool } from "../agents/tools/common.js";
+import type { ReplyPayload } from "../auto-reply/types.js";
 import type { ChannelDock } from "../channels/dock.js";
 import type { ChannelPlugin } from "../channels/plugins/types.js";
+import type { createVpsAwareOAuthHandlers } from "../commands/oauth-flow.js";
 import type { ClawdbotConfig } from "../config/config.js";
+import type { ModelProviderConfig } from "../config/types.js";
+import type { GatewayRequestHandler } from "../gateway/server-methods/types.js";
 import type { InternalHookHandler } from "../hooks/internal-hooks.js";
 import type { HookEntry } from "../hooks/types.js";
-import type { ModelProviderConfig } from "../config/types.js";
 import type { RuntimeEnv } from "../runtime.js";
-import type { ReplyPayload } from "../auto-reply/types.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
-import type { createVpsAwareOAuthHandlers } from "../commands/oauth-flow.js";
-import type { GatewayRequestHandler } from "../gateway/server-methods/types.js";
 import type { PluginRuntime } from "./runtime/types.js";
 
 export type { PluginRuntime } from "./runtime/types.js";
@@ -271,6 +269,12 @@ export type ClawdbotPluginApi = {
     handler: PluginHookHandlerMap[K],
     opts?: { priority?: number },
   ) => void;
+  /**
+   * Emit a custom event that will be broadcast to Gateway WebSocket clients.
+   * Use this to notify the UI of plugin-specific state changes.
+   * Events are broadcast as { plugin: pluginId, type: eventType, ...payload }
+   */
+  emitEvent: (eventType: string, payload: Record<string, unknown>) => void;
 };
 
 export type PluginOrigin = "bundled" | "global" | "workspace" | "config";
@@ -300,7 +304,8 @@ export type PluginHookName =
   | "session_start"
   | "session_end"
   | "gateway_start"
-  | "gateway_stop";
+  | "gateway_stop"
+  | "resolve_model";
 
 // Agent context shared across agent hooks
 export type PluginHookAgentContext = {
@@ -462,6 +467,66 @@ export type PluginHookGatewayStopEvent = {
   reason?: string;
 };
 
+// resolve_model hook - allows plugins to override model selection
+export type PluginHookResolveModelContext = {
+  agentId?: string;
+  sessionKey?: string;
+  channel?: string;
+  workspaceDir?: string;
+  messageProvider?: string;
+};
+
+export type PluginHookResolveModelEvent = {
+  /** The message that triggered this agent turn */
+  message?: string;
+  /** Current provider selection */
+  provider: string;
+  /** Current model selection */
+  model: string;
+  /** Whether this is a default selection (not user-overridden) */
+  isDefault: boolean;
+};
+
+export type PluginHookResolveModelResult = {
+  /** Override provider (e.g., "ollama") */
+  provider?: string;
+  /** Override model (e.g., "llama3.2:3b") */
+  model?: string;
+  /** Reason for override (for logging) */
+  reason?: string;
+  /**
+   * Override session key for subsession isolation.
+   * When provided, the message will be processed in the specified session
+   * instead of the original session. This is useful for privacy isolation
+   * where sensitive content should be handled in a separate session with
+   * its own history.
+   */
+  sessionKey?: string;
+  /**
+   * If true, the response from the redirected session should be delivered
+   * back to the original session's chat context.
+   */
+  deliverToOriginal?: boolean;
+  /**
+   * Extra system prompt to inject for this request.
+   * Useful for adding privacy instructions or context-specific guidance.
+   */
+  extraSystemPrompt?: string;
+  /**
+   * Override the user prompt sent to the agent.
+   * When set, this replaces the original user message for the agent's context.
+   * Useful for wrapping sensitive messages with instructions or redacting content.
+   */
+  userPromptOverride?: string;
+  /**
+   * If set, skip the normal agent run entirely and deliver this text as the response.
+   * The plugin handles the LLM call itself (e.g., calling a local model directly).
+   * Useful when the standard agent pipeline (system prompt, tools, etc.) is too heavy
+   * for a lightweight local model.
+   */
+  directResponse?: string;
+};
+
 // Hook handler types mapped by hook name
 export type PluginHookHandlerMap = {
   before_agent_start: (
@@ -517,6 +582,10 @@ export type PluginHookHandlerMap = {
     event: PluginHookGatewayStopEvent,
     ctx: PluginHookGatewayContext,
   ) => Promise<void> | void;
+  resolve_model: (
+    event: PluginHookResolveModelEvent,
+    ctx: PluginHookResolveModelContext,
+  ) => Promise<PluginHookResolveModelResult | void> | PluginHookResolveModelResult | void;
 };
 
 export type PluginHookRegistration<K extends PluginHookName = PluginHookName> = {
