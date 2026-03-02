@@ -153,11 +153,6 @@ export function registerHooks(api: OpenClawPluginApi): void {
   //   Also: guard subagent spawn / A2A send (sessions_spawn, sessions_send)
   // =========================================================================
   api.on("before_tool_call", async (event, ctx) => {
-    if (event?.toolName === "file" || event?.toolName?.includes("file")) {
-      // Directly allow local file access, skip privacy detection
-      return;
-    }
-
     try {
       const { toolName, params } = event;
       const sessionKey = ctx.sessionKey ?? "";
@@ -432,288 +427,288 @@ export function registerHooks(api: OpenClawPluginApi): void {
   //   S2 → desensitize content, send desensitized version to cloud model
   //   S3 → redirect to guard subsession with local-only model
   // =========================================================================
-  // api.on("resolve_model", async (event, ctx) => {
-  //   try {
+  api.on("resolve_model", async (event, ctx) => {
+    try {
 
-  //     //05:10:12 [gateway] [GuardClaw] resolve_model hook triggered with event: {"message":"分析excel 文件 D:\\workspace\\privacy\\test.xlsx","provider":"minimax-portal","model":"MiniMax-M2.5","isDefault":true}
-  //     //05:10:12 [gateway] [GuardClaw] resolve_model hook triggered with ctx: {"agentId":"main","sessionKey":"agent:main:main","messageProvider":"webchat"}
-  //     api.logger.debug(`[GuardClaw] resolve_model hook triggered with event: ${JSON.stringify(event)}`);
-  //     api.logger.debug(`[GuardClaw] resolve_model hook triggered with ctx: ${JSON.stringify(ctx)}`);
-  //     const { message, provider, model } = event;
-  //     const sessionKey = ctx.sessionKey ?? "";
+      //05:10:12 [gateway] [GuardClaw] resolve_model hook triggered with event: {"message":"分析excel 文件 D:\\workspace\\privacy\\test.xlsx","provider":"minimax-portal","model":"MiniMax-M2.5","isDefault":true}
+      //05:10:12 [gateway] [GuardClaw] resolve_model hook triggered with ctx: {"agentId":"main","sessionKey":"agent:main:main","messageProvider":"webchat"}
+      api.logger.debug(`[GuardClaw] resolve_model hook triggered with event: ${JSON.stringify(event)}`);
+      api.logger.debug(`[GuardClaw] resolve_model hook triggered with ctx: ${JSON.stringify(ctx)}`);
+      const { message, provider, model } = event;
+      const sessionKey = ctx.sessionKey ?? "";
 
-  //     api.logger.info(
-  //       `[GuardClaw] resolve_model called: sessionKey=${sessionKey}, message=${String(message).slice(0, 50)}, provider=${provider}, model=${model}`,
-  //     );
+      api.logger.info(
+        `[GuardClaw] resolve_model called: sessionKey=${sessionKey}, message=${String(message).slice(0, 50)}, provider=${provider}, model=${model}`,
+      );
 
-  //     if (!sessionKey) {
-  //       api.logger.info(`[GuardClaw] resolve_model: no sessionKey, returning`);
-  //       return;
-  //     }
+      if (!sessionKey) {
+        api.logger.info(`[GuardClaw] resolve_model: no sessionKey, returning`);
+        return;
+      }
 
-  //     const privacyConfig = getPrivacyConfigFromApi(api);
-  //     api.logger.info(
-  //       `[GuardClaw] resolve_model: enabled=${privacyConfig.enabled}, localModel=${privacyConfig.localModel?.enabled}, checkpoints=${JSON.stringify(privacyConfig.checkpoints?.onUserMessage)}`,
-  //     );
-  //     if (!privacyConfig.enabled) {
-  //       api.logger.info(`[GuardClaw] resolve_model: privacy disabled, returning`);
-  //       return;
-  //     }
+      const privacyConfig = getPrivacyConfigFromApi(api);
+      api.logger.info(
+        `[GuardClaw] resolve_model: enabled=${privacyConfig.enabled}, localModel=${privacyConfig.localModel?.enabled}, checkpoints=${JSON.stringify(privacyConfig.checkpoints?.onUserMessage)}`,
+      );
+      if (!privacyConfig.enabled) {
+        api.logger.info(`[GuardClaw] resolve_model: privacy disabled, returning`);
+        return;
+      }
 
-  //     // If already in a guard session, enforce local model
-  //     if (isGuardSessionKey(sessionKey)) {
-  //       const guardCfg = getGuardAgentConfig(privacyConfig);
-  //       if (guardCfg && (!isLocalProvider(provider ?? "") || model !== guardCfg.modelName)) {
-  //         return {
-  //           provider: guardCfg.provider,
-  //           model: guardCfg.modelName,
-  //           reason: "GuardClaw: guard session must use local model",
-  //         };
-  //       }
-  //       return; // already correct
-  //     }
+      // If already in a guard session, enforce local model
+      if (isGuardSessionKey(sessionKey)) {
+        const guardCfg = getGuardAgentConfig(privacyConfig);
+        if (guardCfg && (!isLocalProvider(provider ?? "") || model !== guardCfg.modelName)) {
+          return {
+            provider: guardCfg.provider,
+            model: guardCfg.modelName,
+            reason: "GuardClaw: guard session must use local model",
+          };
+        }
+        return; // already correct
+      }
 
-  //     // Detect sensitivity of current message
-  //     if (!message) {
-  //       api.logger.info(`[GuardClaw] resolve_model: no message, returning`);
-  //       return;
-  //     }
+      // Detect sensitivity of current message
+      if (!message) {
+        api.logger.info(`[GuardClaw] resolve_model: no message, returning`);
+        return;
+      }
 
-  //     // Skip if message was already desensitized (prevent double resolve_model runs)
-  //     const msgStr = String(message);
-  //     if (msgStr.includes("[REDACTED:") || msgStr.startsWith("[SYSTEM]")) {
-  //       api.logger.info(
-  //         `[GuardClaw] resolve_model: already processed or internal prompt, skipping`,
-  //       );
-  //       return;
-  //     }
+      // Skip if message was already desensitized (prevent double resolve_model runs)
+      const msgStr = String(message);
+      if (msgStr.includes("[REDACTED:") || msgStr.startsWith("[SYSTEM]")) {
+        api.logger.info(
+          `[GuardClaw] resolve_model: already processed or internal prompt, skipping`,
+        );
+        return;
+      }
 
-  //     // Pre-read any referenced files BEFORE classification so the model
-  //     // can see actual file content and classify correctly (e.g. delivery info → S2).
-  //     const workspaceDir = api.config.agents?.defaults?.workspace ?? process.cwd();
-  //     let preReadFileContent: string | undefined;
-  //     try {
-  //       preReadFileContent = await tryReadReferencedFile(msgStr, workspaceDir);
-  //       if (preReadFileContent) {
-  //         api.logger.info(
-  //           `[GuardClaw] Pre-read referenced file for classification (${preReadFileContent.length} chars)`,
-  //         );
-  //       }
-  //     } catch (fileErr) {
-  //       api.logger.warn(
-  //         `[GuardClaw] Failed to pre-read file for classification: ${String(fileErr)}`,
-  //       );
-  //     }
+      // Pre-read any referenced files BEFORE classification so the model
+      // can see actual file content and classify correctly (e.g. delivery info → S2).
+      const workspaceDir = api.config.agents?.defaults?.workspace ?? process.cwd();
+      let preReadFileContent: string | undefined;
+      try {
+        preReadFileContent = await tryReadReferencedFile(msgStr, workspaceDir);
+        if (preReadFileContent) {
+          api.logger.info(
+            `[GuardClaw] Pre-read referenced file for classification (${preReadFileContent.length} chars)`,
+          );
+        }
+      } catch (fileErr) {
+        api.logger.warn(
+          `[GuardClaw] Failed to pre-read file for classification: ${String(fileErr)}`,
+        );
+      }
 
-  //     api.logger.info(
-  //       `[GuardClaw] resolve_model: calling detectSensitivityLevel with message="${msgStr.slice(0, 80)}"`,
-  //     );
+      api.logger.info(
+        `[GuardClaw] resolve_model: calling detectSensitivityLevel with message="${msgStr.slice(0, 80)}"`,
+      );
 
-  //     const result = await detectSensitivityLevel(
-  //       {
-  //         checkpoint: "onUserMessage",
-  //         message,
-  //         sessionKey,
-  //         agentId: ctx.agentId,
-  //         fileContentSnippet: preReadFileContent?.slice(0, 800),
-  //       },
-  //       api.pluginConfig,
-  //       api.logger,
-  //     );
+      const result = await detectSensitivityLevel(
+        {
+          checkpoint: "onUserMessage",
+          message,
+          sessionKey,
+          agentId: ctx.agentId,
+          fileContentSnippet: preReadFileContent?.slice(0, 800),
+        },
+        api.pluginConfig,
+        api.logger,
+      );
 
-  //     api.logger.info(
-  //       `[GuardClaw] resolve_model: detection result: level=${result.level}, reason=${result.reason}`,
-  //     );
+      api.logger.info(
+        `[GuardClaw] resolve_model: detection result: level=${result.level}, reason=${result.reason}`,
+      );
 
-  //     recordDetection(sessionKey, result.level, "onUserMessage", result.reason);
+      recordDetection(sessionKey, result.level, "onUserMessage", result.reason);
 
-  //     // ── S3: call local model directly with pre-read file content ──
-  //     if (result.level === "S3") {
-  //       const guardCfg = getGuardAgentConfig(privacyConfig);
-  //       api.logger.info(`[GuardClaw] S3 detected. Guard config: ${JSON.stringify(guardCfg)}`);
-  //       const guardProvider = guardCfg?.provider ?? "ollama";
-  //       const guardModelName = guardCfg?.modelName ?? "openbmb/minicpm4.1";
-  //       const localModelEndpoint = privacyConfig.localModel?.endpoint ?? "http://localhost:11434";
-  //       const localModelProvider = privacyConfig.localModel?.provider ?? "ollama";
+      // ── S3: call local model directly with pre-read file content ──
+      if (result.level === "S3") {
+        const guardCfg = getGuardAgentConfig(privacyConfig);
+        api.logger.info(`[GuardClaw] S3 detected. Guard config: ${JSON.stringify(guardCfg)}`);
+        const guardProvider = guardCfg?.provider ?? "ollama";
+        const guardModelName = guardCfg?.modelName ?? "openbmb/minicpm4.1";
+        const localModelEndpoint = privacyConfig.localModel?.endpoint ?? "http://localhost:11434";
+        const localModelProvider = privacyConfig.localModel?.provider ?? "ollama";
 
-  //       markSessionAsPrivate(sessionKey, result.level);
+        markSessionAsPrivate(sessionKey, result.level);
 
-  //       api.logger.info(`[GuardClaw] S3 detected. Calling local model directly: ${guardModelName}`);
+        api.logger.info(`[GuardClaw] S3 detected. Calling local model directly: ${guardModelName}`);
 
-  //       // Emit UI event
-  //       api.emitEvent("privacy_activated", {
-  //         active: true,
-  //         level: result.level,
-  //         model: `${guardProvider}/${guardModelName}`,
-  //         provider: guardProvider,
-  //         reason: result.reason ?? "S3 content detected",
-  //         sessionKey,
-  //       });
+        // Emit UI event
+        api.emitEvent("privacy_activated", {
+          active: true,
+          level: result.level,
+          model: `${guardProvider}/${guardModelName}`,
+          provider: guardProvider,
+          reason: result.reason ?? "S3 content detected",
+          sessionKey,
+        });
 
-  //       // Use pre-read file content (already fetched above)
-  //       const fileContent = preReadFileContent;
+        // Use pre-read file content (already fetched above)
+        const fileContent = preReadFileContent;
 
-  //       // Build a highly directive user prompt:
-  //       // - If file content is available, embed it and instruct the model to analyze it
-  //       // - Clearly tell the model NOT to write code
-  //       // - Use the same language as the user
-  //       let userPrompt: string;
-  //       const isChinese = /[\u4e00-\u9fff]/.test(msgStr);
-  //       if (fileContent) {
-  //         // Strip the file path from the original message — keep only the task
-  //         const filePathPattern =
-  //           /(?:[\w./-]+\/)?[\w\u4e00-\u9fff._-]+\.(?:xlsx|xls|csv|txt|docx|json|md)/g;
-  //         const task = msgStr
-  //           .replace(filePathPattern, "")
-  //           .replace(/\s{2,}/g, " ")
-  //           .trim();
+        // Build a highly directive user prompt:
+        // - If file content is available, embed it and instruct the model to analyze it
+        // - Clearly tell the model NOT to write code
+        // - Use the same language as the user
+        let userPrompt: string;
+        const isChinese = /[\u4e00-\u9fff]/.test(msgStr);
+        if (fileContent) {
+          // Strip the file path from the original message — keep only the task
+          const filePathPattern =
+            /(?:[\w./-]+\/)?[\w\u4e00-\u9fff._-]+\.(?:xlsx|xls|csv|txt|docx|json|md)/g;
+          const task = msgStr
+            .replace(filePathPattern, "")
+            .replace(/\s{2,}/g, " ")
+            .trim();
 
-  //         const dataIntro = isChinese
-  //           ? "以下是从文件中提取的实际数据，请直接分析："
-  //           : "Below is the actual data extracted from the file. Analyze it directly.";
+          const dataIntro = isChinese
+            ? "以下是从文件中提取的实际数据，请直接分析："
+            : "Below is the actual data extracted from the file. Analyze it directly.";
 
-  //         userPrompt = `${task}\n\n${dataIntro}\n\n\`\`\`\n${fileContent}\n\`\`\``;
-  //       } else {
-  //         userPrompt = msgStr;
-  //       }
+          userPrompt = `${task}\n\n${dataIntro}\n\n\`\`\`\n${fileContent}\n\`\`\``;
+        } else {
+          userPrompt = msgStr;
+        }
 
-  //       try {
-  //         api.logger.info(
-  //           `[GuardClaw] Calling local model directly with user prompt (${JSON.stringify(userPrompt)})`,
-  //         );
-  //         api.logger.info(
-  //           `[GuardClaw] Calling local model directly with model name (${guardModelName})`,
-  //         );
-  //         api.logger.info(
-  //           `[GuardClaw] Calling local model directly with endpoint (${localModelEndpoint})`,
-  //         );
-  //         const directReply = await callLocalModelDirect("", userPrompt, {
-  //           endpoint: localModelEndpoint,
-  //           model: guardModelName,
-  //           provider: localModelProvider,
-  //         });
+        try {
+          api.logger.info(
+            `[GuardClaw] Calling local model directly with user prompt (${JSON.stringify(userPrompt)})`,
+          );
+          api.logger.info(
+            `[GuardClaw] Calling local model directly with model name (${guardModelName})`,
+          );
+          api.logger.info(
+            `[GuardClaw] Calling local model directly with endpoint (${localModelEndpoint})`,
+          );
+          const directReply = await callLocalModelDirect(getGuardAgentSystemPrompt(), userPrompt, {
+            endpoint: localModelEndpoint,
+            model: guardModelName,
+            provider: localModelProvider,
+          });
 
-  //         api.logger.info(
-  //           `[GuardClaw] S3 direct response (${directReply.length} chars): "${directReply.slice(0, 100)}..."`,
-  //         );
+          api.logger.info(
+            `[GuardClaw] S3 direct response (${directReply.length} chars): "${directReply.slice(0, 100)}..."`,
+          );
 
-  //         // Return directResponse + userPromptOverride (sanitized placeholder).
-  //         // The core writes userPromptOverride to the session transcript instead
-  //         // of the raw message, preventing S3 content from leaking into history
-  //         // that cloud models may later load.
-  //         const sanitizedPlaceholder = isChinese
-  //           ? `🔒 [隐私内容 — 已由本地模型处理]`
-  //           : `🔒 [Private content — processed locally]`;
+          // Return directResponse + userPromptOverride (sanitized placeholder).
+          // The core writes userPromptOverride to the session transcript instead
+          // of the raw message, preventing S3 content from leaking into history
+          // that cloud models may later load.
+          const sanitizedPlaceholder = isChinese
+            ? `🔒 [隐私内容 — 已由本地模型处理]`
+            : `🔒 [Private content — processed locally]`;
 
-  //         return {
-  //           reason: `GuardClaw: S3 — processed locally by ${guardModelName}`,
-  //           provider: guardProvider,
-  //           model: guardModelName,
-  //           directResponse: isChinese
-  //             ? `🔒 [已由本地隐私模型处理]\n\n${directReply}`
-  //             : `🔒 [Processed locally by privacy guard]\n\n${directReply}`,
-  //           userPromptOverride: sanitizedPlaceholder,
-  //         };
-  //       } catch (ollamaErr) {
-  //         api.logger.error(`[GuardClaw] Failed to call local model directly: ${String(ollamaErr)}`);
-  //         // Fall through to let normal pipeline handle it as a fallback
-  //       }
-  //     }
+          return {
+            reason: `GuardClaw: S3 — processed locally by ${guardModelName}`,
+            provider: guardProvider,
+            model: guardModelName,
+            directResponse: isChinese
+              ? `🔒 [已由本地隐私模型处理]\n\n${directReply}`
+              : `🔒 [Processed locally by privacy guard]\n\n${directReply}`,
+            userPromptOverride: sanitizedPlaceholder,
+          };
+        } catch (ollamaErr) {
+          api.logger.error(`[GuardClaw] Failed to call local model directly: ${String(ollamaErr)}`);
+          // Fall through to let normal pipeline handle it as a fallback
+        }
+      }
 
-  //     // ── S2: desensitize content, then forward to cloud model ──
-  //     if (result.level === "S2") {
-  //       markSessionAsPrivate(sessionKey, result.level);
+      // ── S2: desensitize content, then forward to cloud model ──
+      if (result.level === "S2") {
+        markSessionAsPrivate(sessionKey, result.level);
 
-  //       api.logger.info(`[GuardClaw] S2 detected. Desensitizing content for cloud model.`);
+        api.logger.info(`[GuardClaw] S2 detected. Desensitizing content for cloud model.`);
 
-  //       // Reuse pre-read file content (already fetched before classification)
-  //       const fileContent = preReadFileContent;
-  //       if (fileContent) {
-  //         api.logger.info(
-  //           `[GuardClaw] Using pre-read file for S2 desensitization (${fileContent.length} chars)`,
-  //         );
-  //       }
+        // Reuse pre-read file content (already fetched before classification)
+        const fileContent = preReadFileContent;
+        if (fileContent) {
+          api.logger.info(
+            `[GuardClaw] Using pre-read file for S2 desensitization (${fileContent.length} chars)`,
+          );
+        }
 
-  //       let desensitizedPrompt: string;
-  //       let wasModelUsed = false;
+        let desensitizedPrompt: string;
+        let wasModelUsed = false;
 
-  //       if (fileContent) {
-  //         // File-reference case: desensitize the FILE CONTENT, keep the request intact
-  //         const { desensitized: desensitizedFile, wasModelUsed: fileModelUsed } =
-  //           await desensitizeWithLocalModel(fileContent, privacyConfig);
-  //         wasModelUsed = fileModelUsed;
+        if (fileContent) {
+          // File-reference case: desensitize the FILE CONTENT, keep the request intact
+          const { desensitized: desensitizedFile, wasModelUsed: fileModelUsed } =
+            await desensitizeWithLocalModel(fileContent, privacyConfig);
+          wasModelUsed = fileModelUsed;
 
-  //         // Strip file path from message so cloud model doesn't try to read it again
-  //         const filePathPattern =
-  //           /(?:[\w./-]+\/)?[\w\u4e00-\u9fff._-]+\.(?:xlsx|xls|csv|txt|docx|json|md)/g;
-  //         const taskDescription = message
-  //           .replace(filePathPattern, "")
-  //           .replace(/\s{2,}/g, " ")
-  //           .trim();
+          // Strip file path from message so cloud model doesn't try to read it again
+          const filePathPattern =
+            /(?:[\w./-]+\/)?[\w\u4e00-\u9fff._-]+\.(?:xlsx|xls|csv|txt|docx|json|md)/g;
+          const taskDescription = message
+            .replace(filePathPattern, "")
+            .replace(/\s{2,}/g, " ")
+            .trim();
 
-  //         // Detect user language to instruct the cloud model accordingly
-  //         const hasChinese = /[\u4e00-\u9fff]/.test(taskDescription);
-  //         const langInstruction = hasChinese
-  //           ? `请仅根据上方已脱敏的内容完成任务。不要读取任何文件——内容已经提供。\n**重要：回复中不得出现任何 [REDACTED:xxx] 标记。直接省略隐私信息，用自然语言概括即可（例如"您的地址"、"您的电话"等）。请用中文回复。**`
-  //           : `Complete the task based ONLY on the desensitized content above. Do NOT read any files — the content is already provided.\n**IMPORTANT: Your reply must NOT contain any [REDACTED:xxx] tags. Simply omit private details or describe them in natural language (e.g. "your address", "your phone number", "the recipient", etc.). Reply in the same language the user used.**`;
+          // Detect user language to instruct the cloud model accordingly
+          const hasChinese = /[\u4e00-\u9fff]/.test(taskDescription);
+          const langInstruction = hasChinese
+            ? `请仅根据上方已脱敏的内容完成任务。不要读取任何文件——内容已经提供。\n**重要：回复中不得出现任何 [REDACTED:xxx] 标记。直接省略隐私信息，用自然语言概括即可（例如"您的地址"、"您的电话"等）。请用中文回复。**`
+            : `Complete the task based ONLY on the desensitized content above. Do NOT read any files — the content is already provided.\n**IMPORTANT: Your reply must NOT contain any [REDACTED:xxx] tags. Simply omit private details or describe them in natural language (e.g. "your address", "your phone number", "the recipient", etc.). Reply in the same language the user used.**`;
 
-  //         // Build a prompt: task description (no file path) + desensitized content + clear instructions
-  //         desensitizedPrompt = `${taskDescription}\n\n--- FILE CONTENT ---\n${desensitizedFile}\n--- END FILE CONTENT ---\n\n${langInstruction}`;
-  //         api.logger.info(
-  //           `[GuardClaw] S2 file desensitization complete (model=${wasModelUsed}, ${desensitizedFile.length} chars)`,
-  //         );
+          // Build a prompt: task description (no file path) + desensitized content + clear instructions
+          desensitizedPrompt = `${taskDescription}\n\n--- FILE CONTENT ---\n${desensitizedFile}\n--- END FILE CONTENT ---\n\n${langInstruction}`;
+          api.logger.info(
+            `[GuardClaw] S2 file desensitization complete (model=${wasModelUsed}, ${desensitizedFile.length} chars)`,
+          );
 
-  //         // Track which files were pre-read so we can block tool reads for them
-  //         markPreReadFiles(sessionKey, message);
-  //       } else {
-  //         // Inline PII case: desensitize the user message directly
-  //         const { desensitized, wasModelUsed: msgModelUsed } = await desensitizeWithLocalModel(
-  //           message,
-  //           privacyConfig,
-  //         );
-  //         wasModelUsed = msgModelUsed;
-  //         desensitizedPrompt = desensitized;
-  //         api.logger.info(
-  //           `[GuardClaw] S2 message desensitization complete (model=${wasModelUsed})`,
-  //         );
-  //       }
+          // Track which files were pre-read so we can block tool reads for them
+          markPreReadFiles(sessionKey, message);
+        } else {
+          // Inline PII case: desensitize the user message directly
+          const { desensitized, wasModelUsed: msgModelUsed } = await desensitizeWithLocalModel(
+            message,
+            privacyConfig,
+          );
+          wasModelUsed = msgModelUsed;
+          desensitizedPrompt = desensitized;
+          api.logger.info(
+            `[GuardClaw] S2 message desensitization complete (model=${wasModelUsed})`,
+          );
+        }
 
-  //       // Persist the ORIGINAL message to full history
-  //       const sessionManager = getDefaultSessionManager();
-  //       await sessionManager.persistMessage(sessionKey, {
-  //         role: "user",
-  //         content: message,
-  //         timestamp: Date.now(),
-  //         sessionKey,
-  //       });
+        // Persist the ORIGINAL message to full history
+        const sessionManager = getDefaultSessionManager();
+        await sessionManager.persistMessage(sessionKey, {
+          role: "user",
+          content: message,
+          timestamp: Date.now(),
+          sessionKey,
+        });
 
-  //       // Emit UI event
-  //       const localModelId = privacyConfig.localModel?.model ?? "openbmb/minicpm4.1";
-  //       const localProvider = privacyConfig.localModel?.provider ?? "ollama";
-  //       api.emitEvent("privacy_activated", {
-  //         active: true,
-  //         level: result.level,
-  //         model: `${localProvider}/${localModelId}`,
-  //         provider: localProvider,
-  //         desensitized: true,
-  //         wasModelUsed,
-  //         reason: result.reason ?? "S2 content detected — desensitized",
-  //         sessionKey,
-  //       });
+        // Emit UI event
+        const localModelId = privacyConfig.localModel?.model ?? "openbmb/minicpm4.1";
+        const localProvider = privacyConfig.localModel?.provider ?? "ollama";
+        api.emitEvent("privacy_activated", {
+          active: true,
+          level: result.level,
+          model: `${localProvider}/${localModelId}`,
+          provider: localProvider,
+          desensitized: true,
+          wasModelUsed,
+          reason: result.reason ?? "S2 content detected — desensitized",
+          sessionKey,
+        });
 
-  //       // Forward the DESENSITIZED content to cloud (don't change provider/model)
-  //       return {
-  //         reason: `GuardClaw: S2 — content desensitized before cloud delivery`,
-  //         userPromptOverride: desensitizedPrompt,
-  //       };
-  //     }
+        // Forward the DESENSITIZED content to cloud (don't change provider/model)
+        return {
+          reason: `GuardClaw: S2 — content desensitized before cloud delivery`,
+          userPromptOverride: desensitizedPrompt,
+        };
+      }
 
-  //     // ── S1: no intervention ──
-  //     // Session is clean, use cloud model normally
-  //   } catch (err) {
-  //     api.logger.error(`[GuardClaw] Error in resolve_model hook: ${String(err)}`);
-  //   }
-  // });
+      // ── S1: no intervention ──
+      // Session is clean, use cloud model normally
+    } catch (err) {
+      api.logger.error(`[GuardClaw] Error in resolve_model hook: ${String(err)}`);
+    }
+  });
 
   // =========================================================================
   // Hook 7: message_sending — Guard subagent announce & outbound messages
